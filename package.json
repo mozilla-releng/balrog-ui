@@ -1,0 +1,29 @@
+{
+  "name": "balrog-ui",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack --mode production",
+    "start": "webpack-dev-server --mode development --open",
+    "test": "jest",
+    "lint": "eslint --cache --format codeframe --ext mjs,jsx,js src test"
+  },
+  "dependencies": {
+    "prop-types": "^15",
+    "react": "^16",
+    "react-dom": "^16",
+    "react-hot-loader": "^4"
+  },
+  "devDependencies": {
+    "@mozilla-frontend-infra/react-lint": "^1.2.1",
+    "@neutrinojs/jest": "9.0.0-rc.0",
+    "@neutrinojs/react": "9.0.0-rc.0",
+    "eslint": "^5",
+    "jest": "^23",
+    "neutrino": "9.0.0-rc.0",
+    "webpack": "^4",
+    "webpack-cli": "^3",
+    "webpack-dev-server": "^3"
+  }
+}
