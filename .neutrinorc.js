@@ -8,7 +8,8 @@ module.exports = {
       '@neutrinojs/react',
       {
         html: {
-          title: 'balrog-ui'
+          title: 'Balrog Admin',
+          favicon: `${__dirname}/src/images/favicon.png`
         }
       }
     ],

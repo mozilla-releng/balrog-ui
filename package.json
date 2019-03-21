@@ -13,7 +13,8 @@
     "prop-types": "^15",
     "react": "^16",
     "react-dom": "^16",
-    "react-hot-loader": "^4"
+    "react-hot-loader": "^4",
+    "react-router-dom": "^5.0.0"
   },
   "devDependencies": {
     "@mozilla-frontend-infra/react-lint": "^1.2.1",

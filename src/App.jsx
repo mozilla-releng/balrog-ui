@@ -1,21 +1,13 @@
 import { hot } from 'react-hot-loader';
-import React, { Component } from 'react';
+import React from 'react';
+import Main from './Main';
 import './App.css';
 
-class App extends Component {
-  state = {
-    name: 'balrog-ui',
-  };
-
-  render() {
-    const { name } = this.state;
-
-    return (
-      <div className="App">
-        <h1>Welcome to {name}</h1>
-      </div>
-    );
-  }
-}
+const App = () => (
+  <div className="App">
+    <h1>Welcome to Balrog Admin</h1>
+    <Main />
+  </div>
+);
 
 export default hot(module)(App);
