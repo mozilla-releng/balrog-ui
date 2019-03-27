@@ -6,7 +6,7 @@ import routes from './routes';
 function Main() {
   return (
     <BrowserRouter>
-      <Link to="/">Home</Link> <Link to="/history">Link 1</Link>{' '}
+      <Link to="/">Home</Link> <Link to="/history">History</Link>{' '}
       <Link to="/signoffs">Link 2</Link>{' '}
       <Switch>
         {routes.map(({ path, ...rest }) => (
