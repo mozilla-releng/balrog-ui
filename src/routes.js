@@ -1,4 +1,7 @@
 import lazy from './utils/lazy';
+import releaseRoutes from './views/Releases/routes';
+import ruleRoutes from './views/Rules/routes';
+import permissionRoutes from './views/Permissions/routes';
 
 const History = lazy(() =>
   import(/* webpackChunkName: 'History' */ './views/History')
@@ -21,14 +24,17 @@ export default [
   {
     component: Releases,
     path: '/releases',
+    routes: releaseRoutes('/releases'),
   },
   {
     component: Rules,
     path: '/rules',
+    routes: ruleRoutes('/rules'),
   },
   {
     component: Permissions,
     path: '/permissions',
+    routes: permissionRoutes('/permissions'),
   },
   {
     component: History,

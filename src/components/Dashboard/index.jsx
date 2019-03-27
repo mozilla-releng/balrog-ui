@@ -1,7 +1,6 @@
 import React, { useState, Fragment } from 'react';
 import { node } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import { Link } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
@@ -10,6 +9,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import ChevronDownIcon from 'mdi-react/ChevronDownIcon';
 import menuItems from './menuItems';
+import Link from '../../utils/Link';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -85,6 +85,7 @@ export default function Dashboard(props) {
                       <MenuItem
                         key={child.value}
                         component={Link}
+                        nav
                         to={child.path}>
                         {child.value}
                       </MenuItem>
@@ -96,6 +97,7 @@ export default function Dashboard(props) {
                   key={menuItem.value}
                   color="inherit"
                   component={Link}
+                  nav
                   to={menuItem.path}>
                   {menuItem.value}
                 </Button>

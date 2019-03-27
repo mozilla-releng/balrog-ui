@@ -1,6 +1,7 @@
 import React from 'react';
-import { BrowserRouter, Switch, Link } from 'react-router-dom';
+import { BrowserRouter, Switch } from 'react-router-dom';
 import RouteWithProps from './components/RouteWithProps';
+import Link from './utils/Link';
 import routes from './routes';
 
 function Main() {
