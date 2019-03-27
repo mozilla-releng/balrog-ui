@@ -1,7 +1,8 @@
 import React from 'react';
+import Dashboard from '../../components/Dashboard';
 
 function Signoffs() {
-  return <div>Signoffs</div>;
+  return <Dashboard>Signoffs</Dashboard>;
 }
 
 export default Signoffs;
