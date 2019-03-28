@@ -10,7 +10,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
   },
   datePicker: {
-    marginRight: theme.spacing.unit,
+    marginRight: theme.spacing(1),
   },
 }));
 

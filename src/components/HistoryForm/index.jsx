@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import { func } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import TextField from '@material-ui/core/TextField';
@@ -15,14 +15,17 @@ const useStyles = makeStyles(theme => ({
     flexFlow: 'row-reverse',
   },
   search: {
-    marginTop: theme.spacing.unit * 2,
+    marginTop: theme.spacing(2),
   },
 }));
 
-export default function HistoryForm() {
+export default function HistoryForm(props) {
+  const { onSubmit } = props;
   const classes = useStyles();
-  const [objects, setObjects] = useState('');
+  const [object, setObject] = useState('');
   const [changedBy, setChangedBy] = useState('');
+  const [dateTimeStart, setDateTimeStart] = useState('');
+  const [dateTimeEnd, setDateTimeEnd] = useState('');
   const objectOptions = [
     'rules',
     'releases',
@@ -31,16 +34,35 @@ export default function HistoryForm() {
     'required_signoffs/permissions',
   ];
 
+  function handleFormSubmit(e) {
+    e.preventDefault();
+
+    onSubmit({
+      object,
+      changedBy,
+      dateTimeStart,
+      dateTimeEnd,
+    });
+  }
+
   function handleObjectChange({ target }) {
-    setObjects(target.value);
+    setObject(target.value);
   }
 
   function handleChangedByChange({ target }) {
     setChangedBy(target.value);
   }
 
+  function handleDateTimeStartChange(date) {
+    setDateTimeStart(date);
+  }
+
+  function handleDateTimeEndChange(date) {
+    setDateTimeEnd(date);
+  }
+
   return (
-    <Fragment>
+    <form onSubmit={handleFormSubmit}>
       <List>
         <ListItem>
           <TextField
@@ -48,7 +70,7 @@ export default function HistoryForm() {
             select
             fullWidth
             label="Objects"
-            value={objects}
+            value={object}
             onChange={handleObjectChange}>
             {objectOptions.map(option => (
               <MenuItem key={option} value={option}>
@@ -68,19 +90,19 @@ export default function HistoryForm() {
         </ListItem>
         <ListSubheader>Date Start</ListSubheader>
         <ListItem>
-          <DateTimePicker onDateTimeChange={() => {}} />
+          <DateTimePicker onDateTimeChange={handleDateTimeStartChange} />
         </ListItem>
         <ListSubheader>Date End</ListSubheader>
         <ListItem>
-          <DateTimePicker onDateTimeChange={() => {}} />
+          <DateTimePicker onDateTimeChange={handleDateTimeEndChange} />
         </ListItem>
         <ListItem className={classes.searchListItem}>
-          <Button className={classes.search} variant="contained">
+          <Button className={classes.search} variant="contained" type="submit">
             Search
           </Button>
         </ListItem>
       </List>
-    </Fragment>
+    </form>
   );
 }
 

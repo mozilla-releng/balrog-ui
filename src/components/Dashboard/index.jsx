@@ -17,15 +17,19 @@ const useStyles = makeStyles(theme => ({
   },
   main: {
     maxWidth: 1592,
-    marginTop: theme.spacing.unit * 3,
+    marginTop: theme.spacing(3),
   },
   nav: {
     display: 'flex',
     flex: 1,
     justifyContent: 'flex-end',
     '& button, & a:not(:last-child)': {
-      marginRight: theme.spacing.unit,
+      marginRight: theme.spacing(1),
     },
+  },
+  link: {
+    textDecoration: 'none',
+    color: 'inherit',
   },
 }));
 
@@ -82,24 +86,19 @@ export default function Dashboard(props) {
                     open={Boolean(menuAnchorEl.id === menuItem.id)}
                     onClose={handleRulesAnchorClose}>
                     {menuItem.children.map(child => (
-                      <MenuItem
-                        key={child.value}
-                        component={Link}
-                        nav
-                        to={child.path}>
-                        {child.value}
+                      <MenuItem key={child.value}>
+                        <Link className={classes.link} nav to={child.path}>
+                          {child.value}
+                        </Link>
                       </MenuItem>
                     ))}
                   </Menu>
                 </Fragment>
               ) : (
-                <Button
-                  key={menuItem.value}
-                  color="inherit"
-                  component={Link}
-                  nav
-                  to={menuItem.path}>
-                  {menuItem.value}
+                <Button key={menuItem.value} color="inherit">
+                  <Link className={classes.link} nav to={menuItem.path}>
+                    {menuItem.value}
+                  </Link>
                 </Button>
               )
             )}
