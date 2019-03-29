@@ -1,7 +1,8 @@
 import React from 'react';
 import PlusIcon from 'mdi-react/PlusIcon';
 import { makeStyles } from '@material-ui/styles';
-import IconButton from '@material-ui/core/IconButton';
+import Fab from '@material-ui/core/Fab';
+import Tooltip from '@material-ui/core/Tooltip';
 import Dashboard from '../../../components/Dashboard';
 
 const useStyles = makeStyles(theme => ({
@@ -18,12 +19,15 @@ function ListPermissions() {
   return (
     <Dashboard>
       Releases
-      <IconButton
-        className={classes.fab}
-        classes={{ root: classes.fab }}
-        onClick={handleReleaseAdd}>
-        <PlusIcon />
-      </IconButton>
+      <Tooltip title="Add Release">
+        <Fab
+          color="primary"
+          className={classes.fab}
+          classes={{ root: classes.fab }}
+          onClick={handleReleaseAdd}>
+          <PlusIcon />
+        </Fab>
+      </Tooltip>
     </Dashboard>
   );
 }

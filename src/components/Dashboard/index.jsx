@@ -17,7 +17,7 @@ const useStyles = makeStyles(theme => ({
   },
   main: {
     maxWidth: 1592,
-    marginTop: theme.spacing(3),
+    margin: `${theme.spacing(5)}px auto`,
   },
   nav: {
     display: 'flex',
@@ -30,6 +30,9 @@ const useStyles = makeStyles(theme => ({
   link: {
     textDecoration: 'none',
     color: 'inherit',
+  },
+  buttonWithIcon: {
+    paddingLeft: theme.spacing(2),
   },
 }));
 
@@ -68,6 +71,7 @@ export default function Dashboard(props) {
               menuItem.children ? (
                 <Fragment key={menuItem.value}>
                   <Button
+                    className={classes.buttonWithIcon}
                     id={menuItem.id}
                     color="inherit"
                     aria-owns={menuAnchorEl ? menuItem.id : undefined}
