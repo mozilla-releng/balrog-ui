@@ -3,7 +3,9 @@ import PlusIcon from 'mdi-react/PlusIcon';
 import { makeStyles } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 import Dashboard from '../../../components/Dashboard';
+import Link from '../../../utils/Link';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -14,19 +16,15 @@ const useStyles = makeStyles(theme => ({
 function ListPermissions() {
   const classes = useStyles();
 
-  function handleReleaseAdd() {}
-
   return (
     <Dashboard>
-      Releases
+      <Typography variant="subtitle1">Releases</Typography>
       <Tooltip title="Add Release">
-        <Fab
-          color="primary"
-          className={classes.fab}
-          classes={{ root: classes.fab }}
-          onClick={handleReleaseAdd}>
-          <PlusIcon />
-        </Fab>
+        <Link to="/releases/create">
+          <Fab color="primary" className={classes.fab}>
+            <PlusIcon />
+          </Fab>
+        </Link>
       </Tooltip>
     </Dashboard>
   );

@@ -9,14 +9,11 @@ import tryCatch from '../../utils/tryCatch';
 
 function History() {
   async function handleFormSubmit(data) {
-    console.log('data: ', data);
     const [err, history] = await tryCatch(getHistory(data));
 
     if (err) {
       console.log('err: ', err);
     }
-
-    console.log('history: ', history);
   }
 
   return (

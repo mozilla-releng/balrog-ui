@@ -3,14 +3,14 @@ import lazy from '../../utils/lazy';
 const ListReleases = lazy(() =>
   import(/* webpackChunkName: 'Releases.ListReleases' */ './ListReleases')
 );
-const ScheduledPermissionChanges = lazy(() =>
-  import(/* webpackChunkName: 'Releases.ScheduledPermissionChanges' */ './ScheduledPermissionChanges')
+const Release = lazy(() =>
+  import(/* webpackChunkName: 'Releases.ListReleases' */ './Release')
 );
 
 export default path => [
   {
-    component: ScheduledPermissionChanges,
-    path: `${path}/scheduled-changes`,
+    component: Release,
+    path: `${path}/create`,
   },
   {
     component: ListReleases,

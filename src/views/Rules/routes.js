@@ -3,14 +3,12 @@ import lazy from '../../utils/lazy';
 const ListRules = lazy(() =>
   import(/* webpackChunkName: 'Rules.ListRules' */ './ListRules')
 );
-const ScheduledRuleChanges = lazy(() =>
-  import(/* webpackChunkName: 'Rules.ScheduledRuleChanges' */ './ScheduledRuleChanges')
-);
+const Rule = lazy(() => import(/* webpackChunkName: 'Rules.Rule' */ './Rule'));
 
 export default path => [
   {
-    component: ScheduledRuleChanges,
-    path: `${path}/scheduled-changes`,
+    component: Rule,
+    path: `${path}/create`,
   },
   {
     component: ListRules,
