@@ -2,6 +2,7 @@ import lazy from './utils/lazy';
 import releaseRoutes from './views/Releases/routes';
 import ruleRoutes from './views/Rules/routes';
 import permissionRoutes from './views/Permissions/routes';
+import signoffRoutes from './views/Signoffs/routes';
 
 const History = lazy(() =>
   import(/* webpackChunkName: 'History' */ './views/History')
@@ -43,6 +44,7 @@ export default [
   {
     component: Signoffs,
     path: '/signoffs',
+    routes: signoffRoutes('/signoffs'),
   },
   {
     component: Home,

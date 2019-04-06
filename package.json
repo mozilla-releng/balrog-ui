@@ -12,6 +12,7 @@
   "dependencies": {
     "@material-ui/core": "4.0.0-alpha.6",
     "@material-ui/icons": "4.0.0-alpha.1",
+    "@material-ui/lab": "4.0.0-alpha.6",
     "@material-ui/styles": "4.0.0-alpha.6",
     "axios": "^0.18.0",
     "date-fns": "^1.30.1",

@@ -13,8 +13,8 @@ const useStyles = makeStyles(theme => ({
     textDecoration: 'none',
   },
   main: {
-    maxWidth: 1592,
-    margin: `${theme.spacing(5)}px auto`,
+    maxWidth: 980,
+    margin: `${theme.spacing(10)}px auto`,
   },
   nav: {
     display: 'flex',

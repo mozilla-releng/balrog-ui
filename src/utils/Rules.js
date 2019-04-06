@@ -4,7 +4,7 @@ import { stringify } from 'qs';
 const baseUrl = `${process.env.BALROG_ROOT_URL}/api`;
 const getRules = () => axios.get(`${baseUrl}/rules`);
 const getChannels = () => axios.get(`${baseUrl}/rules/columns/channel`);
-const getProducts = () => axios.get(`${baseUrl}/rules/product`);
+const getProducts = () => axios.get(`${baseUrl}/rules/columns/product`);
 const getHistory = (id, limit, page) =>
   axios.get(`${baseUrl}/${id}/revisions?${stringify({ limit, page })}`);
 // const getRule = () => axios.get();
