@@ -12,7 +12,7 @@ module.exports = {
           favicon: `${__dirname}/src/images/favicon.png`
         },
         env: {
-          BALROG_ROOT_URL: 'http://localhost:8081',
+          BALROG_ROOT_URL: 'https://localhost:8010',
         },
       }
     ],
