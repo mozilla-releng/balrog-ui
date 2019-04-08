@@ -3,7 +3,7 @@ import { stringify } from 'qs';
 
 const baseUrl = `${process.env.BALROG_ROOT_URL}/api`;
 const getHistory = params => {
-  const url = `${baseUrl}/api/${params.object}/history`;
+  const url = `${baseUrl}/${params.object}/history`;
   const qs = stringify(
     {
       changed_by: params.changedBy,
