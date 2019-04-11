@@ -1,0 +1,16 @@
+version: '2.1'
+services:
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: node:current
+    ports:
+      - "9000:9000"
+    environment:
+      - BALROG_ROOT_URL=https://localhost:8010
+    volumes:
+      - .:/app
+    entrypoint:
+      - /usr/local/bin/yarn
+      - start-docker
