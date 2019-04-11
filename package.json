@@ -5,8 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "webpack --mode production",
-    "start": "webpack-dev-server --mode development --open",
-    "start-docker": "webpack-dev-server --mode development --host 0.0.0.0 --port 9000",
+    "start": "webpack-dev-server --mode development",
     "test": "jest",
     "lint": "eslint --cache --format codeframe --ext mjs,jsx,js src test"
   },

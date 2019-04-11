@@ -9,8 +9,10 @@ services:
       - "9000:9000"
     environment:
       - BALROG_ROOT_URL=https://localhost:8010
+      - HOST=0.0.0.0
+      - PORT=9000
     volumes:
       - .:/app
     entrypoint:
       - /usr/local/bin/yarn
-      - start-docker
+      - start
