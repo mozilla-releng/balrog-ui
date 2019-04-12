@@ -1,3 +1,6 @@
+const DEFAULT_HOST = 'localhost';
+const DEFAULT_PORT = 9000;
+
 module.exports = {
   options: {
     root: __dirname,
@@ -8,8 +11,8 @@ module.exports = {
       '@neutrinojs/react',
       {
         devServer: {
-          host: process.env.HOST || 'localhost',
-          port: process.env.PORT || 9000
+          host: process.env.HOST || DEFAULT_HOST,
+          port: process.env.PORT || DEFAULT_PORT
         },
         html: {
           title: 'Balrog Admin',
@@ -17,6 +20,8 @@ module.exports = {
         },
         env: {
           BALROG_ROOT_URL: 'https://localhost:8010',
+          HOST: DEFAULT_HOST,
+          PORT: DEFAULT_PORT
         },
       }
     ],
