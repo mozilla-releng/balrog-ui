@@ -13,6 +13,12 @@ services:
       - PORT=9000
     volumes:
       - .:/app
+      - node_modules:/app/node_modules
     entrypoint:
-      - /usr/local/bin/yarn
-      - start
+      - /bin/bash
+      - --login
+      - -c
+      - yarn install && yarn start
+
+volumes:
+  node_modules:
