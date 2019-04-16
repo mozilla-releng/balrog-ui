@@ -55,6 +55,8 @@ export default function UserMenu() {
         id="user-menu"
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
+        getContentAnchorEl={null}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         onClose={handleMenuClose}>
         <MenuItem title="Logout" onClick={handleLogoutClick}>
           <LogoutVariantIcon />
