@@ -8,7 +8,9 @@ import theme from './theme';
 import Main from './Main';
 
 const App = () => {
-  const [authorize, setAuthorize] = useState(false);
+  const [authorize, setAuthorize] = useState(
+    Boolean(localStorage.getItem(USER_SESSION))
+  );
   const [authContext, setAuthContext] = useState({
     authorize: () => setAuthorize(true),
     unauthorize: () => {
@@ -20,12 +22,19 @@ const App = () => {
     },
     user: null,
   });
+  const handleAuthorize = user => {
+    setAuthContext({
+      ...authContext,
+      user,
+    });
+  };
 
   return (
     <AuthContext.Provider value={authContext}>
       <ThemeProvider theme={theme}>
         <Authorize
           authorize={authorize}
+          onAuthorize={handleAuthorize}
           popup
           domain={process.env.AUTH0_DOMAIN}
           clientID={process.env.AUTH0_CLIENT_ID}
@@ -41,15 +50,8 @@ const App = () => {
               const expires = new Date(user.expiration);
               const now = new Date();
 
-              if (
-                expires > now &&
-                user.authResult.accessToken !==
-                  (authContext.user && authContext.user.authResult.accessToken)
-              ) {
+              if (expires < now && user) {
                 authContext.unauthorize();
-                setAuthContext({ ...authContext, user });
-              } else {
-                setAuthContext({ ...authContext, user: null });
               }
             }
 
