@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import menuItems from './menuItems';
 import Link from '../../utils/Link';
+import UserMenu from './UserMenu';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -20,7 +21,8 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flex: 1,
     justifyContent: 'flex-end',
-    '& button, & a:not(:last-child)': {
+    alignItems: 'center',
+    '& a button, & a:not(:last-child)': {
       marginRight: theme.spacing(1),
     },
   },
@@ -60,6 +62,7 @@ export default function Dashboard(props) {
                 <Button color="inherit">{menuItem.value}</Button>
               </Link>
             ))}
+            <UserMenu />
           </nav>
         </Toolbar>
       </AppBar>

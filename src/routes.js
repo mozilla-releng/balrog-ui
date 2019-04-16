@@ -20,6 +20,9 @@ const Rules = lazy(() =>
 const Signoffs = lazy(() =>
   import(/* webpackChunkName: 'Signoffs' */ './views/Signoffs')
 );
+const Login = lazy(() =>
+  import(/* webpackChunkName: 'Login' */ './views/Login')
+);
 
 export default [
   {
@@ -45,6 +48,10 @@ export default [
     component: Signoffs,
     path: '/signoffs',
     routes: signoffRoutes('/signoffs'),
+  },
+  {
+    component: Login,
+    path: '/login',
   },
   {
     component: Home,
