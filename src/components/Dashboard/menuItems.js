@@ -8,8 +8,8 @@ export default [
     path: '/releases',
   },
   {
-    value: 'Permissions',
-    path: '/permissions',
+    value: 'Settings',
+    path: '/settings',
   },
   {
     value: 'Signoffs',
