@@ -33,11 +33,15 @@ const useStyles = makeStyles(theme => ({
   buttonWithIcon: {
     paddingLeft: theme.spacing(2),
   },
+  sidenav: {
+    margin: `${theme.spacing(10)}px auto`,
+    float: 'right',
+  },
 }));
 
 export default function Dashboard(props) {
   const classes = useStyles();
-  const { children } = props;
+  const { children, sidenav } = props;
 
   return (
     <Fragment>
@@ -67,6 +71,7 @@ export default function Dashboard(props) {
         </Toolbar>
       </AppBar>
       <div>Dashboard</div>
+      <div className={classes.sidenav}>{sidenav}</div>
       <main className={classes.main}>{children}</main>
     </Fragment>
   );

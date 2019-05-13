@@ -1,12 +1,12 @@
 import lazy from '../../utils/lazy';
 
-const ListSettings = lazy(() =>
-  import(/* webpackChunkName: 'Settings.ListSettings' */ './ListSettings')
+const Users = lazy(() =>
+  import(/* webpackChunkName: 'Settings.Users' */ './Users')
 );
 
 export default path => [
   {
-    component: ListSettings,
+    component: Users,
     path,
   },
 ];
