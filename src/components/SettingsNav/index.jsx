@@ -4,6 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { makeStyles } from '@material-ui/styles';
 import { SideNav, Nav, NavContext } from 'react-sidenav';
 import Link from '../../utils/Link';
+import navItems from './navItems';
 
 const useStyles = makeStyles({
   navItem: {
@@ -39,27 +40,15 @@ export default withRouter(props => {
 
   return (
     <SideNav defaultSelectedPath={currentSelection}>
-      <Nav id="users">
-        <Item>
-          <Link className={classes.link} to="/settings/users">
-            Users
-          </Link>
-        </Item>
-      </Nav>
-      <Nav id="roles">
-        <Item>
-          <Link className={classes.link} to="/settings/roles">
-            Roles
-          </Link>
-        </Item>
-      </Nav>
-      <Nav id="required_signoffs">
-        <Item>
-          <Link className={classes.link} to="/settings/required_signoffs">
-            Required Signoffs
-          </Link>
-        </Item>
-      </Nav>
+      {navItems.map(navItem => (
+        <Nav key={navItem.id} id={navItem.id}>
+          <Item>
+            <Link className={classes.link} to={navItem.path}>
+              {navItem.value}
+            </Link>
+          </Item>
+        </Nav>
+      ))}
     </SideNav>
   );
 });
