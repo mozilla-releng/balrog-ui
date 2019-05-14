@@ -3,10 +3,9 @@ import { makeStyles } from '@material-ui/styles';
 import { SideNav, Nav, NavContext } from 'react-sidenav';
 import Link from '../../utils/Link';
 
-const useStyles = makeStyles(props => ({
+const useStyles = makeStyles({
   navItem: {
-    // TODO: this isn't changing colour when selected
-    color: props.selected ? 'rgb(0, 166, 90)' : '#555',
+    color: '#555',
     padding: '8px 12px',
     cursor: 'pointer',
     '&:hover': {
@@ -17,13 +16,16 @@ const useStyles = makeStyles(props => ({
     textDecoration: 'none',
     color: 'inherit',
   },
-}));
+});
 const Item = props => {
   const classes = useStyles();
   const context = React.useContext(NavContext);
 
   return (
-    <div className={classes.navItem} selected={context.selected}>
+    <div
+      className={classes.navItem}
+      style={{ color: context.selected ? 'rgb(0, 166, 90)' : '' }}
+      selected={context.selected}>
       {props.children}
     </div>
   );
@@ -33,7 +35,7 @@ export default function SettingsNav() {
   const classes = useStyles();
 
   return (
-    <SideNav>
+    <SideNav defaultSelectedPath="users">
       <Nav id="users">
         <Item>
           <Link className={classes.link} to="/settings/users">
