@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import { makeStyles } from '@material-ui/styles';
 import { SideNav, Nav, NavContext } from 'react-sidenav';
 import Link from '../../utils/Link';
@@ -31,11 +32,12 @@ const Item = props => {
   );
 };
 
-export default function SettingsNav() {
+export default withRouter(props => {
   const classes = useStyles();
+  const currentSelection = props.location.pathname.split('/').slice(-1)[0];
 
   return (
-    <SideNav defaultSelectedPath="users">
+    <SideNav defaultSelectedPath={currentSelection}>
       <Nav id="users">
         <Item>
           <Link className={classes.link} to="/settings/users">
@@ -44,11 +46,19 @@ export default function SettingsNav() {
         </Item>
       </Nav>
       <Nav id="roles">
-        <Item>Roles</Item>
+        <Item>
+          <Link className={classes.link} to="/settings/roles">
+            Roles
+          </Link>
+        </Item>
       </Nav>
       <Nav id="required_signoffs">
-        <Item>Required Signoffs</Item>
+        <Item>
+          <Link className={classes.link} to="/settings/required_signoffs">
+            Required Signoffs
+          </Link>
+        </Item>
       </Nav>
     </SideNav>
   );
-}
+});
