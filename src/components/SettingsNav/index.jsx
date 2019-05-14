@@ -36,7 +36,7 @@ export default function SettingsNav() {
     <SideNav>
       <Nav id="users">
         <Item>
-          <Link className={classes.link} to="/rules">
+          <Link className={classes.link} to="/settings/users">
             Users
           </Link>
         </Item>

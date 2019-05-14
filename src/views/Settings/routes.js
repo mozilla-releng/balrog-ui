@@ -7,6 +7,6 @@ const Users = lazy(() =>
 export default path => [
   {
     component: Users,
-    path,
+    path: `${path}/users`,
   },
 ];

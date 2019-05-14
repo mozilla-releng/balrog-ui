@@ -17,6 +17,6 @@ export default [
   },
   {
     value: 'Settings',
-    path: '/settings',
+    path: '/settings/users',
   },
 ];

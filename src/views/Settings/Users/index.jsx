@@ -3,5 +3,5 @@ import Dashboard from '../../../components/Dashboard';
 import SettingsNav from '../../../components/SettingsNav';
 
 export default function Users() {
-  return <Dashboard sidenav={<SettingsNav />} />;
+  return <Dashboard sidenav={<SettingsNav />}>FOO!</Dashboard>;
 }
