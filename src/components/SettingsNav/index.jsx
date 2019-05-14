@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from '@material-ui/core/Button';
 import { withRouter } from 'react-router-dom';
 import { makeStyles } from '@material-ui/styles';
 import { SideNav, Nav, NavContext } from 'react-sidenav';
@@ -23,12 +24,12 @@ const Item = props => {
   const context = React.useContext(NavContext);
 
   return (
-    <div
+    <Button
       className={classes.navItem}
       style={{ color: context.selected ? 'rgb(0, 166, 90)' : '' }}
       selected={context.selected}>
       {props.children}
-    </div>
+    </Button>
   );
 };
 
