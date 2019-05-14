@@ -36,7 +36,7 @@ const Item = props => {
 
 export default withRouter(props => {
   const classes = useStyles();
-  const currentSelection = props.location.pathname.split('/').slice(-1)[0];
+  const currentSelection = props.location.pathname.split('/')[2];
 
   return (
     <SideNav defaultSelectedPath={currentSelection}>

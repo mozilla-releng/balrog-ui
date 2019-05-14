@@ -1,7 +1,18 @@
 import React from 'react';
-import Dashboard from '../../../components/Dashboard';
-import SettingsNav from '../../../components/SettingsNav';
+import { Switch } from 'react-router-dom';
+import RouteWithProps from '../../../components/RouteWithProps';
+import routes from './routes';
 
-export default function Users() {
-  return <Dashboard sidenav={<SettingsNav />}>USERS!</Dashboard>;
+export default function Users(props) {
+  const {
+    match: { path },
+  } = props;
+
+  return (
+    <Switch>
+      {routes(path).map(({ routes, ...routeProps }) => (
+        <RouteWithProps key={routeProps.path || 'not-found'} {...routeProps} />
+      ))}
+    </Switch>
+  );
 }
