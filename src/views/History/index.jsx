@@ -11,6 +11,9 @@ function History() {
   async function handleFormSubmit(data) {
     const [err, history] = await tryCatch(getHistory(data));
 
+    // shut the linter up for now
+    console.log(history);
+
     if (err) {
       console.log('err: ', err);
     }
