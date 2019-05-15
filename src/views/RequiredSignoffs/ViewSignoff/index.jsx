@@ -51,7 +51,6 @@ export default function ViewSignoff() {
     (async () => {
       const [error, result] = await tryCatch(getProducts());
 
-      console.log(error);
       console.log('products: ', result);
       // setProducts(result);
     })();

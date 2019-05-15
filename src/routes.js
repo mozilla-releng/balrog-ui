@@ -51,8 +51,8 @@ export default [
   },
   {
     component: RequiredSignoffs,
-    path: '/required_signoffs',
-    routes: requiredSignoffsRoutes('/required_signoffs'),
+    path: '/required-signoffs',
+    routes: requiredSignoffsRoutes('/required-signoffs'),
   },
   {
     component: Login,
