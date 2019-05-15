@@ -1,7 +1,7 @@
 import lazy from './utils/lazy';
 import releaseRoutes from './views/Releases/routes';
 import ruleRoutes from './views/Rules/routes';
-import settingsRoutes from './views/Settings/routes';
+import requiredSignoffsRoutes from './views/RequiredSignoffs/routes';
 
 const History = lazy(() =>
   import(/* webpackChunkName: 'History' */ './views/History')
@@ -13,8 +13,14 @@ const Releases = lazy(() =>
 const Rules = lazy(() =>
   import(/* webpackChunkName: 'Rules' */ './views/Rules')
 );
-const Settings = lazy(() =>
-  import(/* webpackChunkName: 'Settings' */ './views/Settings')
+const Users = lazy(() =>
+  import(/* webpackChunkName: 'Users' */ './views/Users')
+);
+const Roles = lazy(() =>
+  import(/* webpackChunkName: 'Roles' */ './views/Roles')
+);
+const RequiredSignoffs = lazy(() =>
+  import(/* webpackChunkName: 'RequiredSignoffs' */ './views/RequiredSignoffs')
 );
 const Login = lazy(() =>
   import(/* webpackChunkName: 'Login' */ './views/Login')
@@ -36,9 +42,17 @@ export default [
     path: '/history',
   },
   {
-    component: Settings,
-    path: '/settings',
-    routes: settingsRoutes('/settings'),
+    component: Users,
+    path: '/users',
+  },
+  {
+    component: Roles,
+    path: '/roles',
+  },
+  {
+    component: RequiredSignoffs,
+    path: '/required_signoffs',
+    routes: requiredSignoffsRoutes('/required_signoffs'),
   },
   {
     component: Login,

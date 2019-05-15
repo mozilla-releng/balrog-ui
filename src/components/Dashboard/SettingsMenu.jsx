@@ -54,7 +54,7 @@ export default function SettingsMenu() {
           <MenuItem
             title={navItem.value}
             key={navItem.value}
-            component="li"
+            component="a"
             href={navItem.path}>
             {navItem.value}
           </MenuItem>
