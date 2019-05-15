@@ -39,16 +39,16 @@ const useStyles = makeStyles(theme => ({
 
 export default function ViewSignoff() {
   const classes = useStyles();
+  // eslint-disable-next-line no-unused-vars
   const [products, setProducts] = useState();
   const [type, setType] = useState('channel');
   const handleTypeChange = ({ target: { value } }) => setType(value);
 
-  console.log(products);
-  console.log(setProducts);
   useEffect(() => {
     console.log('prior to getting products');
 
     (async () => {
+      // eslint-disable-next-line no-unused-vars
       const [error, result] = await tryCatch(getProducts());
 
       console.log('products: ', result);

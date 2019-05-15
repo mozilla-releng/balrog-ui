@@ -9,10 +9,8 @@ import tryCatch from '../../utils/tryCatch';
 
 function History() {
   async function handleFormSubmit(data) {
+    // eslint-disable-next-line no-unused-vars
     const [err, history] = await tryCatch(getHistory(data));
-
-    // shut the linter up for now
-    console.log(history);
 
     if (err) {
       console.log('err: ', err);
