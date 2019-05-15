@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { bool } from 'prop-types';
+import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import { makeStyles } from '@material-ui/styles';
 import TextField from '@material-ui/core/TextField';
 import List from '@material-ui/core/List';
@@ -19,6 +21,7 @@ import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import { getProducts } from '../../../utils/Rules';
 import tryCatch from '../../../utils/tryCatch';
+import getRequiredSignoffs from '../../../utils/getRequiredSignoffs';
 
 const useStyles = makeStyles(theme => ({
   iconButtonGrid: {
@@ -37,27 +40,41 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function ViewSignoff() {
+function ViewSignoff(props) {
   const classes = useStyles();
   // eslint-disable-next-line no-unused-vars
   const [products, setProducts] = useState();
+  // eslint-disable-next-line no-unused-vars
+  const [requiredSignoffs, setRequiredSignoffs] = useState(null);
+  const [error, setError] = useState();
   const [type, setType] = useState('channel');
   const handleTypeChange = ({ target: { value } }) => setType(value);
 
   useEffect(() => {
-    console.log('prior to getting products');
+    tryCatch(getProducts()).then(([error, result]) => {
+      if (error) {
+        setError(error);
 
-    (async () => {
-      // eslint-disable-next-line no-unused-vars
-      const [error, result] = await tryCatch(getProducts());
+        return;
+      }
 
-      console.log('products: ', result);
-      // setProducts(result);
-    })();
-  }, []);
+      setProducts(result.data.product);
+    });
+
+    tryCatch(getRequiredSignoffs()).then(([error, rs]) => {
+      if (error) {
+        setError(error);
+
+        return;
+      }
+
+      setRequiredSignoffs(rs);
+    });
+  }, [props.product, props.channel]);
 
   return (
     <Dashboard>
+      {error && <ErrorPanel error={error} />}
       <form autoComplete="off">
         <Grid container spacing={2}>
           <Grid item xs={12}>
@@ -129,3 +146,13 @@ export default function ViewSignoff() {
     </Dashboard>
   );
 }
+
+ViewSignoff.propTypes = {
+  isNewSignoff: bool,
+};
+
+ViewSignoff.defaultProps = {
+  isNewSignoff: false,
+};
+
+export default ViewSignoff;

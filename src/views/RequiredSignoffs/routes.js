@@ -11,6 +11,11 @@ export default path => [
   {
     component: ViewSignoff,
     path: `${path}/create`,
+    isNewSignoff: true,
+  },
+  {
+    component: ViewSignoff,
+    path: `${path}/:product/:channel?`,
   },
   {
     component: ListSignoffs,

@@ -18,4 +18,12 @@ export default createMuiTheme({
       right: SPACING.TRIPLE,
     },
   },
+  overrides: {
+    MuiListItem: {
+      dense: {
+        paddingTop: SPACING.UNIT / 2,
+        paddingBottom: SPACING.UNIT / 2,
+      },
+    },
+  },
 });
