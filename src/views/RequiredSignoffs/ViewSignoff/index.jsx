@@ -43,12 +43,15 @@ export default function ViewSignoff() {
   const [type, setType] = useState('channel');
   const handleTypeChange = ({ target: { value } }) => setType(value);
 
+  console.log(products);
+  console.log(setProducts);
   useEffect(() => {
     console.log('prior to getting products');
 
     (async () => {
       const [error, result] = await tryCatch(getProducts());
 
+      console.log(error);
       console.log('products: ', result);
       // setProducts(result);
     })();

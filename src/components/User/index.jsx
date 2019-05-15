@@ -31,7 +31,7 @@ export default function User(props) {
         <CardHeader
           title={username}
           action={
-            <Link to={`/settings/users/${username}`}>
+            <Link to={`/users/${username}`}>
               <IconButton>
                 <EditIcon />
               </IconButton>
@@ -47,7 +47,7 @@ export default function User(props) {
               key={role.role}
               label={role.role}
               component="a"
-              href={`/settings/roles/${role.role}`}
+              href={`/roles/${role.role}`}
               clickable
             />
           ))}

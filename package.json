@@ -25,8 +25,7 @@
     "react-auth0-components": "^1.0.0",
     "react-dom": "^16.8.6",
     "react-hot-loader": "^4",
-    "react-router-dom": "^5.0.0",
-    "react-sidenav": "^4.0.0"
+    "react-router-dom": "^5.0.0"
   },
   "devDependencies": {
     "@mozilla-frontend-infra/react-lint": "^1.2.1",

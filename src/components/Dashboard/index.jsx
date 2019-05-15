@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import menuItems from './menuItems';
 import Link from '../../utils/Link';
 import UserMenu from './UserMenu';
+import SettingsMenu from './SettingsMenu';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -41,7 +42,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Dashboard(props) {
   const classes = useStyles();
-  const { children, sidenav } = props;
+  const { children } = props;
 
   return (
     <Fragment>
@@ -66,12 +67,12 @@ export default function Dashboard(props) {
                 <Button color="inherit">{menuItem.value}</Button>
               </Link>
             ))}
+            <SettingsMenu />
             <UserMenu />
           </nav>
         </Toolbar>
       </AppBar>
       <div>Dashboard</div>
-      <div className={classes.sidenav}>{sidenav}</div>
       <main className={classes.main}>{children}</main>
     </Fragment>
   );

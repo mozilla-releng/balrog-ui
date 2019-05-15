@@ -4,11 +4,10 @@ import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import PlusIcon from 'mdi-react/PlusIcon';
-import Dashboard from '../../../../components/Dashboard';
-import SettingsNav from '../../../../components/SettingsNav';
-import { getUsers } from '../../../../utils/Users';
-import tryCatch from '../../../../utils/tryCatch';
-import UserList from '../../../../components/UserList';
+import Dashboard from '../../../components/Dashboard';
+import { getUsers } from '../../../utils/Users';
+import tryCatch from '../../../utils/tryCatch';
+import UserList from '../../../components/UserList';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -38,7 +37,7 @@ function ListUsers() {
   }
 
   return (
-    <Dashboard sidenav={<SettingsNav />}>
+    <Dashboard>
       <Typography variant="subtitle1">Users</Typography>
       <UserList users={users} />
       <Tooltip title="Add Users">

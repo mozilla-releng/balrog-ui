@@ -8,15 +8,7 @@ export default [
     path: '/releases',
   },
   {
-    value: 'Signoffs',
-    path: '/signoffs',
-  },
-  {
     value: 'History',
     path: '/history',
-  },
-  {
-    value: 'Settings',
-    path: '/settings/users',
   },
 ];

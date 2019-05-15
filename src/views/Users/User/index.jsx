@@ -6,10 +6,9 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import Dashboard from '../../../../components/Dashboard';
-import SettingsNav from '../../../../components/SettingsNav';
-import { getUserInfo, permissionStrings } from '../../../../utils/Users';
-import tryCatch from '../../../../utils/tryCatch';
+import Dashboard from '../../../components/Dashboard';
+import { getUserInfo, permissionStrings } from '../../../utils/Users';
+import tryCatch from '../../../utils/tryCatch';
 
 function User(props) {
   const {
@@ -33,7 +32,7 @@ function User(props) {
   }, []);
 
   return (
-    <Dashboard sidenav={<SettingsNav />}>
+    <Dashboard>
       <Typography variant="h4">{user.username}…</Typography>
       <List>
         {Object.keys(user.permissions).map(permission => {

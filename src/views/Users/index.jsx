@@ -3,7 +3,7 @@ import { Switch } from 'react-router-dom';
 import RouteWithProps from '../../components/RouteWithProps';
 import routes from './routes';
 
-export default function Settings(props) {
+export default function Users(props) {
   const {
     match: { path },
   } = props;
