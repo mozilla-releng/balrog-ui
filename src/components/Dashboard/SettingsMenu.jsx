@@ -4,6 +4,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import Settings from '@material-ui/icons/Settings';
+import Link from '../../utils/Link';
 
 const useStyles = makeStyles(theme => ({
   settings: {
@@ -54,8 +55,8 @@ export default function SettingsMenu() {
           <MenuItem
             title={navItem.value}
             key={navItem.value}
-            component="a"
-            href={navItem.path}>
+            component={Link}
+            to={navItem.path}>
             {navItem.value}
           </MenuItem>
         ))}
