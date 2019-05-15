@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import menuItems from './menuItems';
 import Link from '../../utils/Link';
 import UserMenu from './UserMenu';
+import SettingsMenu from './SettingsMenu';
 
 const useStyles = makeStyles(theme => ({
   title: {
@@ -66,6 +67,7 @@ export default function Dashboard(props) {
                 <Button color="inherit">{menuItem.value}</Button>
               </Link>
             ))}
+            <SettingsMenu />
             <UserMenu />
           </nav>
         </Toolbar>
