@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Typography from '@material-ui/core/Typography';
-import GroupWork from '@material-ui/icons/GroupWork';
-import SupervisorAccount from '@material-ui/icons/SupervisorAccount';
+import AccountGroupIcon from 'mdi-react/AccountGroupIcon';
+import AccountSupervisorIcon from 'mdi-react/AccountSupervisorIcon';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -43,7 +43,7 @@ function User(props) {
           return (
             <ListItem key={permission}>
               <ListItemIcon>
-                <SupervisorAccount />
+                <AccountSupervisorIcon />
               </ListItemIcon>
               <ListItemText>{words[permission]}</ListItemText>
             </ListItem>
@@ -52,7 +52,7 @@ function User(props) {
         {Object.keys(user.roles).map(role => (
           <ListItem key={role}>
             <ListItemIcon>
-              <GroupWork />
+              <AccountGroupIcon />
             </ListItemIcon>
             <ListItemText>
               {user.username} has {role}

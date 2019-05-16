@@ -6,7 +6,7 @@ import CardHeader from '@material-ui/core/CardHeader';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import Chip from '@material-ui/core/Chip';
-import EditIcon from '@material-ui/icons/Edit';
+import PencilIcon from 'mdi-react/PencilIcon';
 import Link from '../../utils/Link';
 
 const useStyles = makeStyles(theme => ({
@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
   cardHeaderAction: {
     alignSelf: 'end',
   },
-  editIcon: {
+  pencilIcon: {
     marginRight: theme.spacing(1),
   },
   roleless: {
@@ -41,7 +41,7 @@ export default function User(props) {
             classes={{ action: classes.cardHeaderAction }}
             className={classes.cardHeader}
             title={username}
-            action={<EditIcon className={classes.editIcon} />}
+            action={<PencilIcon className={classes.pencilIcon} />}
           />
         </CardActionArea>
         <CardContent>
