@@ -36,6 +36,8 @@ function User(props) {
       <Typography variant="h4">{user.username}…</Typography>
       <List>
         {Object.keys(user.permissions).map(permission => {
+          // todo: update actionStr and productStr to pay attention to
+          // permission options
           const actionStr = 'perform any action';
           const productStr = 'for all products';
           const words = permissionStrings(productStr, actionStr);
