@@ -1,18 +1,27 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import Card from '@material-ui/core/Card';
 import GridListTile from '@material-ui/core/GridListTile';
 import { makeStyles } from '@material-ui/styles';
 import CardHeader from '@material-ui/core/CardHeader';
+import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import Chip from '@material-ui/core/Chip';
-import IconButton from '@material-ui/core/IconButton';
 import EditIcon from '@material-ui/icons/Edit';
+import Link from '../../utils/Link';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   card: {
     minWidth: '250px',
     maxWidth: '250px',
+  },
+  cardHeader: {
+    borderBottom: '1px gray dashed',
+  },
+  cardHeaderAction: {
+    alignSelf: 'end',
+  },
+  editIcon: {
+    marginRight: theme.spacing(1),
   },
   roleless: {
     backgroundColor: 'red',
@@ -28,16 +37,14 @@ export default function User(props) {
   return (
     <GridListTile>
       <Card className={classes.card}>
-        <CardHeader
-          title={username}
-          action={
-            <Link to={`/users/${username}`}>
-              <IconButton>
-                <EditIcon />
-              </IconButton>
-            </Link>
-          }
-        />
+        <CardActionArea component={Link} to={`/users/${username}`}>
+          <CardHeader
+            classes={{ action: classes.cardHeaderAction }}
+            className={classes.cardHeader}
+            title={username}
+            action={<EditIcon className={classes.editIcon} />}
+          />
+        </CardActionArea>
         <CardContent>
           {roles.length === 0 && (
             <Chip className={classes.roleless} label="No Roles" />
