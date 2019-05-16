@@ -3,30 +3,21 @@ import { makeStyles } from '@material-ui/styles';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
-import Settings from '@material-ui/icons/Settings';
+import SettingsOutlineIcon from 'mdi-react/SettingsOutlineIcon';
 import Link from '../../utils/Link';
+import menuItems from './menuItems';
 
 const useStyles = makeStyles(theme => ({
   settings: {
     height: theme.spacing(6),
     width: theme.spacing(6),
     padding: 0,
+    margin: `0 ${theme.spacing(1)}px`,
+  },
+  settingsIcon: {
+    fill: '#fff',
   },
 }));
-const navItems = [
-  {
-    value: 'Users',
-    path: '/users',
-  },
-  {
-    value: 'Roles',
-    path: '/roles',
-  },
-  {
-    value: 'Required Signoffs',
-    path: '/required_signoffs',
-  },
-];
 
 export default function SettingsMenu() {
   const classes = useStyles();
@@ -37,12 +28,12 @@ export default function SettingsMenu() {
   return (
     <Fragment>
       <IconButton
-        className={classes.avatar}
+        className={classes.settings}
         aria-haspopup="true"
         aria-controls="user-menu"
         aria-label="user menu"
         onClick={handleMenuOpen}>
-        <Settings />
+        <SettingsOutlineIcon size={24} className={classes.settingsIcon} />
       </IconButton>
       <Menu
         id="user-menu"
@@ -51,7 +42,7 @@ export default function SettingsMenu() {
         getContentAnchorEl={null}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         onClose={handleMenuClose}>
-        {navItems.map(navItem => (
+        {menuItems.settings.map(navItem => (
           <MenuItem
             title={navItem.value}
             key={navItem.value}

@@ -24,9 +24,6 @@ const useStyles = makeStyles(theme => ({
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center',
-    '& a button, & a:not(:last-child)': {
-      marginRight: theme.spacing(1),
-    },
   },
   link: {
     textDecoration: 'none',
@@ -34,10 +31,6 @@ const useStyles = makeStyles(theme => ({
   },
   buttonWithIcon: {
     paddingLeft: theme.spacing(2),
-  },
-  sidenav: {
-    margin: `${theme.spacing(10)}px auto`,
-    float: 'right',
   },
 }));
 
@@ -59,7 +52,7 @@ export default function Dashboard(props) {
             Balrog Admin
           </Typography>
           <nav className={classes.nav}>
-            {menuItems.map(menuItem => (
+            {menuItems.main.map(menuItem => (
               <Link
                 key={menuItem.value}
                 className={classes.link}
