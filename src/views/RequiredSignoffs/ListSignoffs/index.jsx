@@ -19,16 +19,16 @@ function ListSignoffs() {
   return (
     <Dashboard>
       <Typography variant="subtitle1">List Signoffs</Typography>
-      <Tooltip title="Enable Signoff for a New Product">
-        <Fab
-          color="primary"
-          className={classes.fab}
-          classes={{ root: classes.fab }}
-          component={Link}
-          to="/signoffs/create">
-          <PlusIcon />
-        </Fab>
-      </Tooltip>
+      <Link to="/signoffs/create">
+        <Tooltip title="Enable Signoff for a New Product">
+          <Fab
+            color="primary"
+            className={classes.fab}
+            classes={{ root: classes.fab }}>
+            <PlusIcon />
+          </Fab>
+        </Tooltip>
+      </Link>
     </Dashboard>
   );
 }

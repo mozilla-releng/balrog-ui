@@ -19,13 +19,13 @@ function ListPermissions() {
   return (
     <Dashboard>
       <Typography variant="subtitle1">Releases</Typography>
-      <Tooltip title="Add Release">
-        <Link to="/releases/create">
+      <Link to="/releases/create">
+        <Tooltip title="Add Release">
           <Fab color="primary" className={classes.fab}>
             <PlusIcon />
           </Fab>
-        </Link>
-      </Tooltip>
+        </Tooltip>
+      </Link>
     </Dashboard>
   );
 }

@@ -17,6 +17,10 @@ const useStyles = makeStyles(theme => ({
   settingsIcon: {
     fill: '#fff',
   },
+  link: {
+    textDecoration: 'none',
+    color: 'unset',
+  },
 }));
 
 export default function SettingsMenu() {
@@ -43,13 +47,9 @@ export default function SettingsMenu() {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         onClose={handleMenuClose}>
         {menuItems.settings.map(navItem => (
-          <MenuItem
-            title={navItem.value}
-            key={navItem.value}
-            component={Link}
-            to={navItem.path}>
-            {navItem.value}
-          </MenuItem>
+          <Link key={navItem.value} className={classes.link} to={navItem.path}>
+            <MenuItem title={navItem.value}>{navItem.value}</MenuItem>
+          </Link>
         ))}
       </Menu>
     </Fragment>
