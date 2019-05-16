@@ -13,6 +13,7 @@ import ArrowRightIcon from 'mdi-react/ArrowRightIcon';
 import StatusLabel from '../StatusLabel';
 import { signoffEntry } from '../../utils/prop-types';
 import { LABELS } from '../../utils/constants';
+import { withUser } from '../../utils/AuthContext';
 
 const useStyles = makeStyles(theme => ({
   diff: {
@@ -65,7 +66,7 @@ function getStatus(entry) {
 
 function SignoffCardEntry(props) {
   const classes = useStyles();
-  const { entry, name } = props;
+  const { user, entry, name } = props;
   const status = getStatus(entry);
   const isScheduled = 'sc' in entry;
   const signoffsRequiredCurrent = Number(entry.signoffs_required);
@@ -163,8 +164,8 @@ function SignoffCardEntry(props) {
           {isScheduled && entry.sc.change_type === 'delete' && (
             <Button color="secondary">Cancel Delete</Button>
           )}
-          {'haali@mozilla.com' in entry.sc.signoffs ? (
-            <Button color="secondary">Revoke your Signoff</Button>
+          {user && user.email in entry.sc.signoffs ? (
+            <Button color="secondary">Revoke Signoff</Button>
           ) : (
             <Button color="secondary">Signoff as</Button>
           )}
@@ -178,4 +179,4 @@ SignoffCardEntry.propTypes = {
   entry: signoffEntry.isRequired,
 };
 
-export default SignoffCardEntry;
+export default withUser(SignoffCardEntry);
