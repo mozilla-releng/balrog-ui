@@ -1,6 +1,6 @@
 import React from 'react';
 import GridList from '@material-ui/core/GridList';
-import User from '../User';
+import UserCard from '../UserCard';
 
 export default function UserList(props) {
   const { users } = props;
@@ -8,7 +8,7 @@ export default function UserList(props) {
   return (
     <GridList>
       {Object.keys(users).map(user => (
-        <User key={user} username={user} roles={users[user].roles} />
+        <UserCard key={user} username={user} roles={users[user].roles} />
       ))}
     </GridList>
   );
