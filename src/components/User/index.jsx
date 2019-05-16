@@ -11,8 +11,7 @@ import Link from '../../utils/Link';
 
 const useStyles = makeStyles(theme => ({
   card: {
-    minWidth: '250px',
-    maxWidth: '250px',
+    minWidth: '325px',
   },
   cardHeader: {
     borderBottom: '1px gray dashed',
