@@ -18,8 +18,7 @@ const useStyles = makeStyles(theme => ({
     fill: '#fff',
   },
   link: {
-    textDecoration: 'none',
-    color: 'unset',
+    ...theme.mixins.link,
   },
 }));
 
@@ -47,9 +46,11 @@ export default function SettingsMenu() {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         onClose={handleMenuClose}>
         {menuItems.settings.map(navItem => (
-          <Link key={navItem.value} className={classes.link} to={navItem.path}>
-            <MenuItem title={navItem.value}>{navItem.value}</MenuItem>
-          </Link>
+          <MenuItem key={navItem.value} title={navItem.value}>
+            <Link className={classes.link} to={navItem.path}>
+              {navItem.value}
+            </Link>
+          </MenuItem>
         ))}
       </Menu>
     </Fragment>

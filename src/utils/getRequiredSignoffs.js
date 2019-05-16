@@ -1,5 +1,5 @@
 import { OBJECT_NAMES } from './constants';
-import RequiredSignoffs from '../views/Signoffs/ListSignoffs/RequiredSignoffs';
+import RequiredSignoffs from '../views/RequiredSignoffs/ListSignoffs/RequiredSignoffs';
 import rsService from '../services/requiredSignoffs';
 
 // Holds ALL of the Required Signoffs - product, permissions,

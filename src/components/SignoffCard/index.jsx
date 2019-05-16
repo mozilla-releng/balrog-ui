@@ -4,7 +4,7 @@ import { node, string } from 'prop-types';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardActionArea from '@material-ui/core/CardActionArea';
-import LinkIcon from 'mdi-react/LinkIcon';
+import PencilIcon from 'mdi-react/PencilIcon';
 import Link from '../../utils/Link';
 
 const useStyles = makeStyles(theme => ({
@@ -17,6 +17,9 @@ const useStyles = makeStyles(theme => ({
   linkIcon: {
     marginRight: theme.spacing(1),
   },
+  link: {
+    ...theme.mixins.link,
+  },
 }));
 
 function SignoffCard(props) {
@@ -25,14 +28,16 @@ function SignoffCard(props) {
 
   return (
     <Card {...rest}>
-      <CardActionArea component={Link} to={to}>
-        <CardHeader
-          classes={{ action: classes.cardHeaderAction }}
-          className={classes.cardHeader}
-          action={<LinkIcon className={classes.linkIcon} />}
-          title={title}
-        />
-      </CardActionArea>
+      <Link className={classes.link} to={to}>
+        <CardActionArea>
+          <CardHeader
+            classes={{ action: classes.cardHeaderAction }}
+            className={classes.cardHeader}
+            action={<PencilIcon className={classes.linkIcon} />}
+            title={title}
+          />
+        </CardActionArea>
+      </Link>
       {children}
     </Card>
   );

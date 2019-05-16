@@ -85,7 +85,7 @@ function ListSignoffs() {
           <SignoffCard
             className={classes.card}
             title={titleCase(product)}
-            to={`/signoffs/${product}`}>
+            to={`/required-signoffs/${product}`}>
             {'permissions' in requiredSignoffs[product] &&
               Object.entries(requiredSignoffs[product].permissions).map(
                 ([name, role], index, arr) => {
@@ -117,7 +117,7 @@ function ListSignoffs() {
                     key={`${product}-${channelName}`}
                     className={classes.card}
                     title={titleCase(`${product} ${channelName} Channel`)}
-                    to={`/signoffs/${product}/${channelName}`}>
+                    to={`/required-signoffs/${product}/${channelName}`}>
                     {Object.entries(roles).map(
                       ([roleName, role], index, arr) => {
                         const key = `${roleName}-${index}`;
@@ -142,7 +142,7 @@ function ListSignoffs() {
                 )
               )}
           </div>
-          <Link to="/signoffs/create">
+          <Link to="/required-signoffs/create">
             <Tooltip title="Enable Signoff for a New Product">
               <Fab
                 color="primary"
