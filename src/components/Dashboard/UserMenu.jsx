@@ -1,4 +1,4 @@
-import React, { useContext, useState, Fragment } from 'react';
+import React, { useState, Fragment } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -6,7 +6,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import LogoutVariantIcon from 'mdi-react/LogoutVariantIcon';
-import AuthContext from '../../utils/AuthContext';
+import { withUser } from '../../utils/AuthContext';
 
 const useStyles = makeStyles(theme => ({
   avatar: {
@@ -16,15 +16,15 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function UserMenu() {
+function UserMenu(props) {
+  const { user, onAuthorize, onUnauthorize } = props;
   const classes = useStyles();
-  const { authorize, unauthorize, user } = useContext(AuthContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const handleMenuOpen = e => setAnchorEl(e.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
   const handleLogoutClick = () => {
     handleMenuClose();
-    unauthorize();
+    onUnauthorize();
   };
 
   return (
@@ -36,15 +36,15 @@ export default function UserMenu() {
           aria-controls="user-menu"
           aria-label="user menu"
           onClick={handleMenuOpen}>
-          {user.userInfo.picture ? (
-            <Avatar alt={user.userInfo.nickname} src={user.userInfo.picture} />
+          {user.picture ? (
+            <Avatar alt={user.nickname} src={user.picture} />
           ) : (
-            <Avatar alt={user.userInfo.name}>{user.userInfo.name[0]}</Avatar>
+            <Avatar alt={user.name}>{user.name[0]}</Avatar>
           )}
         </IconButton>
       ) : (
         <Button
-          onClick={authorize}
+          onClick={onAuthorize}
           size="small"
           variant="contained"
           color="secondary">
@@ -66,3 +66,5 @@ export default function UserMenu() {
     </Fragment>
   );
 }
+
+export default withUser(UserMenu);

@@ -12,10 +12,24 @@ export default createMuiTheme({
     useNextVariants: true,
   },
   mixins: {
+    link: {
+      textDecoration: 'none',
+      color: 'unset',
+      height: '100%',
+      width: '100%',
+    },
     fab: {
       position: 'fixed',
       bottom: SPACING.DOUBLE,
       right: SPACING.TRIPLE,
+    },
+  },
+  overrides: {
+    MuiListItem: {
+      dense: {
+        paddingTop: SPACING.UNIT / 2,
+        paddingBottom: SPACING.UNIT / 2,
+      },
     },
   },
 });
