@@ -21,7 +21,7 @@ import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import { getProducts } from '../../../utils/Rules';
 import tryCatch from '../../../utils/tryCatch';
-import getRequiredSignoffs from '../../../utils/getRequiredSignoffs';
+import getRequiredSignoffs from '../utils/getRequiredSignoffs';
 
 const useStyles = makeStyles(theme => ({
   iconButtonGrid: {

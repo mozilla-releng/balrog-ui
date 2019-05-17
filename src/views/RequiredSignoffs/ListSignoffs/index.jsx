@@ -16,7 +16,7 @@ import SignoffCard from '../../../components/SignoffCard';
 import SignoffCardEntry from '../../../components/SignoffCardEntry';
 import Link from '../../../utils/Link';
 import tryCatch from '../../../utils/tryCatch';
-import getRequiredSignoffs from '../../../utils/getRequiredSignoffs';
+import getRequiredSignoffs from '../utils/getRequiredSignoffs';
 
 const useStyles = makeStyles(theme => ({
   fab: {

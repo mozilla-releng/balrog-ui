@@ -1,6 +1,6 @@
-import { OBJECT_NAMES } from './constants';
-import RequiredSignoffs from '../views/RequiredSignoffs/ListSignoffs/RequiredSignoffs';
-import rsService from '../services/requiredSignoffs';
+import { OBJECT_NAMES } from '../../../utils/constants';
+import RequiredSignoffs from '../ListSignoffs/RequiredSignoffs';
+import rsService from '../../../services/requiredSignoffs';
 
 // Holds ALL of the Required Signoffs - product, permissions,
 // and scheduled changes for each
