@@ -3,10 +3,6 @@ import { bool } from 'prop-types';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import { makeStyles } from '@material-ui/styles';
 import TextField from '@material-ui/core/TextField';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import Fab from '@material-ui/core/Fab';
 import Grid from '@material-ui/core/Grid';
@@ -15,7 +11,6 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import DeleteIcon from 'mdi-react/DeleteIcon';
 import ContentSaveIcon from 'mdi-react/ContentSaveIcon';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
@@ -123,20 +118,6 @@ function ViewSignoff(props) {
             <IconButton className={classes.iconButton}>
               <PlusIcon />
             </IconButton>
-          </Grid>
-        </Grid>
-        <Grid container spacing={1}>
-          <Grid item xs={12} sm={4}>
-            <List>
-              <ListItem disableGutters divider dense>
-                <ListItemText primary="test" secondary="2 signoffs required" />
-                <ListItemSecondaryAction>
-                  <IconButton aria-label="Delete">
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            </List>
           </Grid>
         </Grid>
       </form>
