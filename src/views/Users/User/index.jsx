@@ -42,8 +42,10 @@ function User(props) {
       {user && <Typography variant="h4">{user.username}…</Typography>}
       <List>
         {user &&
-          Object.keys(user.permissions).map(permission => {
-            console.log(user.permissions);
+          Object.entries(user.permissions).map(([permission, details]) => {
+            console.log("here");
+            console.log(permission);
+            console.log(details);
 
             return (
               <ListItem key={permission}>
@@ -53,8 +55,8 @@ function User(props) {
                 <ListItemText>
                   {getPermissionString(
                     permission,
-                    user.permissions[permission].options.actions,
-                    user.permissions[permission].options.products
+                    details.options.action,
+                    details.options.products
                   )}
                 </ListItemText>
               </ListItem>
