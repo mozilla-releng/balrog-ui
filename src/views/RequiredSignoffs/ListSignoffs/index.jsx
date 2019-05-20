@@ -15,8 +15,8 @@ import Dashboard from '../../../components/Dashboard';
 import SignoffCard from '../../../components/SignoffCard';
 import SignoffCardEntry from '../../../components/SignoffCardEntry';
 import Link from '../../../utils/Link';
-import tryCatch from '../../../utils/tryCatch';
 import getRequiredSignoffs from '../utils/getRequiredSignoffs';
+import useAction from '../../../hooks/useAction';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -41,28 +41,20 @@ const useStyles = makeStyles(theme => ({
 
 function ListSignoffs() {
   const classes = useStyles();
-  const [error, setError] = useState(null);
   const [requiredSignoffs, setRequiredSignoffs] = useState(null);
   const [product, setProduct] = useState('Firefox');
+  const [{ error, loading }, getRS] = useAction(getRequiredSignoffs);
   const handleFilterChange = ({ target: { value } }) => setProduct(value);
 
   // Fetch view data
   useEffect(() => {
-    tryCatch(getRequiredSignoffs()).then(([error, rs]) => {
-      if (error) {
-        setError(error);
-
-        return;
-      }
-
-      setRequiredSignoffs(rs);
-    });
+    getRS().then(({ data }) => setRequiredSignoffs(data));
   }, []);
 
   return (
     <Dashboard>
       {error && <ErrorPanel error={error} />}
-      {!error && !requiredSignoffs && <Spinner loading />}
+      {loading && <Spinner loading />}
       {requiredSignoffs && (
         <Fragment>
           <div className={classes.toolbar}>
