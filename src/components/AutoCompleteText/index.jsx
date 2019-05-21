@@ -43,7 +43,7 @@ function AutoCompleteText({ getSuggestions, textFieldProps, ...props }) {
     return (
       <MenuItem
         {...itemProps}
-        key={suggestion.label}
+        key={suggestion}
         selected={isHighlighted}
         component="div"
         className={classNames({ [classes.selectedText]: isSelected })}>
