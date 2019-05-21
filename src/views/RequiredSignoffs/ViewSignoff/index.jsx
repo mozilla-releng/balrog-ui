@@ -22,6 +22,7 @@ import PlusIcon from 'mdi-react/PlusIcon';
 import DeleteIcon from 'mdi-react/DeleteIcon';
 import Dashboard from '../../../components/Dashboard';
 import SpeedDial from '../../../components/SpeedDial';
+import AutoCompleteText from '../../../components/AutoCompleteText';
 import { getProducts } from '../../../utils/Rules';
 import getRequiredSignoffs from '../utils/getRequiredSignoffs';
 import getRolesFromRequiredSignoffs from '../utils/getRolesFromRequiredSignoffs';
@@ -49,6 +50,13 @@ const useStyles = makeStyles(theme => ({
   addRoleGrid: {
     marginTop: theme.spacing(5),
   },
+  paper: {
+    position: 'absolute',
+    zIndex: 1,
+    marginTop: theme.spacing(1),
+    left: 0,
+    right: 0,
+  },
 }));
 
 function ViewSignoff({ isNewSignoff, ...props }) {
@@ -68,8 +76,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   const handleTypeChange = ({ target: { value } }) => setType(value);
   const handleChannelChange = ({ target: { value } }) =>
     setChannelTextValue(value);
-  const handleProductChange = ({ target: { value } }) =>
-    setProductTextValue(value);
+  const handleProductChange = value => setProductTextValue(value);
   const handleRoleValueChange = (role, index) => ({ floatValue: value }) => {
     const setRole = (entry, i) =>
       i === index ? [entry[0], value, entry[2]] : entry;
@@ -106,7 +113,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
   useEffect(() => {
     if (isNewSignoff) {
-      return;
+      return getProds();
     }
 
     // eslint-disable-next-line no-unused-vars
@@ -154,6 +161,26 @@ function ViewSignoff({ isNewSignoff, ...props }) {
       </Grid>
     </Grid>
   );
+  const getSuggestions = value => {
+    const suggestions = products.data.data.product;
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+    let count = 0;
+
+    return inputLength === 0
+      ? []
+      : suggestions.filter(suggestion => {
+          const keep =
+            count < 5 &&
+            suggestion.slice(0, inputLength).toLowerCase() === inputValue;
+
+          if (keep) {
+            count += 1;
+          }
+
+          return keep;
+        });
+  };
 
   return (
     <Dashboard>
@@ -165,14 +192,18 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           <form autoComplete="off">
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <TextField
-                  autoFocus
-                  fullWidth
-                  label="Product"
-                  required
-                  onChange={handleProductChange}
-                  disabled={!isNewSignoff}
-                  value={productTextValue}
+                <AutoCompleteText
+                  inputValue={productTextValue}
+                  onInputValueChange={handleProductChange}
+                  getSuggestions={getSuggestions}
+                  textFieldProps={{
+                    autoFocus: true,
+                    fullWidth: true,
+                    label: 'Product',
+                    placeholder: 'Product',
+                    required: true,
+                    disabled: !isNewSignoff,
+                  }}
                 />
               </Grid>
               <Grid item xs={12}>

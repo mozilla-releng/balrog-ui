@@ -5,7 +5,9 @@ import { useState } from 'react';
  *
  * Hook value:
  * {
- *   loading - true if the action was triggered but has not yet resolved/rejected
+ *   loading - true if the action was triggered but
+ *   has not yet been resolved/rejected
+ *
  *   data - the response
  *   error - true if the action throws an error
  * }
