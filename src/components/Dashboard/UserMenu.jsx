@@ -6,6 +6,9 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import LogoutVariantIcon from 'mdi-react/LogoutVariantIcon';
+import ContentCopyIcon from 'mdi-react/ContentCopyIcon';
+import copy from 'clipboard-copy';
+import { USER_SESSION } from '../../utils/constants';
 import { withUser } from '../../utils/AuthContext';
 
 const useStyles = makeStyles(theme => ({
@@ -25,6 +28,15 @@ function UserMenu(props) {
   const handleLogoutClick = () => {
     handleMenuClose();
     onUnauthorize();
+  };
+
+  const handleCopyAccessToken = () => {
+    const { accessToken } = JSON.parse(
+      localStorage.getItem(USER_SESSION)
+    ).authResult;
+
+    copy(accessToken);
+    handleMenuClose();
   };
 
   return (
@@ -58,6 +70,10 @@ function UserMenu(props) {
         getContentAnchorEl={null}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         onClose={handleMenuClose}>
+        <MenuItem title="Copy Access Token" onClick={handleCopyAccessToken}>
+          <ContentCopyIcon />
+          Copy Access Token
+        </MenuItem>
         <MenuItem title="Logout" onClick={handleLogoutClick}>
           <LogoutVariantIcon />
           Logout
