@@ -113,15 +113,15 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
   useEffect(() => {
     if (isNewSignoff) {
-      return getProds();
+      getProds();
+    } else {
+      // eslint-disable-next-line no-unused-vars
+      Promise.all([getProds(), getRS()]).then(([prods, rs]) => {
+        const roles = getRolesFromRequiredSignoffs(rs.data);
+
+        setRoles(roles);
+      });
     }
-
-    // eslint-disable-next-line no-unused-vars
-    Promise.all([getProds(), getRS()]).then(([prods, rs]) => {
-      const roles = getRolesFromRequiredSignoffs(rs.data);
-
-      setRoles(roles);
-    });
   }, [product, channel]);
 
   const renderRole = (role, index) => (

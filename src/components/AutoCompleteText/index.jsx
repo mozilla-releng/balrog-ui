@@ -1,5 +1,5 @@
 import React from 'react';
-import { func } from 'prop-types';
+import { object, func } from 'prop-types';
 import classNames from 'classnames';
 import Downshift from 'downshift';
 import { makeStyles } from '@material-ui/styles';
@@ -88,7 +88,7 @@ function AutoCompleteText({ getSuggestions, textFieldProps, ...props }) {
 
 AutoCompleteText.propTypes = {
   getSuggestions: func.isRequired,
-  textFieldProps: func,
+  textFieldProps: object,
 };
 
 AutoCompleteText.defaultProps = {
