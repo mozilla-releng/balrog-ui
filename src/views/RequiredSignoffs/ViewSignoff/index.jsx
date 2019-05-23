@@ -24,7 +24,7 @@ import DeleteIcon from 'mdi-react/DeleteIcon';
 import Dashboard from '../../../components/Dashboard';
 import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
-import { getProducts } from '../../../utils/Rules';
+import { getChannels, getProducts } from '../../../utils/Rules';
 import getRequiredSignoffs from '../utils/getRequiredSignoffs';
 import getRolesFromRequiredSignoffs from '../utils/getRolesFromRequiredSignoffs';
 import useAction from '../../../hooks/useAction';
@@ -72,11 +72,12 @@ function ViewSignoff({ isNewSignoff, ...props }) {
     isNewSignoff ? [emptyRole] : []
   );
   const [requiredSignoffs, getRS] = useAction(getRequiredSignoffs);
-  const [products, getProds] = useAction(getProducts);
-  const isLoading = requiredSignoffs.loading || products.loading;
+  const [products, fetchProducts] = useAction(getProducts);
+  const [channels, fetchChannels] = useAction(getChannels);
+  const isLoading =
+    requiredSignoffs.loading || products.loading || channels.loading;
   const handleTypeChange = ({ target: { value } }) => setType(value);
-  const handleChannelChange = ({ target: { value } }) =>
-    setChannelTextValue(value);
+  const handleChannelChange = value => setChannelTextValue(value);
   const handleProductChange = value => setProductTextValue(value);
   const handleRoleValueChange = (role, index) => ({ floatValue: value }) => {
     const setRole = (entry, i) =>
@@ -114,14 +115,16 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
   useEffect(() => {
     if (isNewSignoff) {
-      getProds();
+      Promise.all([fetchProducts(), fetchChannels()]);
     } else {
-      // eslint-disable-next-line no-unused-vars
-      Promise.all([getProds(), getRS()]).then(([prods, rs]) => {
-        const roles = getRolesFromRequiredSignoffs(rs.data);
+      Promise.all([fetchProducts(), fetchChannels(), getRS()]).then(
+        // eslint-disable-next-line no-unused-vars
+        ([prods, chs, rs]) => {
+          const roles = getRolesFromRequiredSignoffs(rs.data);
 
-        setRoles(roles);
-      });
+          setRoles(roles);
+        }
+      );
     }
   }, [product, channel]);
 
@@ -162,8 +165,8 @@ function ViewSignoff({ isNewSignoff, ...props }) {
       </Grid>
     </Grid>
   );
-  const getSuggestions = value => {
-    const suggestions = products.data.data.product;
+  const getSuggestions = suggestions => value => {
+    // const suggestions = products.data.data.product;
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
     let count = 0;
@@ -196,7 +199,9 @@ function ViewSignoff({ isNewSignoff, ...props }) {
                 <AutoCompleteText
                   inputValue={productTextValue}
                   onInputValueChange={handleProductChange}
-                  getSuggestions={getSuggestions}
+                  getSuggestions={
+                    products.data && getSuggestions(products.data.data.product)
+                  }
                   textFieldProps={{
                     autoFocus: true,
                     fullWidth: true,
@@ -232,13 +237,20 @@ function ViewSignoff({ isNewSignoff, ...props }) {
               </Grid>
               {type === 'channel' && (
                 <Grid item xs={12}>
-                  <TextField
-                    required
-                    disabled={!isNewSignoff}
-                    onChange={handleChannelChange}
-                    fullWidth
-                    label="Channel"
-                    value={channelTextValue}
+                  <AutoCompleteText
+                    inputValue={channelTextValue}
+                    onInputValueChange={handleChannelChange}
+                    getSuggestions={
+                      channels.data &&
+                      getSuggestions(channels.data.data.channel)
+                    }
+                    textFieldProps={{
+                      fullWidth: true,
+                      label: 'Channel',
+                      placeholder: 'Channel',
+                      required: true,
+                      disabled: !isNewSignoff,
+                    }}
                   />
                 </Grid>
               )}

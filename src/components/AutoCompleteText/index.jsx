@@ -65,21 +65,23 @@ function AutoCompleteText({ getSuggestions, textFieldProps, ...props }) {
       }) => (
         <div>
           <TextField fullWidth InputProps={getInputProps(textFieldProps)} />
-          <div className={classes.paperWrapper} {...getMenuProps()}>
-            {Boolean(isOpen) && (
-              <Paper className={classes.paper} square>
-                {getSuggestions(inputValue).map((suggestion, index) =>
-                  renderSuggestion({
-                    suggestion,
-                    index,
-                    itemProps: getItemProps({ item: suggestion }),
-                    highlightedIndex,
-                    selectedItem,
-                  })
-                )}
-              </Paper>
-            )}
-          </div>
+          {getSuggestions && (
+            <div className={classes.paperWrapper} {...getMenuProps()}>
+              {Boolean(isOpen) && (
+                <Paper className={classes.paper} square>
+                  {getSuggestions(inputValue).map((suggestion, index) =>
+                    renderSuggestion({
+                      suggestion,
+                      index,
+                      itemProps: getItemProps({ item: suggestion }),
+                      highlightedIndex,
+                      selectedItem,
+                    })
+                  )}
+                </Paper>
+              )}
+            </div>
+          )}
         </div>
       )}
     </Downshift>
@@ -87,11 +89,12 @@ function AutoCompleteText({ getSuggestions, textFieldProps, ...props }) {
 }
 
 AutoCompleteText.propTypes = {
-  getSuggestions: func.isRequired,
+  getSuggestions: func,
   textFieldProps: object,
 };
 
 AutoCompleteText.defaultProps = {
+  getSuggestions: null,
   textFieldProps: {},
 };
 
