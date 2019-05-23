@@ -29,6 +29,7 @@ import getRequiredSignoffs from '../utils/getRequiredSignoffs';
 import getRolesFromRequiredSignoffs from '../utils/getRolesFromRequiredSignoffs';
 import useAction from '../../../hooks/useAction';
 
+let additionalRoleId = 0;
 const useStyles = makeStyles(theme => ({
   iconButtonGrid: {
     display: 'flex',
@@ -61,7 +62,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ViewSignoff({ isNewSignoff, ...props }) {
-  const emptyRole = ['', '', { isAdditionalRole: true, id: Math.random() }];
+  const getEmptyRole = (id = 0) => ['', '', { isAdditionalRole: true, id }];
   const { product, channel } = props.match.params;
   const classes = useStyles();
   const [channelTextValue, setChannelTextValue] = useState(channel || '');
@@ -69,7 +70,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   const [type, setType] = useState(channel ? 'channel' : 'permission');
   const [roles, setRoles] = useState([]);
   const [additionalRoles, setAdditionalRoles] = useState(
-    isNewSignoff ? [emptyRole] : []
+    isNewSignoff ? [getEmptyRole()] : []
   );
   const [requiredSignoffs, getRS] = useAction(getRequiredSignoffs);
   const [products, fetchProducts] = useAction(getProducts);
@@ -97,7 +98,10 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   };
 
   const handleRoleAdd = () => {
-    setAdditionalRoles(additionalRoles.concat([emptyRole]));
+    additionalRoleId += 1;
+    const role = getEmptyRole(additionalRoleId);
+
+    setAdditionalRoles(additionalRoles.concat([role]));
   };
 
   const handleRoleDelete = (role, index) => () => {
@@ -120,7 +124,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
       Promise.all([fetchProducts(), fetchChannels(), getRS()]).then(
         // eslint-disable-next-line no-unused-vars
         ([prods, chs, rs]) => {
-          const roles = getRolesFromRequiredSignoffs(rs.data);
+          const roles = getRolesFromRequiredSignoffs(rs.data, product, channel);
 
           setRoles(roles);
         }
@@ -202,12 +206,11 @@ function ViewSignoff({ isNewSignoff, ...props }) {
                   getSuggestions={
                     products.data && getSuggestions(products.data.data.product)
                   }
-                  textFieldProps={{
+                  label="Product"
+                  required
+                  inputProps={{
                     autoFocus: true,
                     fullWidth: true,
-                    label: 'Product',
-                    placeholder: 'Product',
-                    required: true,
                     disabled: !isNewSignoff,
                   }}
                 />
@@ -244,11 +247,10 @@ function ViewSignoff({ isNewSignoff, ...props }) {
                       channels.data &&
                       getSuggestions(channels.data.data.channel)
                     }
-                    textFieldProps={{
+                    label="Channel"
+                    required
+                    inputProps={{
                       fullWidth: true,
-                      label: 'Channel',
-                      placeholder: 'Channel',
-                      required: true,
                       disabled: !isNewSignoff,
                     }}
                   />

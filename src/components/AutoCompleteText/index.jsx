@@ -1,5 +1,5 @@
 import React from 'react';
-import { object, func } from 'prop-types';
+import { string, bool, object, func } from 'prop-types';
 import classNames from 'classnames';
 import Downshift from 'downshift';
 import { makeStyles } from '@material-ui/styles';
@@ -27,7 +27,13 @@ const useStyles = makeStyles(theme => ({
  * A wrapper component around downshift-js to render a material-ui TextField
  * with auto complete capabilities.
  */
-function AutoCompleteText({ getSuggestions, textFieldProps, ...props }) {
+function AutoCompleteText({
+  label,
+  required,
+  getSuggestions,
+  inputProps,
+  ...props
+}) {
   const classes = useStyles();
 
   function renderSuggestion({
@@ -64,7 +70,12 @@ function AutoCompleteText({ getSuggestions, textFieldProps, ...props }) {
         selectedItem,
       }) => (
         <div>
-          <TextField fullWidth InputProps={getInputProps(textFieldProps)} />
+          <TextField
+            label={label}
+            required={required}
+            fullWidth
+            InputProps={getInputProps(inputProps)}
+          />
           {getSuggestions && (
             <div className={classes.paperWrapper} {...getMenuProps()}>
               {Boolean(isOpen) && (
@@ -90,12 +101,16 @@ function AutoCompleteText({ getSuggestions, textFieldProps, ...props }) {
 
 AutoCompleteText.propTypes = {
   getSuggestions: func,
-  textFieldProps: object,
+  inputProps: object,
+  label: string,
+  required: bool,
 };
 
 AutoCompleteText.defaultProps = {
   getSuggestions: null,
-  textFieldProps: {},
+  inputProps: {},
+  label: '',
+  required: false,
 };
 
 export default AutoCompleteText;
