@@ -9,7 +9,11 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import Dashboard from '../../../components/Dashboard';
-import { getUserInfo, getPermissionString } from '../../../utils/Users';
+import {
+  getUserInfo,
+  getPermissionString,
+  getRolesString,
+} from '../../../utils/Users';
 import tryCatch from '../../../utils/tryCatch';
 
 function User(props) {
@@ -20,6 +24,13 @@ function User(props) {
   } = props;
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
+  const returnOptionIfExists = (options, key, defaultValue) => {
+    if (options && options[key]) {
+      return options[key];
+    }
+
+    return defaultValue;
+  };
 
   useEffect(() => {
     (async () => {
@@ -50,23 +61,24 @@ function User(props) {
               <ListItemText>
                 {getPermissionString(
                   permission,
-                  details.options.action,
-                  details.options.products
+                  returnOptionIfExists(details.options, 'actions', []),
+                  returnOptionIfExists(details.options, 'products', [])
                 )}
               </ListItemText>
             </ListItem>
           ))}
-        {user &&
-          Object.keys(user.roles).map(role => (
-            <ListItem key={role}>
-              <ListItemIcon>
-                <AccountGroupIcon />
-              </ListItemIcon>
-              <ListItemText>
-                {user.username} has {role}
-              </ListItemText>
-            </ListItem>
-          ))}
+        {user && Object.keys(user.roles).length > 0 && (
+          <ListItem>
+            <ListItemIcon>
+              <AccountGroupIcon />
+            </ListItemIcon>
+            {/* TODO: Should these be inside of a Chip like on the UserCards */}
+            <ListItemText>
+              {user.username} holds the
+              {getRolesString(Object.keys(user.roles))}
+            </ListItemText>
+          </ListItem>
+        )}
       </List>
     </Dashboard>
   );
