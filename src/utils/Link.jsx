@@ -9,7 +9,8 @@ import matchRoutes from './matchRoutes';
  * A react hook which augments `react-router-dom`'s `Link` component
  * with pre-fetching capabilities.
  */
-export default function Link({ viewName, nav, to, ...props }) {
+
+const Link = React.forwardRef(({ viewName, nav, to, ...props }, ref) => {
   const path = typeof to === 'string' ? to : to.pathname;
   const isPathAbsolute = isAbsolute(path);
   const Component = nav ? NavLink : RouterLink;
@@ -55,12 +56,13 @@ export default function Link({ viewName, nav, to, ...props }) {
   ) : (
     <Component
       {...props}
+      ref={ref}
       to={to}
       onFocus={handleFocus}
       onMouseOver={handleMouseOver}
     />
   );
-}
+});
 
 Link.propTypes = {
   /**
@@ -73,3 +75,5 @@ Link.propTypes = {
 Link.defaultProps = {
   nav: false,
 };
+
+export default Link;

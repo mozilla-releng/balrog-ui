@@ -42,26 +42,20 @@ function User(props) {
       {user && <Typography variant="h4">{user.username}…</Typography>}
       <List>
         {user &&
-          Object.entries(user.permissions).map(([permission, details]) => {
-            console.log("here");
-            console.log(permission);
-            console.log(details);
-
-            return (
-              <ListItem key={permission}>
-                <ListItemIcon>
-                  <AccountSupervisorIcon />
-                </ListItemIcon>
-                <ListItemText>
-                  {getPermissionString(
-                    permission,
-                    details.options.action,
-                    details.options.products
-                  )}
-                </ListItemText>
-              </ListItem>
-            );
-          })}
+          Object.entries(user.permissions).map(([permission, details]) => (
+            <ListItem key={permission}>
+              <ListItemIcon>
+                <AccountSupervisorIcon />
+              </ListItemIcon>
+              <ListItemText>
+                {getPermissionString(
+                  permission,
+                  details.options.action,
+                  details.options.products
+                )}
+              </ListItemText>
+            </ListItem>
+          ))}
         {user &&
           Object.keys(user.roles).map(role => (
             <ListItem key={role}>
