@@ -19,7 +19,6 @@ import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 import NumberFormat from 'react-number-format';
 import ContentSaveIcon from 'mdi-react/ContentSaveIcon';
 import PlusIcon from 'mdi-react/PlusIcon';
-import CloseIcon from 'mdi-react/CloseIcon';
 import DeleteIcon from 'mdi-react/DeleteIcon';
 import Dashboard from '../../../components/Dashboard';
 import SpeedDial from '../../../components/SpeedDial';
@@ -285,9 +284,9 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           {!isNewSignoff && (
             <SpeedDial ariaLabel="Secondary Actions">
               <SpeedDialAction
-                icon={<CloseIcon />}
+                icon={<DeleteIcon />}
                 tooltipOpen
-                tooltipTitle="Cancel Signoff"
+                tooltipTitle="Delete Signoff"
                 onClick={handleSignoffCancel}
               />
             </SpeedDial>
