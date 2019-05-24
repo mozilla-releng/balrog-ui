@@ -282,14 +282,16 @@ function ViewSignoff({ isNewSignoff, ...props }) {
               <ContentSaveIcon />
             </Fab>
           </Tooltip>
-          <SpeedDial ariaLabel="Secondary Actions">
-            <SpeedDialAction
-              icon={<CloseIcon />}
-              tooltipOpen
-              tooltipTitle="Cancel Signoff"
-              onClick={handleSignoffCancel}
-            />
-          </SpeedDial>
+          {!isNewSignoff && (
+            <SpeedDial ariaLabel="Secondary Actions">
+              <SpeedDialAction
+                icon={<CloseIcon />}
+                tooltipOpen
+                tooltipTitle="Cancel Signoff"
+                onClick={handleSignoffCancel}
+              />
+            </SpeedDial>
+          )}
         </Fragment>
       )}
     </Dashboard>
