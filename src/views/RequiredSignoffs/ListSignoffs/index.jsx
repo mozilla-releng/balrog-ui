@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { titleCase } from 'change-case';
 import classNames from 'classnames';
+import { view, lensPath } from 'ramda';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { makeStyles } from '@material-ui/styles';
@@ -15,9 +16,12 @@ import Dashboard from '../../../components/Dashboard';
 import SignoffCard from '../../../components/SignoffCard';
 import SignoffCardEntry from '../../../components/SignoffCardEntry';
 import Link from '../../../utils/Link';
-import tryCatch from '../../../utils/tryCatch';
 import getRequiredSignoffs from '../utils/getRequiredSignoffs';
+import useAction from '../../../hooks/useAction';
 
+const getPermissionChangesLens = product => lensPath([product, 'permissions']);
+const getRulesOrReleasesChangesLens = product =>
+  lensPath([product, 'channels']);
 const useStyles = makeStyles(theme => ({
   fab: {
     ...theme.mixins.fab,
@@ -29,7 +33,12 @@ const useStyles = makeStyles(theme => ({
   },
   dropdown: {
     minWidth: 200,
+  },
+  dropdownDiv: {
     marginBottom: theme.spacing(2),
+    display: 'flex',
+    flex: 1,
+    justifyContent: 'flex-end',
   },
   card: {
     marginBottom: theme.spacing(2),
@@ -41,53 +50,62 @@ const useStyles = makeStyles(theme => ({
 
 function ListSignoffs() {
   const classes = useStyles();
-  const [error, setError] = useState(null);
   const [requiredSignoffs, setRequiredSignoffs] = useState(null);
   const [product, setProduct] = useState('Firefox');
+  const [{ error, loading }, getRS] = useAction(getRequiredSignoffs);
   const handleFilterChange = ({ target: { value } }) => setProduct(value);
+  const permissionChanges = view(
+    getPermissionChangesLens(product),
+    requiredSignoffs
+  );
+  const rulesOrReleasesChanges = view(
+    getRulesOrReleasesChangesLens(product),
+    requiredSignoffs
+  );
 
   // Fetch view data
   useEffect(() => {
-    tryCatch(getRequiredSignoffs()).then(([error, rs]) => {
-      if (error) {
-        setError(error);
-
-        return;
-      }
-
-      setRequiredSignoffs(rs);
-    });
+    getRS().then(({ data }) => setRequiredSignoffs(data));
   }, []);
 
   return (
     <Dashboard>
       {error && <ErrorPanel error={error} />}
-      {!error && !requiredSignoffs && <Spinner loading />}
+      {loading && <Spinner loading />}
       {requiredSignoffs && (
         <Fragment>
           <div className={classes.toolbar}>
-            <Typography gutterBottom variant="h5">
-              Changes to Permissions
-            </Typography>
-            <TextField
-              className={classes.dropdown}
-              select
-              label="Product"
-              value={product}
-              onChange={handleFilterChange}>
-              {Object.keys(requiredSignoffs).map(product => (
-                <MenuItem key={product} value={product}>
-                  {product}
-                </MenuItem>
-              ))}
-            </TextField>
+            {permissionChanges && (
+              <Typography gutterBottom variant="h5">
+                Changes to Permissions
+              </Typography>
+            )}
+            {!permissionChanges && rulesOrReleasesChanges && (
+              <Typography gutterBottom variant="h5">
+                Changes to Rules / Releases
+              </Typography>
+            )}
+            <div className={classes.dropdownDiv}>
+              <TextField
+                className={classes.dropdown}
+                select
+                label="Product"
+                value={product}
+                onChange={handleFilterChange}>
+                {Object.keys(requiredSignoffs).map(product => (
+                  <MenuItem key={product} value={product}>
+                    {product}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </div>
           </div>
-          <SignoffCard
-            className={classes.card}
-            title={titleCase(product)}
-            to={`/required-signoffs/${product}`}>
-            {'permissions' in requiredSignoffs[product] &&
-              Object.entries(requiredSignoffs[product].permissions).map(
+          {permissionChanges && (
+            <SignoffCard
+              className={classes.card}
+              title={titleCase(product)}
+              to={`/required-signoffs/${product}`}>
+              {Object.entries(permissionChanges).map(
                 ([name, role], index, arr) => {
                   const key = `${name}-${index}`;
 
@@ -103,44 +121,56 @@ function ListSignoffs() {
                   );
                 }
               )}
-          </SignoffCard>
+            </SignoffCard>
+          )}
           <div>
-            <br />
-            <Typography gutterBottom variant="h5">
-              Changes to Rules / Releases
-            </Typography>
-            <br />
-            {'channels' in requiredSignoffs[product] &&
-              Object.entries(requiredSignoffs[product].channels).map(
-                ([channelName, roles]) => (
-                  <SignoffCard
-                    key={`${product}-${channelName}`}
-                    className={classes.card}
-                    title={titleCase(`${product} ${channelName} Channel`)}
-                    to={`/required-signoffs/${product}/${channelName}`}>
-                    {Object.entries(roles).map(
-                      ([roleName, role], index, arr) => {
-                        const key = `${roleName}-${index}`;
+            {rulesOrReleasesChanges && (
+              <Fragment>
+                {permissionChanges && (
+                  <Fragment>
+                    <br />
+                    <Typography gutterBottom variant="h5">
+                      Changes to Rules / Releases
+                    </Typography>
+                    <br />
+                  </Fragment>
+                )}
+                {Object.entries(rulesOrReleasesChanges).map(
+                  ([channelName, roles]) => (
+                    <SignoffCard
+                      key={`${product}-${channelName}`}
+                      className={classes.card}
+                      title={titleCase(`${product} ${channelName} Channel`)}
+                      to={`/required-signoffs/${product}/${channelName}`}>
+                      {Object.entries(roles).map(
+                        ([roleName, role], index, arr) => {
+                          const key = `${roleName}-${index}`;
 
-                        return (
-                          <Fragment key={key}>
-                            <SignoffCardEntry
-                              key={roleName}
-                              name={roleName}
-                              entry={role}
-                            />
-                            <Divider
-                              className={classNames({
-                                [classes.lastDivider]: arr.length - 1 === index,
-                              })}
-                            />
-                          </Fragment>
-                        );
-                      }
-                    )}
-                  </SignoffCard>
-                )
-              )}
+                          return (
+                            <Fragment key={key}>
+                              <SignoffCardEntry
+                                key={roleName}
+                                name={roleName}
+                                entry={role}
+                              />
+                              <Divider
+                                className={classNames({
+                                  [classes.lastDivider]:
+                                    arr.length - 1 === index,
+                                })}
+                              />
+                            </Fragment>
+                          );
+                        }
+                      )}
+                    </SignoffCard>
+                  )
+                )}
+              </Fragment>
+            )}
+            {!permissionChanges && !rulesOrReleasesChanges && (
+              <Typography>No required signoffs for {product}</Typography>
+            )}
           </div>
           <Link to="/required-signoffs/create">
             <Tooltip title="Enable Signoff for a New Product">
