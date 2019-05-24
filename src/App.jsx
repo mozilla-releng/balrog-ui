@@ -1,8 +1,8 @@
-import { hot } from 'react-hot-loader';
+import { hot } from 'react-hot-loader/root';
 import React, { useState } from 'react';
 import { Authorize } from 'react-auth0-components';
 import { ThemeProvider } from '@material-ui/styles';
-import AuthContext from './utils/AuthContext';
+import { AuthContext } from './utils/AuthContext';
 import { USER_SESSION } from './utils/constants';
 import theme from './theme';
 import Main from './Main';
@@ -63,4 +63,4 @@ const App = () => {
   );
 };
 
-export default hot(module)(App);
+export default hot(App);

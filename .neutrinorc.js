@@ -32,6 +32,10 @@ module.exports = {
         },
       }
     ],
+    (neutrino) => {
+      neutrino.config.resolve.alias
+        .set('react-dom', '@hot-loader/react-dom');
+    },
     '@neutrinojs/jest'
   ]
 };

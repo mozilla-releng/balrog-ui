@@ -17,6 +17,9 @@ const useStyles = makeStyles(theme => ({
   settingsIcon: {
     fill: '#fff',
   },
+  link: {
+    ...theme.mixins.link,
+  },
 }));
 
 export default function SettingsMenu() {
@@ -43,12 +46,10 @@ export default function SettingsMenu() {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         onClose={handleMenuClose}>
         {menuItems.settings.map(navItem => (
-          <MenuItem
-            title={navItem.value}
-            key={navItem.value}
-            component={Link}
-            to={navItem.path}>
-            {navItem.value}
+          <MenuItem key={navItem.value} title={navItem.value}>
+            <Link className={classes.link} to={navItem.path}>
+              {navItem.value}
+            </Link>
           </MenuItem>
         ))}
       </Menu>

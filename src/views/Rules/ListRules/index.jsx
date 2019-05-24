@@ -36,13 +36,13 @@ function ListRules() {
         }
         label="Scheduled"
       />
-      <Tooltip title="Add Rule">
-        <Link to="/rules/create">
+      <Link to="/rules/create">
+        <Tooltip title="Add Rule">
           <Fab color="primary" className={classes.fab}>
             <PlusIcon />
           </Fab>
-        </Link>
-      </Tooltip>
+        </Tooltip>
+      </Link>
     </Dashboard>
   );
 }

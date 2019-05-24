@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { bool } from 'prop-types';
+import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import { makeStyles } from '@material-ui/styles';
 import TextField from '@material-ui/core/TextField';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import Fab from '@material-ui/core/Fab';
 import Grid from '@material-ui/core/Grid';
@@ -13,12 +11,12 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import DeleteIcon from 'mdi-react/DeleteIcon';
 import ContentSaveIcon from 'mdi-react/ContentSaveIcon';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import { getProducts } from '../../../utils/Rules';
 import tryCatch from '../../../utils/tryCatch';
+import getRequiredSignoffs from '../utils/getRequiredSignoffs';
 
 const useStyles = makeStyles(theme => ({
   iconButtonGrid: {
@@ -37,27 +35,41 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function ViewSignoff() {
+function ViewSignoff(props) {
   const classes = useStyles();
   // eslint-disable-next-line no-unused-vars
   const [products, setProducts] = useState();
+  // eslint-disable-next-line no-unused-vars
+  const [requiredSignoffs, setRequiredSignoffs] = useState(null);
+  const [error, setError] = useState();
   const [type, setType] = useState('channel');
   const handleTypeChange = ({ target: { value } }) => setType(value);
 
   useEffect(() => {
-    console.log('prior to getting products');
+    tryCatch(getProducts()).then(([error, result]) => {
+      if (error) {
+        setError(error);
 
-    (async () => {
-      // eslint-disable-next-line no-unused-vars
-      const [error, result] = await tryCatch(getProducts());
+        return;
+      }
 
-      console.log('products: ', result);
-      // setProducts(result);
-    })();
-  }, []);
+      setProducts(result.data.product);
+    });
+
+    tryCatch(getRequiredSignoffs()).then(([error, rs]) => {
+      if (error) {
+        setError(error);
+
+        return;
+      }
+
+      setRequiredSignoffs(rs);
+    });
+  }, [props.product, props.channel]);
 
   return (
     <Dashboard>
+      {error && <ErrorPanel error={error} />}
       <form autoComplete="off">
         <Grid container spacing={2}>
           <Grid item xs={12}>
@@ -108,20 +120,6 @@ export default function ViewSignoff() {
             </IconButton>
           </Grid>
         </Grid>
-        <Grid container spacing={1}>
-          <Grid item xs={12} sm={4}>
-            <List>
-              <ListItem disableGutters divider dense>
-                <ListItemText primary="test" secondary="2 signoffs required" />
-                <ListItemSecondaryAction>
-                  <IconButton aria-label="Delete">
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            </List>
-          </Grid>
-        </Grid>
       </form>
       <Fab color="primary" className={classes.fab}>
         <ContentSaveIcon />
@@ -129,3 +127,13 @@ export default function ViewSignoff() {
     </Dashboard>
   );
 }
+
+ViewSignoff.propTypes = {
+  isNewSignoff: bool,
+};
+
+ViewSignoff.defaultProps = {
+  isNewSignoff: false,
+};
+
+export default ViewSignoff;
