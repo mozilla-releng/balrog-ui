@@ -71,11 +71,18 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   const [additionalRoles, setAdditionalRoles] = useState(
     isNewSignoff ? [getEmptyRole()] : []
   );
+  const [sleepAction, sleep] = useAction(
+    timeout =>
+      new Promise((resolve, reject) =>
+        setTimeout(() => reject(new Error('Action not complete')), timeout)
+      )
+  );
   const [requiredSignoffs, getRS] = useAction(getRequiredSignoffs);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
   const isLoading =
     requiredSignoffs.loading || products.loading || channels.loading;
+  const error = requiredSignoffs.error || products.error || sleepAction.error;
   const handleTypeChange = ({ target: { value } }) => setType(value);
   const handleChannelChange = value => setChannelTextValue(value);
   const handleProductChange = value => setProductTextValue(value);
@@ -112,9 +119,19 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   };
 
   // TODO: Add save logic
-  const handleSignoffSave = () => {};
+  const handleSignoffSave = async () => {
+    // Call the save endpoint with the appropriate parameters
+    await sleep(2000);
+
+    if (!sleepAction.error) {
+      // Save was successful
+      // You could possibly navigate the user back to /required-signoffs
+      props.history.push('/required-signoffs');
+    }
+  };
+
   // TODO: Add delete logic
-  const handleSignoffCancel = () => {};
+  const handleSignoffDelete = () => {};
 
   useEffect(() => {
     if (isNewSignoff) {
@@ -191,8 +208,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
   return (
     <Dashboard>
-      {requiredSignoffs.error && <ErrorPanel error={requiredSignoffs.error} />}
-      {products.error && <ErrorPanel error={products.error} />}
+      {error && <ErrorPanel error={error} />}
       {isLoading && <Spinner loading />}
       {!isLoading && (
         <Fragment>
@@ -275,6 +291,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           </form>
           <Tooltip title="Save Signoff">
             <Fab
+              disabled={sleepAction.loading}
               onClick={handleSignoffSave}
               color="primary"
               className={classes.fab}>
@@ -284,10 +301,11 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           {!isNewSignoff && (
             <SpeedDial ariaLabel="Secondary Actions">
               <SpeedDialAction
+                disabled={sleepAction.loading}
                 icon={<DeleteIcon />}
                 tooltipOpen
                 tooltipTitle="Delete Signoff"
-                onClick={handleSignoffCancel}
+                onClick={handleSignoffDelete}
               />
             </SpeedDial>
           )}
