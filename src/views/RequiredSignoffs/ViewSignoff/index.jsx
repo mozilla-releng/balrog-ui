@@ -27,6 +27,7 @@ import { getChannels, getProducts } from '../../../utils/Rules';
 import getRequiredSignoffs from '../utils/getRequiredSignoffs';
 import getRolesFromRequiredSignoffs from '../utils/getRolesFromRequiredSignoffs';
 import useAction from '../../../hooks/useAction';
+import rsService from '../../../services/requiredSignoffs';
 
 let additionalRoleId = 0;
 const useStyles = makeStyles(theme => ({
@@ -61,16 +62,23 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ViewSignoff({ isNewSignoff, ...props }) {
-  const getEmptyRole = (id = 0) => ['', '', { isAdditionalRole: true, id }];
+  const getEmptyRole = (id = 0) => [
+    '',
+    '',
+    null,
+    { isAdditionalRole: true, id },
+  ];
   const { product, channel } = props.match.params;
   const classes = useStyles();
   const [channelTextValue, setChannelTextValue] = useState(channel || '');
   const [productTextValue, setProductTextValue] = useState(product || '');
   const [type, setType] = useState(channel ? 'channel' : 'permission');
   const [roles, setRoles] = useState([]);
+  const [originalRoles, setOriginalRoles] = useState([]);
   const [additionalRoles, setAdditionalRoles] = useState(
     isNewSignoff ? [getEmptyRole()] : []
   );
+  const [removedRoles, removeRole] = useState([]);
   const [sleepAction, sleep] = useAction(
     timeout =>
       new Promise((resolve, reject) =>
@@ -80,6 +88,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   const [requiredSignoffs, getRS] = useAction(getRequiredSignoffs);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
+  const [saveAction, saveRS] = useAction(rsService.updateRequiredSignoff);
   const isLoading =
     requiredSignoffs.loading || products.loading || channels.loading;
   const error = requiredSignoffs.error || products.error || sleepAction.error;
@@ -113,6 +122,8 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   const handleRoleDelete = (role, index) => () => {
     const excludeRole = (entry, i) => !(i === index);
 
+    removeRole(removedRoles.concat([role]));
+
     return role[2].isAdditionalRole
       ? setAdditionalRoles(additionalRoles.filter(excludeRole))
       : setRoles(roles.filter(excludeRole));
@@ -120,7 +131,90 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
   // TODO: Add save logic
   const handleSignoffSave = async () => {
-    // Call the save endpoint with the appropriate parameters
+    // For an entirely new Required Signoff (eg: a product/channel or
+    // product/permissions that has no required roles yet,
+    // we do not need to schedule the initial required role, we can
+    // insert it directly. For other required roles that may be added,
+    // we must schedule them.
+    // Required Signoffs that have any existing required roles will
+    // always required changes, additions, or deletions to be scheduled.
+    let useScheduledChange = !isNewSignoff;
+
+    Promise.all(
+      Array.concat(
+        roles.map(roleItem => {
+          // Compare against the state of the roll when the page was loaded
+          // to see if anything has changed
+          if (originalRoles.includes(roleItem)) {
+            return;
+          }
+
+          // TODO: why can't we do this inside of saveRS?
+          // It throws a syntax if we try
+          const role = roleItem[0];
+          // eslint-disable-next-line camelcase
+          const signoffs_required = roleItem[1];
+          // eslint-disable-next-line camelcase
+          const data_version = roleItem[2];
+
+          return saveRS({
+            product,
+            channel,
+            role,
+            signoffs_required,
+            data_version,
+            useScheduledChange: true,
+            change_type: 'update',
+            when: new Date().getTime() + 5000,
+          });
+        }),
+        additionalRoles.map(roleItem => {
+          const role = roleItem[0];
+          // eslint-disable-next-line camelcase
+          const signoffs_required = roleItem[1];
+          const ret = saveRS({
+            product,
+            channel,
+            role,
+            signoffs_required,
+            useScheduledChange,
+            change_type: 'insert',
+            when: new Date().getTime() + 5000,
+          });
+
+          useScheduledChange = true;
+
+          return ret;
+        }),
+        removedRoles.map(roleItem => {
+          const role = roleItem[0];
+          // eslint-disable-next-line camelcase
+          const signoffs_required = roleItem[1];
+          // eslint-disable-next-line camelcase
+          const data_version = roleItem[2];
+
+          return saveRS({
+            product,
+            channel,
+            role,
+            signoffs_required,
+            data_version,
+            useScheduledChange,
+            change_type: 'delete',
+            when: new Date().getTime() + 5000,
+          });
+        })
+      )
+    ).then(
+      result => {
+        console.log('success');
+        console.log(result);
+      },
+      error => {
+        console.log('error');
+        console.log(error);
+      }
+    );
     await sleep(2000);
 
     if (!sleepAction.error) {
@@ -143,6 +237,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           const roles = getRolesFromRequiredSignoffs(rs.data, product, channel);
 
           setRoles(roles);
+          setOriginalRoles(roles);
         }
       );
     }
@@ -150,14 +245,14 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
   const renderRole = (role, index) => (
     <Grid
-      key={role[2].id}
+      key={role[3].id}
       className={classes.gridWithIcon}
       container
       spacing={2}>
       <Grid item xs>
         <TextField
           required
-          disabled={role[2].isAdditionalRole ? false : !isNewSignoff}
+          disabled={role[3].isAdditionalRole ? false : !isNewSignoff}
           onChange={handleRoleNameChange(role, index)}
           fullWidth
           label="Role"
@@ -291,7 +386,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           </form>
           <Tooltip title="Save Signoff">
             <Fab
-              disabled={sleepAction.loading}
+              disabled={saveAction.loading}
               onClick={handleSignoffSave}
               color="primary"
               className={classes.fab}>

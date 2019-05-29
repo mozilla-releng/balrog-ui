@@ -12,6 +12,7 @@ export default (rs, product, channel) => {
     return [
       name,
       isRoleScheduled ? role.sc.signoffs_required : role.signoffs_required,
+      isRoleScheduled ? role.sc.sc_data_version : role.data_version,
       {
         isAdditionalRole: false,
         id: `${product}-${channel}-${name}`,
