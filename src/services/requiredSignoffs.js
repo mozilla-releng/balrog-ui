@@ -12,11 +12,11 @@ const updateRequiredSignoff = params => {
     ? `${BASE_URL}/scheduled_changes/required_signoffs/${type}`
     : `${BASE_URL}/required_signoffs/${type}`;
 
-  console.log(params);
   // TODO: where can we set this globally as a default?
   const { accessToken } = JSON.parse(
     localStorage.getItem('react-auth0-session')
   ).authResult;
+  console.log("hihi");
 
   return axios.post(url, postData, {
     headers: { Authorization: `Bearer ${accessToken}` },

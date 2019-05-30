@@ -25,6 +25,7 @@ import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import { getChannels, getProducts } from '../../../utils/Rules';
 import getRequiredSignoffs from '../utils/getRequiredSignoffs';
+import updateRequiredSignoffs from '../utils/updateRequiredSignoffs';
 import getRolesFromRequiredSignoffs from '../utils/getRolesFromRequiredSignoffs';
 import useAction from '../../../hooks/useAction';
 import rsService from '../../../services/requiredSignoffs';
@@ -79,19 +80,13 @@ function ViewSignoff({ isNewSignoff, ...props }) {
     isNewSignoff ? [getEmptyRole()] : []
   );
   const [removedRoles, removeRole] = useState([]);
-  const [sleepAction, sleep] = useAction(
-    timeout =>
-      new Promise((resolve, reject) =>
-        setTimeout(() => reject(new Error('Action not complete')), timeout)
-      )
-  );
   const [requiredSignoffs, getRS] = useAction(getRequiredSignoffs);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
-  const [saveAction, saveRS] = useAction(rsService.updateRequiredSignoff);
+  const [saveAction, saveRS] = useAction(updateRequiredSignoffs);
   const isLoading =
     requiredSignoffs.loading || products.loading || channels.loading;
-  const error = requiredSignoffs.error || products.error || sleepAction.error;
+  const error = requiredSignoffs.error || products.error; //|| saveAction.error.response.data.exception;
   const handleTypeChange = ({ target: { value } }) => setType(value);
   const handleChannelChange = value => setChannelTextValue(value);
   const handleProductChange = value => setProductTextValue(value);
@@ -130,98 +125,19 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   };
 
   // TODO: Add save logic
-  const handleSignoffSave = async () => {
-    // For an entirely new Required Signoff (eg: a product/channel or
-    // product/permissions that has no required roles yet,
-    // we do not need to schedule the initial required role, we can
-    // insert it directly. For other required roles that may be added,
-    // we must schedule them.
-    // Required Signoffs that have any existing required roles will
-    // always required changes, additions, or deletions to be scheduled.
-    let useScheduledChange = !isNewSignoff;
-
-    Promise.all(
-      Array.concat(
-        roles.map(roleItem => {
-          // Compare against the state of the roll when the page was loaded
-          // to see if anything has changed
-          if (originalRoles.includes(roleItem)) {
-            return;
-          }
-
-          // TODO: why can't we do this inside of saveRS?
-          // It throws a syntax if we try
-          const role = roleItem[0];
-          // eslint-disable-next-line camelcase
-          const signoffs_required = roleItem[1];
-          // eslint-disable-next-line camelcase
-          const data_version = roleItem[2];
-
-          return saveRS({
-            product,
-            channel,
-            role,
-            signoffs_required,
-            data_version,
-            useScheduledChange: true,
-            change_type: 'update',
-            when: new Date().getTime() + 5000,
-          });
-        }),
-        additionalRoles.map(roleItem => {
-          const role = roleItem[0];
-          // eslint-disable-next-line camelcase
-          const signoffs_required = roleItem[1];
-          const ret = saveRS({
-            product,
-            channel,
-            role,
-            signoffs_required,
-            useScheduledChange,
-            change_type: 'insert',
-            when: new Date().getTime() + 5000,
-          });
-
-          useScheduledChange = true;
-
-          return ret;
-        }),
-        removedRoles.map(roleItem => {
-          const role = roleItem[0];
-          // eslint-disable-next-line camelcase
-          const signoffs_required = roleItem[1];
-          // eslint-disable-next-line camelcase
-          const data_version = roleItem[2];
-
-          return saveRS({
-            product,
-            channel,
-            role,
-            signoffs_required,
-            data_version,
-            useScheduledChange,
-            change_type: 'delete',
-            when: new Date().getTime() + 5000,
-          });
-        })
-      )
-    ).then(
-      result => {
-        console.log('success');
-        console.log(result);
-      },
-      error => {
-        console.log('error');
-        console.log(error);
-      }
-    );
-    await sleep(2000);
-
-    if (!sleepAction.error) {
-      // Save was successful
-      // You could possibly navigate the user back to /required-signoffs
-      props.history.push('/required-signoffs');
-    }
+  const handleSignoffSave = () => {
+    saveRS({ product, channel, roles, originalRoles, isNewSignoff })
+    .then(result => {
+      console.log("succ");
+      console.log(result);
+    })
+    .catch(error => {
+      console.log("deeeeerp");
+      console.log(error);
+    })
+    .finally(() => {
+      console.log("fuck");
+    });
   };
 
   // TODO: Add delete logic
@@ -238,6 +154,8 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
           setRoles(roles);
           setOriginalRoles(roles);
+          console.log("setting the roles");
+          console.log(originalRoles);
         }
       );
     }
@@ -264,6 +182,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           allowNegative={false}
           required
           label="Signoffs Required"
+
           fullWidth
           value={role[1]}
           customInput={TextField}
@@ -396,7 +315,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           {!isNewSignoff && (
             <SpeedDial ariaLabel="Secondary Actions">
               <SpeedDialAction
-                disabled={sleepAction.loading}
+                disabled={saveAction.loading}
                 icon={<DeleteIcon />}
                 tooltipOpen
                 tooltipTitle="Delete Signoff"
