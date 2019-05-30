@@ -97,16 +97,16 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   const handleProductChange = value => setProductTextValue(value);
   const handleRoleValueChange = (role, index) => ({ floatValue: value }) => {
     const setRole = (entry, i) =>
-      i === index ? [entry[0], value, entry[2]] : entry;
+      i === index ? [entry[0], value, entry[2], entry[3]] : entry;
 
-    return role[2].isAdditionalRole
+    return role[3].isAdditionalRole
       ? setAdditionalRoles(additionalRoles.map(setRole))
       : setRoles(roles.map(setRole));
   };
 
   const handleRoleNameChange = (role, index) => ({ target: { value } }) => {
     const result = additionalRoles.map((entry, i) =>
-      i === index ? [value, entry[1], entry[2]] : entry
+      i === index ? [value, entry[1], entry[2], entry[3]] : entry
     );
 
     setAdditionalRoles(result);
@@ -124,7 +124,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
     removeRole(removedRoles.concat([role]));
 
-    return role[2].isAdditionalRole
+    return role[3].isAdditionalRole
       ? setAdditionalRoles(additionalRoles.filter(excludeRole))
       : setRoles(roles.filter(excludeRole));
   };
