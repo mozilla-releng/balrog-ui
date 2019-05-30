@@ -28,7 +28,6 @@ import getRequiredSignoffs from '../utils/getRequiredSignoffs';
 import updateRequiredSignoffs from '../utils/updateRequiredSignoffs';
 import getRolesFromRequiredSignoffs from '../utils/getRolesFromRequiredSignoffs';
 import useAction from '../../../hooks/useAction';
-import rsService from '../../../services/requiredSignoffs';
 
 let additionalRoleId = 0;
 const useStyles = makeStyles(theme => ({
@@ -86,7 +85,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   const [saveAction, saveRS] = useAction(updateRequiredSignoffs);
   const isLoading =
     requiredSignoffs.loading || products.loading || channels.loading;
-  const error = requiredSignoffs.error || products.error; //|| saveAction.error.response.data.exception;
+  const error = requiredSignoffs.error || products.error || saveAction.error;
   const handleTypeChange = ({ target: { value } }) => setType(value);
   const handleChannelChange = value => setChannelTextValue(value);
   const handleProductChange = value => setProductTextValue(value);
@@ -126,17 +125,14 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
   // TODO: Add save logic
   const handleSignoffSave = () => {
-    saveRS({ product, channel, roles, originalRoles, isNewSignoff })
-    .then(result => {
-      console.log("succ");
-      console.log(result);
-    })
-    .catch(error => {
-      console.log("deeeeerp");
-      console.log(error);
-    })
-    .finally(() => {
-      console.log("fuck");
+    saveRS({
+      product,
+      channel,
+      roles,
+      originalRoles,
+      additionalRoles,
+      removedRoles,
+      isNewSignoff,
     });
   };
 
@@ -154,8 +150,6 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
           setRoles(roles);
           setOriginalRoles(roles);
-          console.log("setting the roles");
-          console.log(originalRoles);
         }
       );
     }
@@ -182,7 +176,6 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           allowNegative={false}
           required
           label="Signoffs Required"
-
           fullWidth
           value={role[1]}
           customInput={TextField}
