@@ -124,8 +124,8 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   };
 
   // TODO: Add save logic
-  const handleSignoffSave = () => {
-    saveRS({
+  const handleSignoffSave = async () => {
+    await saveRS({
       product,
       channel,
       roles,
@@ -134,6 +134,10 @@ function ViewSignoff({ isNewSignoff, ...props }) {
       removedRoles,
       isNewSignoff,
     });
+
+    if (!saveAction.error) {
+      props.history.push('/required-signoffs');
+    }
   };
 
   // TODO: Add delete logic
