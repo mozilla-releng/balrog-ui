@@ -148,11 +148,10 @@ function ViewSignoff({ isNewSignoff, ...props }) {
       : setRoles(roles.filter(excludeRole));
   };
 
-  // TODO: Add save logic
   const handleSignoffSave = async () => {
     await saveRS({
-      product,
-      channel,
+      product: productTextValue,
+      channel: channelTextValue,
       roles,
       originalRoles,
       additionalRoles,

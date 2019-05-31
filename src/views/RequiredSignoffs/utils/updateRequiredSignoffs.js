@@ -62,16 +62,14 @@ export default async params => {
           ...extraData,
         });
       }),
-      additionalRoles.map(roleItem => {
-        const role = roleItem[0];
-        // eslint-disable-next-line camelcase
-        const signoffs_required = roleItem[1];
+      additionalRoles.map(role => {
+        console.log(role);
         const ret = rsService.updateRequiredSignoff({
           product,
           channel,
-          role,
-          signoffs_required,
-          useScheduledChange,
+          role: role.name,
+          signoffs_required: role.signoffs_required,
+          useScheduledChange: useScheduledChange,
           change_type: 'insert',
           when: new Date().getTime() + 5000,
         });
