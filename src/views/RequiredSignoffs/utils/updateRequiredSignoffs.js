@@ -24,16 +24,21 @@ export default async params => {
 
   await Promise.all(
     Array.concat(
-      roles.map(async roleItem => {
-        // TODO: why can't we do this inside of the call below?
-        // It throws a syntax error if we try
-        const role = roleItem[0];
-        const signoffsRequired = roleItem[1];
-        const dataVersion = roleItem[2];
+      roles.map(async role => {
+        const extraData = role.sc
+          ? { sc_data_version: role.sc.data_version }
+          : {};
         let skip = false;
 
         originalRoles.forEach(value => {
-          if (value[0] === role && value[1] === signoffsRequired) {
+          const newSignoffsRequired = role.sc
+            ? role.sc.signoffs_required
+            : role.signoffs_required;
+
+          if (
+            value.name === role.name &&
+            value.signoffs_required === newSignoffsRequired
+          ) {
             skip = true;
           }
         });
@@ -45,12 +50,16 @@ export default async params => {
         return rsService.updateRequiredSignoff({
           product,
           channel,
-          role,
-          signoffs_required: signoffsRequired,
-          data_version: dataVersion,
+          role: role.name,
+          signoffs_required: role.sc
+            ? role.sc.signoffs_required
+            : role.signoffs_required,
+          data_version: role.data_version,
           useScheduledChange: true,
           change_type: 'update',
           when: new Date().getTime() + 5000,
+          scId: role.sc ? role.sc.sc_id : null,
+          ...extraData,
         });
       }),
       additionalRoles.map(roleItem => {

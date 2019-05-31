@@ -6,10 +6,11 @@ const getRequiredSignoffs = objectName =>
 const getScheduledChanges = objectName =>
   axios.get(`${BASE_URL}/scheduled_changes/${objectName}`);
 const updateRequiredSignoff = params => {
-  const { useScheduledChange, ...postData } = params;
+  const { useScheduledChange, scId, ...postData } = params;
   const type = postData.channel ? 'product' : 'permissions';
+  const scPath = scId ? `/${scId}` : '';
   const url = useScheduledChange
-    ? `${BASE_URL}/scheduled_changes/required_signoffs/${type}`
+    ? `${BASE_URL}/scheduled_changes/required_signoffs/${type}${scPath}`
     : `${BASE_URL}/required_signoffs/${type}`;
   // TODO: where can we set this globally as a default?
   const { accessToken } = JSON.parse(

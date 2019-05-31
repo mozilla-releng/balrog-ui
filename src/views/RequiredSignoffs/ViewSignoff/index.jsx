@@ -62,12 +62,16 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ViewSignoff({ isNewSignoff, ...props }) {
-  const getEmptyRole = (id = 0) => [
-    '',
-    '',
-    null,
-    { isAdditionalRole: true, id },
-  ];
+  const getEmptyRole = (id = 0) => ({
+    name: '',
+    signoffs_required: null,
+    data_version: null,
+    sc: null,
+    metadata: {
+      isAdditionalRole: true,
+      id,
+    },
+  });
   const { product, channel } = props.match.params;
   const classes = useStyles();
   const [channelTextValue, setChannelTextValue] = useState(channel || '');
@@ -89,21 +93,42 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   const handleTypeChange = ({ target: { value } }) => setType(value);
   const handleChannelChange = value => setChannelTextValue(value);
   const handleProductChange = value => setProductTextValue(value);
-  const handleRoleValueChange = (role, index) => ({ floatValue: value }) => {
-    const setRole = (entry, i) =>
-      i === index ? [entry[0], value, entry[2], entry[3]] : entry;
+  const handleRoleValueChange = role => ({ floatValue: value }) => {
+    const setRole = entry => {
+      if (entry.name !== role.name) {
+        return entry;
+      }
 
-    return role[3].isAdditionalRole
+      const result = Object.assign(entry);
+
+      if (result.sc) {
+        result.sc.signoffs_required = value;
+      } else {
+        result.signoffs_required = value;
+      }
+
+      return result;
+    };
+
+    return role.metadata.isAdditionalRole
       ? setAdditionalRoles(additionalRoles.map(setRole))
       : setRoles(roles.map(setRole));
   };
 
   const handleRoleNameChange = (role, index) => ({ target: { value } }) => {
-    const result = additionalRoles.map((entry, i) =>
-      i === index ? [value, entry[1], entry[2], entry[3]] : entry
-    );
+    const setRole = additionalRoles.map((entry, i) => {
+      if (i !== index) {
+        return entry;
+      }
 
-    setAdditionalRoles(result);
+      const result = Object.assign(entry);
+
+      result.name = value;
+
+      return result;
+    });
+
+    setAdditionalRoles(setRole);
   };
 
   const handleRoleAdd = () => {
@@ -118,7 +143,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
     removeRole(removedRoles.concat([role]));
 
-    return role[3].isAdditionalRole
+    return role.metadata.isAdditionalRole
       ? setAdditionalRoles(additionalRoles.filter(excludeRole))
       : setRoles(roles.filter(excludeRole));
   };
@@ -161,18 +186,18 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
   const renderRole = (role, index) => (
     <Grid
-      key={role[3].id}
+      key={role.metadata.id}
       className={classes.gridWithIcon}
       container
       spacing={2}>
       <Grid item xs>
         <TextField
           required
-          disabled={role[3].isAdditionalRole ? false : !isNewSignoff}
+          disabled={role.metadata.isAdditionalRole ? false : !isNewSignoff}
           onChange={handleRoleNameChange(role, index)}
           fullWidth
           label="Role"
-          value={role[0]}
+          value={role.name}
         />
       </Grid>
       <Grid item xs>
@@ -181,7 +206,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           required
           label="Signoffs Required"
           fullWidth
-          value={role[1]}
+          value={role.sc ? role.sc.signoffs_required : role.signoffs_required}
           customInput={TextField}
           onValueChange={handleRoleValueChange(role, index)}
           decimalScale={0}
