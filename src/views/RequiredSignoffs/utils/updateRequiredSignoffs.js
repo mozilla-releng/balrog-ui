@@ -25,34 +25,33 @@ export default async params => {
   await Promise.all(
     Array.concat(
       roles.map(async roleItem => {
-        // Compare against the state of the roll when the page was loaded
-        // to see if anything has changed
-        if (originalRoles.includes(roleItem)) {
-          return;
-        }
-
         // TODO: why can't we do this inside of the call below?
         // It throws a syntax error if we try
         const role = roleItem[0];
-        // eslint-disable-next-line camelcase
-        const signoffs_required = roleItem[1];
-        // eslint-disable-next-line camelcase
-        const data_version = roleItem[2];
+        const signoffsRequired = roleItem[1];
+        const dataVersion = roleItem[2];
+        let skip = false;
+
+        originalRoles.forEach(value => {
+          if (value[0] === role && value[1] === signoffsRequired) {
+            skip = true;
+          }
+        });
+
+        if (skip) {
+          return;
+        }
 
         return rsService.updateRequiredSignoff({
           product,
           channel,
           role,
-          signoffs_required,
-          data_version,
+          signoffs_required: signoffsRequired,
+          data_version: dataVersion,
           useScheduledChange: true,
           change_type: 'update',
           when: new Date().getTime() + 5000,
         });
-        /* }).catch(error => {
-          errors.push(error.response.data.exception);
-        });
-        return "i am an error"; */
       }),
       additionalRoles.map(roleItem => {
         const role = roleItem[0];
@@ -100,5 +99,7 @@ export default async params => {
     );
   });
 
-  throw errors.join();
+  if (errors) {
+    throw errors.join();
+  }
 };
