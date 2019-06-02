@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState, useMemo } from 'react';
 import { stringify, parse } from 'qs';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
@@ -156,28 +156,34 @@ function ListRules(props) {
       setRulesWithScheduledChanges(sortedRules);
     });
   }, []);
-  const filteredRulesWithScheduledChanges =
-    productChannelFilter === 'all'
-      ? rulesWithScheduledChanges
-      : rulesWithScheduledChanges.filter(rule => {
-          const [productFilter, channelFilter] = filter;
-          const ruleProduct =
-            rule.product ||
-            (rule.scheduledChange && rule.scheduledChange.product);
-          const ruleChannel =
-            rule.channel ||
-            (rule.scheduledChange && rule.scheduledChange.channel);
+  const filteredRulesWithScheduledChanges = useMemo(
+    () =>
+      productChannelFilter === 'all'
+        ? rulesWithScheduledChanges
+        : rulesWithScheduledChanges.filter(rule => {
+            const [productFilter, channelFilter] = filter;
+            const ruleProduct =
+              rule.product ||
+              (rule.scheduledChange && rule.scheduledChange.product);
+            const ruleChannel =
+              rule.channel ||
+              (rule.scheduledChange && rule.scheduledChange.channel);
 
-          if (ruleProduct !== productFilter) {
-            return false;
-          }
+            if (ruleProduct !== productFilter) {
+              return false;
+            }
 
-          if (channelFilter && ruleChannel.replace('*', '') !== channelFilter) {
-            return false;
-          }
+            if (
+              channelFilter &&
+              ruleChannel.replace('*', '') !== channelFilter
+            ) {
+              return false;
+            }
 
-          return true;
-        });
+            return true;
+          }),
+    [productChannelFilter, rulesWithScheduledChanges]
+  );
 
   return (
     <Dashboard>
