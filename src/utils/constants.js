@@ -32,3 +32,4 @@ export const RULE_DIFF_PROPERTIES = [
   'update_type',
   'version',
 ];
+export const RULES_ROWS_PER_PAGE = 25;

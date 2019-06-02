@@ -5,6 +5,7 @@ import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import { makeStyles } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
+import TablePagination from '@material-ui/core/TablePagination';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -19,6 +20,7 @@ import {
   getRules,
   getScheduledChanges,
 } from '../../../utils/Rules';
+import { RULES_ROWS_PER_PAGE } from '../../../utils/constants';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -26,11 +28,17 @@ const useStyles = makeStyles(theme => ({
   },
   options: {
     display: 'flex',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
   },
   dropdown: {
     minWidth: 200,
     marginBottom: theme.spacing(2),
+  },
+  tablePaginationToolbar: {
+    paddingLeft: 'unset',
+  },
+  tablePaginationSpacer: {
+    flex: 'unset',
   },
 }));
 
@@ -41,10 +49,13 @@ function ListRules(props) {
   const [rulesWithScheduledChanges, setRulesWithScheduledChanges] = useState(
     []
   );
+  const [tablePage, setTablePage] = useState(0);
   const [productChannelOptions, setProductChannelOptions] = useState([]);
-  const filter = query.product ? [query.product, query.channel] : null;
+  const searchQueries = query.product ? [query.product, query.channel] : null;
   const [productChannelFilter, setProductChannelFilter] = useState(
-    filter ? filter.filter(Boolean).join(productChannelSeparator) : 'all'
+    searchQueries
+      ? searchQueries.filter(Boolean).join(productChannelSeparator)
+      : 'all'
   );
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
@@ -65,6 +76,7 @@ function ListRules(props) {
     props.history.push(`/rules${query}`);
 
     setProductChannelFilter(value);
+    setTablePage(0);
   };
 
   const pairExists = (product, channel) =>
@@ -161,7 +173,7 @@ function ListRules(props) {
       productChannelFilter === 'all'
         ? rulesWithScheduledChanges
         : rulesWithScheduledChanges.filter(rule => {
-            const [productFilter, channelFilter] = filter;
+            const [productFilter, channelFilter] = searchQueries;
             const ruleProduct =
               rule.product ||
               (rule.scheduledChange && rule.scheduledChange.product);
@@ -184,6 +196,24 @@ function ListRules(props) {
           }),
     [productChannelFilter, rulesWithScheduledChanges]
   );
+  const paginatedRules = filteredRulesWithScheduledChanges.slice(
+    tablePage * RULES_ROWS_PER_PAGE,
+    tablePage * RULES_ROWS_PER_PAGE + RULES_ROWS_PER_PAGE
+  );
+  const pagination = (
+    <TablePagination
+      classes={{
+        toolbar: classes.tablePaginationToolbar,
+        spacer: classes.tablePaginationSpacer,
+      }}
+      component="div"
+      rowsPerPageOptions={[]}
+      count={filteredRulesWithScheduledChanges.length}
+      onChangePage={(e, page) => setTablePage(page)}
+      page={tablePage}
+      rowsPerPage={RULES_ROWS_PER_PAGE}
+    />
+  );
 
   return (
     <Dashboard>
@@ -192,6 +222,7 @@ function ListRules(props) {
       {!isLoading && productChannelOptions && (
         <Fragment>
           <div className={classes.options}>
+            {pagination}
             <TextField
               className={classes.dropdown}
               select
@@ -206,9 +237,9 @@ function ListRules(props) {
               ))}
             </TextField>
           </div>
-          {filteredRulesWithScheduledChanges && (
+          {paginatedRules && (
             <Grid container spacing={4}>
-              {filteredRulesWithScheduledChanges.map(rule => (
+              {paginatedRules.map(rule => (
                 <Grid
                   key={`${rule.product}-${rule.channel}-${rule.rule_id}`}
                   item
@@ -218,6 +249,7 @@ function ListRules(props) {
               ))}
             </Grid>
           )}
+          {pagination}
           <Link to="/rules/create">
             <Tooltip title="Add Rule">
               <Fab color="primary" className={classes.fab}>
