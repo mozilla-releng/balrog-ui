@@ -1,6 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import classNames from 'classnames';
-import { title } from 'change-case';
 import { makeStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
 import List from '@material-ui/core/List';
@@ -13,6 +12,7 @@ import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
+import Avatar from '@material-ui/core/Avatar';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import Chip from '@material-ui/core/Chip';
@@ -26,6 +26,7 @@ import { distanceInWordsStrict } from 'date-fns';
 import 'react-diff-view/style/index.css';
 import { RULE_DIFF_PROPERTIES } from '../../utils/constants';
 import { rule } from '../../utils/prop-types';
+import getDiff from '../../utils/diff';
 
 const useStyles = makeStyles(theme => ({
   cardHeader: {
@@ -75,6 +76,16 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     justifyContent: 'space-between',
   },
+  inline: {
+    display: 'inline',
+  },
+  avatar: {
+    height: theme.spacing(4),
+    width: theme.spacing(4),
+  },
+  avatarText: {
+    fontSize: 10,
+  },
 }));
 
 function RuleCard({ rule, ...props }) {
@@ -103,42 +114,17 @@ function RuleCard({ rule, ...props }) {
   const ChipIcon = getChipIcon(
     rule.scheduledChange && rule.scheduledChange.change_type
   );
-  const propDiff = prop => {
-    const prev = rule[prop];
-    const next = rule.scheduledChange[prop];
-
-    // == checks for both undefined or null
-    // eslint-disable-next-line eqeqeq
-    if (prev == next) {
-      return null;
-    }
-
-    return {
-      prev: `${title(prop)}: ${prev}`,
-      next: `${title(prop)}: ${next}`,
-    };
-  };
-
-  const getDiffText = () => {
-    const prevValues = [];
-    const nextValues = [];
-
-    RULE_DIFF_PROPERTIES.map(prop => propDiff(prop))
-      .filter(Boolean)
-      .forEach(({ prev, next }) => {
-        prevValues.push(prev);
-        nextValues.push(next);
-      });
-
-    return [prevValues.join('\n'), nextValues.join('\n')];
-  };
 
   useEffect(() => {
     if (!rule.scheduledChange) {
       return;
     }
 
-    const [oldText, newText] = getDiffText();
+    const [oldText, newText] = getDiff(
+      RULE_DIFF_PROPERTIES,
+      rule,
+      rule.scheduledChange
+    );
     const diffText = formatLines(diffLines(oldText, newText), {
       context: 0,
     });
@@ -152,7 +138,25 @@ function RuleCard({ rule, ...props }) {
       {rule.product && (
         <CardHeader
           className={classes.cardHeader}
-          title={`${rule.product} : ${rule.channel}`}
+          avatar={
+            Number.isInteger(Number(rule.priority)) && (
+              <Avatar
+                title="Priority"
+                aria-label="Priority"
+                className={classes.avatar}>
+                <Typography className={classes.avatarText}>
+                  {rule.priority}
+                </Typography>
+              </Avatar>
+            )
+          }
+          titleTypographyProps={{
+            component: 'h2',
+            variant: 'h6',
+          }}
+          title={
+            rule.channel ? `${rule.product} : ${rule.channel}` : rule.product
+          }
           action={
             <Tooltip title="History">
               <IconButton>
@@ -177,6 +181,42 @@ function RuleCard({ rule, ...props }) {
                   />
                 </ListItem>
               )}
+              {rule.fallbackMapping && (
+                <ListItem className={classes.listItem}>
+                  <ListItemText
+                    secondaryTypographyProps={{
+                      className: classes.textEllipsis,
+                    }}
+                    primary="Fallback Mapping"
+                    secondary={rule.fallbackMapping}
+                  />
+                </ListItem>
+              )}
+              {Number.isInteger(Number(rule.backgroundRate)) && (
+                <ListItem className={classes.listItem}>
+                  <ListItemText
+                    primary="Background Rate"
+                    secondary={rule.backgroundRate}
+                  />
+                </ListItem>
+              )}
+              {rule.comment && (
+                <List>
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primary="Comment"
+                      secondary={rule.comment}
+                      secondaryTypographyProps={{
+                        className: classes.textEllipsis,
+                      }}
+                    />
+                  </ListItem>
+                </List>
+              )}
+            </List>
+          </Grid>
+          <Grid item xs={4}>
+            <List>
               {rule.data_version && (
                 <ListItem className={classes.listItem}>
                   <ListItemText
@@ -187,24 +227,21 @@ function RuleCard({ rule, ...props }) {
               )}
               {Number.isInteger(Number(rule.rule_id)) && (
                 <ListItem className={classes.listItem}>
-                  <ListItemText primary="Rule ID" secondary={rule.rule_id} />
-                </ListItem>
-              )}
-            </List>
-          </Grid>
-          <Grid item xs={4}>
-            <List>
-              {Number.isInteger(Number(rule.backgroundRate)) && (
-                <ListItem className={classes.listItem}>
                   <ListItemText
-                    primary="Background Rate"
-                    secondary={rule.backgroundRate}
+                    primary="Rule ID"
+                    secondary={
+                      <Fragment>
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          className={classes.inline}
+                          color="textPrimary">
+                          {rule.rule_id}
+                        </Typography>
+                        {rule.alias && ` ${rule.alias} (alias)`}
+                      </Fragment>
+                    }
                   />
-                </ListItem>
-              )}
-              {Number.isInteger(Number(rule.priority)) && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText primary="Priority" secondary={rule.priority} />
                 </ListItem>
               )}
             </List>
@@ -216,6 +253,24 @@ function RuleCard({ rule, ...props }) {
                   <ListItemText primary="Version" secondary={rule.version} />
                 </ListItem>
               )}
+              {rule.buildID && (
+                <ListItem className={classes.listItem}>
+                  <ListItemText primary="Build ID" secondary={rule.buildID} />
+                </ListItem>
+              )}
+              {rule.buildTarget && (
+                <ListItem className={classes.listItem}>
+                  <ListItemText
+                    primary="Build Target"
+                    secondary={rule.buildTarget}
+                  />
+                </ListItem>
+              )}
+              {rule.locale && (
+                <ListItem className={classes.listItem}>
+                  <ListItemText primary="Locale" secondary={rule.locale} />
+                </ListItem>
+              )}
               {rule.distribution && (
                 <ListItem className={classes.listItem}>
                   <ListItemText
@@ -224,24 +279,65 @@ function RuleCard({ rule, ...props }) {
                   />
                 </ListItem>
               )}
-              {rule.update_type && (
+              {rule.distVersion && (
                 <ListItem className={classes.listItem}>
                   <ListItemText
-                    primary="Update Type"
-                    secondary={rule.update_type}
+                    primary="Distribution Version"
+                    secondary={rule.distVersion}
+                  />
+                </ListItem>
+              )}
+              {rule.osVersion && (
+                <ListItem className={classes.listItem}>
+                  <ListItemText
+                    primary="OS Version"
+                    secondary={rule.osVersion}
+                    secondaryTypographyProps={{
+                      className: classes.textEllipsis,
+                    }}
+                  />
+                </ListItem>
+              )}
+              {rule.instructionSet && (
+                <ListItem className={classes.listItem}>
+                  <ListItemText
+                    primary="Instruction Set"
+                    secondary={rule.instructionSet}
+                  />
+                </ListItem>
+              )}
+              {rule.memory && (
+                <ListItem className={classes.listItem}>
+                  <ListItemText primary="Memory" secondary={rule.memory} />
+                </ListItem>
+              )}
+              {rule.mig64 && (
+                <ListItem className={classes.listItem}>
+                  <ListItemText
+                    primary="64-bit Migration Opt-in"
+                    secondary={rule.mig64}
+                  />
+                </ListItem>
+              )}
+              {rule.jaws && (
+                <ListItem className={classes.listItem}>
+                  <ListItemText
+                    primary="Incompatible JAWS Screen Reader"
+                    secondary={rule.jaws}
+                  />
+                </ListItem>
+              )}
+              {rule.headerArchitecture && (
+                <ListItem className={classes.listItem}>
+                  <ListItemText
+                    primary="Header Architecture"
+                    secondary={rule.headerArchitecture}
                   />
                 </ListItem>
               )}
             </List>
           </Grid>
         </Grid>
-        {rule.comment && (
-          <List>
-            <ListItem className={classes.listItem}>
-              <ListItemText primary="Comment" secondary={rule.comment} />
-            </ListItem>
-          </List>
-        )}
         {rule.scheduledChange && (
           <Fragment>
             {rule.scheduledChange.change_type !== 'insert' && (
@@ -250,7 +346,7 @@ function RuleCard({ rule, ...props }) {
             <div className={classes.scheduledChangesHeader}>
               <Typography
                 className={classes.scheduledChangesTitle}
-                variant="h6">
+                variant="subtitle1">
                 Scheduled Changes
               </Typography>
               <Chip

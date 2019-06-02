@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
+import { stringify, parse } from 'qs';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import { makeStyles } from '@material-ui/styles';
@@ -33,13 +34,18 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function ListRules() {
+function ListRules(props) {
   const classes = useStyles();
+  const query = parse(props.location.search.slice(1));
+  const productChannelSeparator = ' : ';
   const [rulesWithScheduledChanges, setRulesWithScheduledChanges] = useState(
-    null
+    []
   );
   const [productChannelOptions, setProductChannelOptions] = useState([]);
-  const [productChannelFilter, setProductChannelFilter] = useState('');
+  const filter = query.product ? [query.product, query.channel] : null;
+  const [productChannelFilter, setProductChannelFilter] = useState(
+    filter ? filter.filter(Boolean).join(productChannelSeparator) : 'all'
+  );
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
   const [rules, fetchRules] = useAction(getRules);
@@ -49,8 +55,18 @@ function ListRules() {
   const isLoading = products.loading || channels.loading || rules.loading;
   const error =
     products.error || channels.error || rules.error || scheduledChanges.error;
-  const handleFilterChange = ({ target: { value } }) =>
+  const handleFilterChange = ({ target: { value } }) => {
+    const [product, channel] = value.split(productChannelSeparator);
+    const query =
+      value !== 'all'
+        ? stringify({ product, channel }, { addQueryPrefix: true })
+        : '';
+
+    props.history.push(`/rules${query}`);
+
     setProductChannelFilter(value);
+  };
+
   const pairExists = (product, channel) =>
     rules.data &&
     rules.data.data.rules.some(
@@ -71,7 +87,7 @@ function ListRules() {
 
       chs.forEach(channel => {
         if (!channel.endsWith('*') && pairExists(product, channel)) {
-          options.push(`${product} : ${channel}`);
+          options.push(`${product}${productChannelSeparator}${channel}`);
         }
       });
     });
@@ -140,6 +156,28 @@ function ListRules() {
       setRulesWithScheduledChanges(sortedRules);
     });
   }, []);
+  const filteredRulesWithScheduledChanges =
+    productChannelFilter === 'all'
+      ? rulesWithScheduledChanges
+      : rulesWithScheduledChanges.filter(rule => {
+          const [productFilter, channelFilter] = filter;
+          const ruleProduct =
+            rule.product ||
+            (rule.scheduledChange && rule.scheduledChange.product);
+          const ruleChannel =
+            rule.channel ||
+            (rule.scheduledChange && rule.scheduledChange.channel);
+
+          if (ruleProduct !== productFilter) {
+            return false;
+          }
+
+          if (channelFilter && ruleChannel.replace('*', '') !== channelFilter) {
+            return false;
+          }
+
+          return true;
+        });
 
   return (
     <Dashboard>
@@ -151,7 +189,7 @@ function ListRules() {
             <TextField
               className={classes.dropdown}
               select
-              label="Product : Channel"
+              label={`Product${productChannelSeparator}Channel`}
               value={productChannelFilter}
               onChange={handleFilterChange}>
               <MenuItem value="all">All Roles</MenuItem>
@@ -162,9 +200,9 @@ function ListRules() {
               ))}
             </TextField>
           </div>
-          {rulesWithScheduledChanges && (
+          {filteredRulesWithScheduledChanges && (
             <Grid container spacing={4}>
-              {rulesWithScheduledChanges.map(rule => (
+              {filteredRulesWithScheduledChanges.map(rule => (
                 <Grid
                   key={`${rule.product}-${rule.channel}-${rule.rule_id}`}
                   item
