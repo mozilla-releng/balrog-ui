@@ -22,6 +22,7 @@ import {
 } from '../../../utils/Rules';
 import { RULES_ROWS_PER_PAGE } from '../../../utils/constants';
 
+const ALL = 'all';
 const useStyles = makeStyles(theme => ({
   fab: {
     ...theme.mixins.fab,
@@ -55,7 +56,7 @@ function ListRules(props) {
   const [productChannelFilter, setProductChannelFilter] = useState(
     searchQueries
       ? searchQueries.filter(Boolean).join(productChannelSeparator)
-      : 'all'
+      : ALL
   );
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
@@ -69,7 +70,7 @@ function ListRules(props) {
   const handleFilterChange = ({ target: { value } }) => {
     const [product, channel] = value.split(productChannelSeparator);
     const query =
-      value !== 'all'
+      value !== ALL
         ? stringify({ product, channel }, { addQueryPrefix: true })
         : '';
 
@@ -170,7 +171,7 @@ function ListRules(props) {
   }, []);
   const filteredRulesWithScheduledChanges = useMemo(
     () =>
-      productChannelFilter === 'all'
+      productChannelFilter === ALL
         ? rulesWithScheduledChanges
         : rulesWithScheduledChanges.filter(rule => {
             const [productFilter, channelFilter] = searchQueries;
@@ -229,7 +230,7 @@ function ListRules(props) {
               label={`Product${productChannelSeparator}Channel`}
               value={productChannelFilter}
               onChange={handleFilterChange}>
-              <MenuItem value="all">All Roles</MenuItem>
+              <MenuItem value="all">All Rules</MenuItem>
               {productChannelOptions.map(option => (
                 <MenuItem key={option} value={option}>
                   {option}
