@@ -69,7 +69,7 @@ function ListSignoffs() {
   }, []);
 
   return (
-    <Dashboard>
+    <Dashboard title="Required Signoffs">
       {error && <ErrorPanel error={error} />}
       {loading && <Spinner loading />}
       {requiredSignoffs && (

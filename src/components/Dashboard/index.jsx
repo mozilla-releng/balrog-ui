@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { node } from 'prop-types';
+import { string, node } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -39,7 +39,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function Dashboard(props) {
   const classes = useStyles();
-  const { children } = props;
+  const { title, children } = props;
 
   return (
     <Fragment>
@@ -52,7 +52,7 @@ export default function Dashboard(props) {
             noWrap
             component={Link}
             to="/">
-            Balrog Admin
+            Balrog Admin ┃ {title}
           </Typography>
           <nav className={classes.nav}>
             {menuItems.main.map(menuItem => (
@@ -76,4 +76,6 @@ export default function Dashboard(props) {
 
 Dashboard.prototype = {
   children: node.isRequired,
+  // A title for the view.
+  title: string.isRequired,
 };

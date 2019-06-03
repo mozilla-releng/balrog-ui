@@ -217,7 +217,7 @@ function ListRules(props) {
   );
 
   return (
-    <Dashboard>
+    <Dashboard title="Rules">
       {isLoading && <Spinner loading />}
       {error && <ErrorPanel error={error} />}
       {!isLoading && productChannelOptions && (

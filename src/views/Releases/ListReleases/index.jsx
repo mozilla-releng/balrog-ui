@@ -17,7 +17,7 @@ function ListPermissions() {
   const classes = useStyles();
 
   return (
-    <Dashboard>
+    <Dashboard title="Releases">
       <Typography variant="subtitle1">Releases</Typography>
       <Link to="/releases/create">
         <Tooltip title="Add Release">

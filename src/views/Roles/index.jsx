@@ -3,7 +3,7 @@ import Dashboard from '../../components/Dashboard';
 
 export default function Roles() {
   return (
-    <Dashboard>
+    <Dashboard title="Roles">
       <div>ROLES!</div>
     </Dashboard>
   );
