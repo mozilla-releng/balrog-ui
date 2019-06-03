@@ -177,7 +177,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           const roles = getRolesFromRequiredSignoffs(rs.data, product, channel);
 
           setRoles(roles);
-          setOriginalRoles(roles);
+          setOriginalRoles(Array.from(roles, n => Object.assign({}, n)));
         }
       );
     }

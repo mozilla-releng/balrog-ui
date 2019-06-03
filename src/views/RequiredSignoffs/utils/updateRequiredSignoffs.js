@@ -67,9 +67,9 @@ export default async params => {
         const ret = rsService.updateRequiredSignoff({
           product,
           channel,
+          useScheduledChange,
           role: role.name,
           signoffs_required: role.signoffs_required,
-          useScheduledChange: useScheduledChange,
           change_type: 'insert',
           when: new Date().getTime() + 5000,
         });
