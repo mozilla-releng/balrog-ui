@@ -177,7 +177,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           const roles = getRolesFromRequiredSignoffs(rs.data, product, channel);
 
           setRoles(roles);
-          setOriginalRoles(Array.from(roles, n => Object.assign({}, n)));
+          setOriginalRoles(JSON.parse(JSON.stringify(roles)));
         }
       );
     }
@@ -221,7 +221,6 @@ function ViewSignoff({ isNewSignoff, ...props }) {
     </Grid>
   );
   const getSuggestions = suggestions => value => {
-    // const suggestions = products.data.data.product;
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
     let count = 0;

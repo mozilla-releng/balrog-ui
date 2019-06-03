@@ -28,16 +28,19 @@ export default async params => {
         const extraData = role.sc
           ? { sc_data_version: role.sc.data_version }
           : {};
-/*        let skip = false;
+        let skip = false;
 
         originalRoles.forEach(value => {
           const newSignoffsRequired = role.sc
             ? role.sc.signoffs_required
             : role.signoffs_required;
+          const originalSignoffsRequired = value.sc
+            ? value.sc.signoffs_required
+            : value.signoffs_required;
 
           if (
             value.name === role.name &&
-            value.signoffs_required === newSignoffsRequired
+            originalSignoffsRequired === newSignoffsRequired
           ) {
             skip = true;
           }
@@ -45,7 +48,7 @@ export default async params => {
 
         if (skip) {
           return;
-        }*/
+        }
 
         if (role.sc && role.signoffs_required === role.sc.signoffs_required) {
           return rsService.deleteRequiredSignoff({
