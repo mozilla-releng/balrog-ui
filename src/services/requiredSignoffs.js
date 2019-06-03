@@ -22,9 +22,24 @@ const updateRequiredSignoff = params => {
   });
 };
 
+const deleteRequiredSignoff = params => {
+  const { scId, type, ...data } = params;
+  const url = `${BASE_URL}/scheduled_changes/required_signoffs/${type}/${scId}`;
+  // TODO: where can we set this globally as a default?
+  const { accessToken } = JSON.parse(
+    localStorage.getItem('react-auth0-session')
+  ).authResult;
+
+  return axios.delete(url, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    params: data,
+  });
+};
+
 // requiredSignoffs factory
 export default {
   getRequiredSignoffs,
   getScheduledChanges,
   updateRequiredSignoff,
+  deleteRequiredSignoff,
 };

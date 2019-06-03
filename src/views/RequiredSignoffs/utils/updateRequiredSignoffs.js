@@ -28,7 +28,7 @@ export default async params => {
         const extraData = role.sc
           ? { sc_data_version: role.sc.data_version }
           : {};
-        let skip = false;
+/*        let skip = false;
 
         originalRoles.forEach(value => {
           const newSignoffsRequired = role.sc
@@ -45,6 +45,14 @@ export default async params => {
 
         if (skip) {
           return;
+        }*/
+
+        if (role.sc && role.signoffs_required === role.sc.signoffs_required) {
+          return rsService.deleteRequiredSignoff({
+            scId: role.sc.sc_id,
+            type: channel ? 'product' : 'permissions',
+            data_version: role.sc.data_version,
+          });
         }
 
         return rsService.updateRequiredSignoff({
@@ -77,8 +85,17 @@ export default async params => {
 
         return ret;
       }),
-      removedRoles.map(role =>
-        rsService.updateRequiredSignoff({
+      removedRoles.map(role => {
+        // role doesn't exist yet, we should just delete that scheduled change
+        if (role.sc && role.sc.change_type === 'insert') {
+          return rsService.deleteRequiredSignoff({
+            scId: role.sc.sc_id,
+            type: channel ? 'product' : 'permissions',
+            data_version: role.sc.data_version,
+          });
+        }
+
+        return rsService.updateRequiredSignoff({
           product,
           channel,
           role: role.name,
@@ -86,8 +103,8 @@ export default async params => {
           useScheduledChange: true,
           change_type: 'delete',
           when: new Date().getTime() + 5000,
-        })
-      )
+        });
+      })
     )
   ).catch(error => {
     const config = JSON.parse(error.config.data);
