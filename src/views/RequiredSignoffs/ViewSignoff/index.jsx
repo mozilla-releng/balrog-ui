@@ -149,7 +149,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   };
 
   const handleSignoffSave = async () => {
-    await saveRS({
+    const { loading, error, data } = await saveRS({
       product: productTextValue,
       channel: channelTextValue,
       roles,
@@ -159,7 +159,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
       isNewSignoff,
     });
 
-    if (!saveAction.error) {
+    if (!error) {
       props.history.push('/required-signoffs');
     }
   };

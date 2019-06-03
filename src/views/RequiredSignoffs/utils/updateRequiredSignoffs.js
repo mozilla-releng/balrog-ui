@@ -21,95 +21,95 @@ export default async params => {
     isNewSignoff,
   } = params;
   let useScheduledChange = !isNewSignoff;
-  const errors = [];
+  const [error, result] = await tryCatch(
+    Promise.all(
+      Array.concat(
+        roles.map(async role => {
+          const extraData = role.sc
+            ? { sc_data_version: role.sc.data_version }
+            : {};
+          let skip = false;
 
-  const [error, result] = await tryCatch(Promise.all(
-    Array.concat(
-      roles.map(async role => {
-        const extraData = role.sc
-          ? { sc_data_version: role.sc.data_version }
-          : {};
-        let skip = false;
+          originalRoles.forEach(value => {
+            const newSignoffsRequired = role.sc
+              ? role.sc.signoffs_required
+              : role.signoffs_required;
+            const originalSignoffsRequired = value.sc
+              ? value.sc.signoffs_required
+              : value.signoffs_required;
 
-        originalRoles.forEach(value => {
-          const newSignoffsRequired = role.sc
-            ? role.sc.signoffs_required
-            : role.signoffs_required;
-          const originalSignoffsRequired = value.sc
-            ? value.sc.signoffs_required
-            : value.signoffs_required;
+            if (
+              value.name === role.name &&
+              originalSignoffsRequired === newSignoffsRequired
+            ) {
+              skip = true;
+            }
+          });
 
-          if (
-            value.name === role.name &&
-            originalSignoffsRequired === newSignoffsRequired
-          ) {
-            skip = true;
+          if (skip) {
+            return;
           }
-        });
 
-        if (skip) {
-          return;
-        }
+          if (role.sc && role.signoffs_required === role.sc.signoffs_required) {
+            return rsService.deleteRequiredSignoff({
+              scId: role.sc.sc_id,
+              type: channel ? 'product' : 'permissions',
+              data_version: role.sc.data_version,
+            });
+          }
 
-        if (role.sc && role.signoffs_required === role.sc.signoffs_required) {
-          return rsService.deleteRequiredSignoff({
-            scId: role.sc.sc_id,
-            type: channel ? 'product' : 'permissions',
-            data_version: role.sc.data_version,
+          return rsService.updateRequiredSignoff({
+            product,
+            channel,
+            role: role.name,
+            signoffs_required: role.sc
+              ? role.sc.signoffs_required
+              : role.signoffs_required,
+            data_version: role.data_version,
+            useScheduledChange: true,
+            change_type: 'update',
+            when: new Date().getTime() + 5000,
+            scId: role.sc ? role.sc.sc_id : null,
+            ...extraData,
           });
-        }
-
-        return rsService.updateRequiredSignoff({
-          product,
-          channel,
-          role: role.name,
-          signoffs_required: role.sc
-            ? role.sc.signoffs_required
-            : role.signoffs_required,
-          data_version: role.data_version,
-          useScheduledChange: true,
-          change_type: 'update',
-          when: new Date().getTime() + 5000,
-          scId: role.sc ? role.sc.sc_id : null,
-          ...extraData,
-        });
-      }),
-      additionalRoles.map(role => {
-        const ret = rsService.updateRequiredSignoff({
-          product,
-          channel,
-          useScheduledChange,
-          role: role.name,
-          signoffs_required: role.signoffs_required,
-          change_type: 'insert',
-          when: new Date().getTime() + 5000,
-        });
-
-        useScheduledChange = true;
-
-        return ret;
-      }),
-      removedRoles.map(role => {
-        // role doesn't exist yet, we should just delete that scheduled change
-        if (role.sc && role.sc.change_type === 'insert') {
-          return rsService.deleteRequiredSignoff({
-            scId: role.sc.sc_id,
-            type: channel ? 'product' : 'permissions',
-            data_version: role.sc.data_version,
+        }),
+        additionalRoles.map(role => {
+          const ret = rsService.updateRequiredSignoff({
+            product,
+            channel,
+            useScheduledChange,
+            role: role.name,
+            signoffs_required: role.signoffs_required,
+            change_type: 'insert',
+            when: new Date().getTime() + 5000,
           });
-        }
 
-        return rsService.updateRequiredSignoff({
-          product,
-          channel,
-          role: role.name,
-          data_version: role.data_version,
-          useScheduledChange: true,
-          change_type: 'delete',
-          when: new Date().getTime() + 5000,
-        });
-      })
-    ))
+          useScheduledChange = true;
+
+          return ret;
+        }),
+        removedRoles.map(role => {
+          // role doesn't exist yet, we should just delete that scheduled change
+          if (role.sc && role.sc.change_type === 'insert') {
+            return rsService.deleteRequiredSignoff({
+              scId: role.sc.sc_id,
+              type: channel ? 'product' : 'permissions',
+              data_version: role.sc.data_version,
+            });
+          }
+
+          return rsService.updateRequiredSignoff({
+            product,
+            channel,
+            role: role.name,
+            data_version: role.data_version,
+            useScheduledChange: true,
+            change_type: 'delete',
+            when: new Date().getTime() + 5000,
+          });
+        })
+      )
+    )
   );
 
   if (error) {
