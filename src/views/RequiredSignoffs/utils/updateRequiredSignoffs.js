@@ -63,7 +63,6 @@ export default async params => {
         });
       }),
       additionalRoles.map(role => {
-        console.log(role);
         const ret = rsService.updateRequiredSignoff({
           product,
           channel,
@@ -78,25 +77,17 @@ export default async params => {
 
         return ret;
       }),
-      removedRoles.map(roleItem => {
-        const role = roleItem[0];
-        // eslint-disable-next-line camelcase
-        const signoffs_required = roleItem[1];
-        // eslint-disable-next-line camelcase
-        const data_version = roleItem[2];
-        const ret = rsService.updateRequiredSignoff({
+      removedRoles.map(role =>
+        rsService.updateRequiredSignoff({
           product,
           channel,
-          role,
-          signoffs_required,
-          data_version,
-          useScheduledChange,
+          role: role.name,
+          data_version: role.data_version,
+          useScheduledChange: true,
           change_type: 'delete',
           when: new Date().getTime() + 5000,
-        });
-
-        return ret;
-      })
+        })
+      )
     )
   ).catch(error => {
     const config = JSON.parse(error.config.data);
