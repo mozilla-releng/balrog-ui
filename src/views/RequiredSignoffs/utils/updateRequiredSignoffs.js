@@ -1,4 +1,5 @@
 import rsService from '../../../services/requiredSignoffs';
+import tryCatch from '../../../utils/tryCatch';
 
 // A utlity to holds all of the Required Signoffs - product, permissions,
 // and scheduled changes
@@ -22,7 +23,7 @@ export default async params => {
   let useScheduledChange = !isNewSignoff;
   const errors = [];
 
-  await Promise.all(
+  const [error, result] = await tryCatch(Promise.all(
     Array.concat(
       roles.map(async role => {
         const extraData = role.sc
@@ -108,16 +109,14 @@ export default async params => {
           when: new Date().getTime() + 5000,
         });
       })
-    )
-  ).catch(error => {
+    ))
+  );
+
+  if (error) {
     const config = JSON.parse(error.config.data);
 
-    errors.push(
+    throw new Error(
       `Error updating ${config.role} role: ${error.response.data.exception}`
     );
-  });
-
-  if (errors) {
-    throw errors.join();
   }
 };
