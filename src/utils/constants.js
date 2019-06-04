@@ -9,3 +9,27 @@ export const LABELS = {
   PENDING: 'pending',
   PENDING_DELETE: 'pendingDelete',
 };
+export const RULE_DIFF_PROPERTIES = [
+  'alias',
+  'backgroundRate',
+  'buildTarget',
+  'build_ID',
+  'comment',
+  'data_version',
+  'distVersion',
+  'distribution',
+  'headerArchitecture',
+  'instructionSet',
+  'jaws',
+  'locale',
+  'memory',
+  'mig64',
+  'osVersion',
+  'priority',
+  'product',
+  'channel',
+  'rule_id',
+  'update_type',
+  'version',
+];
+export const RULES_ROWS_PER_PAGE = 25;

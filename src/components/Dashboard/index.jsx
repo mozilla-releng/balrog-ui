@@ -11,11 +11,15 @@ import UserMenu from './UserMenu';
 import SettingsMenu from './SettingsMenu';
 
 const useStyles = makeStyles(theme => ({
+  appbar: {
+    height: theme.spacing(8),
+  },
   title: {
     textDecoration: 'none',
   },
   main: {
     maxWidth: 980,
+    height: window.innerHeight - theme.spacing(8),
     margin: `${theme.spacing(10)}px auto`,
   },
   nav: {
@@ -39,7 +43,7 @@ export default function Dashboard(props) {
 
   return (
     <Fragment>
-      <AppBar>
+      <AppBar className={classes.appbar}>
         <Toolbar>
           <Typography
             className={classes.title}
@@ -65,7 +69,6 @@ export default function Dashboard(props) {
           </nav>
         </Toolbar>
       </AppBar>
-      <div>Dashboard</div>
       <main className={classes.main}>{children}</main>
     </Fragment>
   );
