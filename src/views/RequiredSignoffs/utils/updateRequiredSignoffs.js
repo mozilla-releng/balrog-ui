@@ -17,9 +17,12 @@ export default async params => {
     roles,
     originalRoles,
     additionalRoles,
-    removedRoles,
     isNewSignoff,
   } = params;
+  const currentRoles = roles.map(role => role.name);
+  const removed = originalRoles.filter(
+    role => !currentRoles.includes(role.name)
+  );
   let useScheduledChange = !isNewSignoff;
   const error = await tryCatch(
     Promise.all(
@@ -88,7 +91,7 @@ export default async params => {
 
           return ret;
         }),
-        removedRoles.map(role => {
+        removed.map(role => {
           // role doesn't exist yet, we should just delete that scheduled change
           if (role.sc && role.sc.change_type === 'insert') {
             return rsService.deleteRequiredSignoff({

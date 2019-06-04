@@ -82,7 +82,6 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   const [additionalRoles, setAdditionalRoles] = useState(
     isNewSignoff ? [getEmptyRole()] : []
   );
-  const [removedRoles, setRemoveRoles] = useState([]);
   const [requiredSignoffs, getRS] = useAction(getRequiredSignoffs);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
@@ -141,8 +140,6 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   const handleRoleDelete = (role, index) => () => {
     const excludeRole = (entry, i) => !(i === index);
 
-    setRemoveRoles(removedRoles.concat([role]));
-
     return role.metadata.isAdditionalRole
       ? setAdditionalRoles(additionalRoles.filter(excludeRole))
       : setRoles(roles.filter(excludeRole));
@@ -155,7 +152,6 @@ function ViewSignoff({ isNewSignoff, ...props }) {
       roles,
       originalRoles,
       additionalRoles,
-      removedRoles,
       isNewSignoff,
     });
 
