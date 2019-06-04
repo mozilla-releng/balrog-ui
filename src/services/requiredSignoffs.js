@@ -1,37 +1,26 @@
-import axios from 'axios';
-import { BASE_URL } from '../utils/constants';
+import axios from '../utils/axios';
 
-const getRequiredSignoffs = objectName =>
-  axios.get(`${BASE_URL}/${objectName}`);
+const getRequiredSignoffs = objectName => axios.get(`${objectName}`);
 const getScheduledChanges = objectName =>
-  axios.get(`${BASE_URL}/scheduled_changes/${objectName}`);
+  axios.get(`scheduled_changes/${objectName}`);
 const updateRequiredSignoff = params => {
   const { useScheduledChange, scId, ...postData } = params;
   const type = postData.channel ? 'product' : 'permissions';
   const scPath = scId ? `/${scId}` : '';
   const url = useScheduledChange
-    ? `${BASE_URL}/scheduled_changes/required_signoffs/${type}${scPath}`
-    : `${BASE_URL}/required_signoffs/${type}`;
+    ? `scheduled_changes/required_signoffs/${type}${scPath}`
+    : `required_signoffs/${type}`;
   // TODO: where can we set this globally as a default?
-  const { accessToken } = JSON.parse(
-    localStorage.getItem('react-auth0-session')
-  ).authResult;
 
-  return axios.post(url, postData, {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
+  return axios.post(url, postData);
 };
 
 const deleteRequiredSignoff = params => {
   const { scId, type, ...data } = params;
-  const url = `${BASE_URL}/scheduled_changes/required_signoffs/${type}/${scId}`;
+  const url = `scheduled_changes/required_signoffs/${type}/${scId}`;
   // TODO: where can we set this globally as a default?
-  const { accessToken } = JSON.parse(
-    localStorage.getItem('react-auth0-session')
-  ).authResult;
 
   return axios.delete(url, {
-    headers: { Authorization: `Bearer ${accessToken}` },
     params: data,
   });
 };

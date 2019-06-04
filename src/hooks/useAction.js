@@ -29,6 +29,7 @@ export default action => {
       return { ...state, data, error: null };
     } catch (e) {
       setError(e);
+
       return { ...state, error: e };
     } finally {
       setLoading(false);

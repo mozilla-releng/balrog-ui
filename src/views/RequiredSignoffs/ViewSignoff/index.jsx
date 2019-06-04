@@ -82,7 +82,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   const [additionalRoles, setAdditionalRoles] = useState(
     isNewSignoff ? [getEmptyRole()] : []
   );
-  const [removedRoles, removeRole] = useState([]);
+  const [removedRoles, setRemoveRoles] = useState([]);
   const [requiredSignoffs, getRS] = useAction(getRequiredSignoffs);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
@@ -141,7 +141,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   const handleRoleDelete = (role, index) => () => {
     const excludeRole = (entry, i) => !(i === index);
 
-    removeRole(removedRoles.concat([role]));
+    setRemoveRoles(removedRoles.concat([role]));
 
     return role.metadata.isAdditionalRole
       ? setAdditionalRoles(additionalRoles.filter(excludeRole))
@@ -149,7 +149,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   };
 
   const handleSignoffSave = async () => {
-    const { loading, error, data } = await saveRS({
+    const { error } = await saveRS({
       product: productTextValue,
       channel: channelTextValue,
       roles,
