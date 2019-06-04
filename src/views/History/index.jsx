@@ -21,7 +21,7 @@ function History() {
   }
 
   return (
-    <Dashboard>
+    <Dashboard title="History">
       <Fragment>
         {error && <ErrorPanel error={error} />}
         <HistoryForm onSubmit={handleFormSubmit} />
