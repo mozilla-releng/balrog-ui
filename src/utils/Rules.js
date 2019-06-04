@@ -1,11 +1,11 @@
 import { stringify } from 'qs';
 import axios from './axios';
 
-const getRules = () => axios.get('rules');
-const getChannels = () => axios.get('rules/columns/channel');
-const getProducts = () => axios.get('rules/columns/product');
+const getRules = () => axios.get('/rules');
+const getChannels = () => axios.get('/rules/columns/channel');
+const getProducts = () => axios.get('/rules/columns/product');
 const getHistory = (id, limit, page) =>
-  axios.get(`${id}/revisions?${stringify({ limit, page })}`);
+  axios.get(`/${id}/revisions?${stringify({ limit, page })}`);
 // const getRule = () => axios.get();
 // const updateRule = () => axios.put();
 // const deleteRule = () => axios.delete();

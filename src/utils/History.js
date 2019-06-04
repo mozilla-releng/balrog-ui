@@ -13,7 +13,7 @@ const getHistory = params => {
     { addQueryPrefix: true }
   );
 
-  return axios.get(`${params.object}/history/${qs}`);
+  return axios.get(`/${params.object}/history/${qs}`);
 };
 
 // History factory
