@@ -115,8 +115,10 @@ export default async params => {
   if (error) {
     const config = JSON.parse(error.config.data);
 
+    const errorMsg = error.response.data.exception || error.response.data.detail || 'Unknown error';
+
     throw new Error(
-      `Error updating ${config.role} role: ${error.response.data.exception}`
+      `Error updating ${config.role} role: ${errorMsg}`
     );
   }
 };
