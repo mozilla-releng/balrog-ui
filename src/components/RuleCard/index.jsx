@@ -1,4 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react';
+import { bool } from 'prop-types';
 import classNames from 'classnames';
 import { makeStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
@@ -88,7 +89,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function RuleCard({ rule, ...props }) {
+function RuleCard({ rule, showScheduled, ...props }) {
   const classes = useStyles();
   const [{ type, hunks }, setDiff] = useState('');
   const getChipIcon = changeType => {
@@ -362,26 +363,27 @@ function RuleCard({ rule, ...props }) {
                 )} (${rule.scheduledChange.change_type})`}
               />
             </div>
-            {rule.scheduledChange.change_type === 'delete' ? (
-              <Typography
-                className={classes.deletedText}
-                variant="body2"
-                color="textSecondary">
-                All properties will be deleted
-              </Typography>
-            ) : (
-              type && (
-                <Diff
-                  className={classes.diff}
-                  viewType="split"
-                  diffType={type}
-                  hunks={hunks || []}>
-                  {hunks =>
-                    hunks.map(hunk => <Hunk key={hunk.content} hunk={hunk} />)
-                  }
-                </Diff>
-              )
-            )}
+            {showScheduled &&
+              (rule.scheduledChange.change_type === 'delete' ? (
+                <Typography
+                  className={classes.deletedText}
+                  variant="body2"
+                  color="textSecondary">
+                  All properties will be deleted
+                </Typography>
+              ) : (
+                type && (
+                  <Diff
+                    className={classes.diff}
+                    viewType="split"
+                    diffType={type}
+                    hunks={hunks || []}>
+                    {hunks =>
+                      hunks.map(hunk => <Hunk key={hunk.content} hunk={hunk} />)
+                    }
+                  </Diff>
+                )
+              ))}
           </Fragment>
         )}
       </CardContent>
@@ -395,7 +397,12 @@ function RuleCard({ rule, ...props }) {
 }
 
 RuleCard.propTypes = {
-  rule,
+  rule: rule.isRequired,
+  showScheduled: bool,
+};
+
+RuleCard.defaultProps = {
+  showScheduled: false,
 };
 
 export default RuleCard;

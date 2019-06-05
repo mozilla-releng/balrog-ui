@@ -9,6 +9,8 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
+import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import RuleCard from '../../../components/RuleCard';
@@ -30,6 +32,7 @@ const useStyles = makeStyles(theme => ({
   options: {
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'center',
   },
   dropdown: {
     minWidth: 200,
@@ -47,6 +50,7 @@ function ListRules(props) {
   const classes = useStyles();
   const query = parse(props.location.search.slice(1));
   const productChannelSeparator = ' : ';
+  const [showScheduled, setScheduled] = useState(false);
   const [rulesWithScheduledChanges, setRulesWithScheduledChanges] = useState(
     []
   );
@@ -78,6 +82,10 @@ function ListRules(props) {
 
     setProductChannelFilter(value);
     setTablePage(0);
+  };
+
+  const handleSwitchChange = () => {
+    setScheduled(!showScheduled);
   };
 
   const pairExists = (product, channel) =>
@@ -224,6 +232,16 @@ function ListRules(props) {
         <Fragment>
           <div className={classes.options}>
             {pagination}
+            <FormControlLabel
+              control={
+                <Switch
+                  color="primary"
+                  checked={showScheduled}
+                  onChange={handleSwitchChange}
+                />
+              }
+              label="Include Scheduled Changes"
+            />
             <TextField
               className={classes.dropdown}
               select
@@ -245,7 +263,11 @@ function ListRules(props) {
                   key={`${rule.product}-${rule.channel}-${rule.rule_id}`}
                   item
                   xs={12}>
-                  <RuleCard key={rule.rule_id} rule={rule} />
+                  <RuleCard
+                    showScheduled={showScheduled}
+                    key={rule.rule_id}
+                    rule={rule}
+                  />
                 </Grid>
               ))}
             </Grid>
