@@ -25,6 +25,7 @@ import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import { getChannels, getProducts } from '../../../utils/Rules';
 import getRequiredSignoffs from '../utils/getRequiredSignoffs';
+import updateRequiredSignoffs from '../utils/updateRequiredSignoffs';
 import getRolesFromRequiredSignoffs from '../utils/getRolesFromRequiredSignoffs';
 import useAction from '../../../hooks/useAction';
 
@@ -61,46 +62,72 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ViewSignoff({ isNewSignoff, ...props }) {
-  const getEmptyRole = (id = 0) => ['', '', { isAdditionalRole: true, id }];
+  const getEmptyRole = (id = 0) => ({
+    name: '',
+    signoffs_required: null,
+    data_version: null,
+    sc: null,
+    metadata: {
+      isAdditionalRole: true,
+      id,
+    },
+  });
   const { product, channel } = props.match.params;
   const classes = useStyles();
   const [channelTextValue, setChannelTextValue] = useState(channel || '');
   const [productTextValue, setProductTextValue] = useState(product || '');
   const [type, setType] = useState(channel ? 'channel' : 'permission');
   const [roles, setRoles] = useState([]);
+  const [originalRoles, setOriginalRoles] = useState([]);
   const [additionalRoles, setAdditionalRoles] = useState(
     isNewSignoff ? [getEmptyRole()] : []
-  );
-  const [sleepAction, sleep] = useAction(
-    timeout =>
-      new Promise((resolve, reject) =>
-        setTimeout(() => reject(new Error('Action not complete')), timeout)
-      )
   );
   const [requiredSignoffs, getRS] = useAction(getRequiredSignoffs);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
+  const [saveAction, saveRS] = useAction(updateRequiredSignoffs);
   const isLoading =
     requiredSignoffs.loading || products.loading || channels.loading;
-  const error = requiredSignoffs.error || products.error || sleepAction.error;
+  const error = requiredSignoffs.error || products.error || saveAction.error;
   const handleTypeChange = ({ target: { value } }) => setType(value);
   const handleChannelChange = value => setChannelTextValue(value);
   const handleProductChange = value => setProductTextValue(value);
-  const handleRoleValueChange = (role, index) => ({ floatValue: value }) => {
-    const setRole = (entry, i) =>
-      i === index ? [entry[0], value, entry[2]] : entry;
+  const handleRoleValueChange = role => ({ floatValue: value }) => {
+    const setRole = entry => {
+      if (entry.name !== role.name) {
+        return entry;
+      }
 
-    return role[2].isAdditionalRole
+      const result = entry;
+
+      if (result.sc) {
+        result.sc.signoffs_required = value;
+      } else {
+        result.signoffs_required = value;
+      }
+
+      return result;
+    };
+
+    return role.metadata.isAdditionalRole
       ? setAdditionalRoles(additionalRoles.map(setRole))
       : setRoles(roles.map(setRole));
   };
 
   const handleRoleNameChange = (role, index) => ({ target: { value } }) => {
-    const result = additionalRoles.map((entry, i) =>
-      i === index ? [value, entry[1], entry[2]] : entry
-    );
+    const setRole = additionalRoles.map((entry, i) => {
+      if (i !== index) {
+        return entry;
+      }
 
-    setAdditionalRoles(result);
+      const result = entry;
+
+      result.name = value;
+
+      return result;
+    });
+
+    setAdditionalRoles(setRole);
   };
 
   const handleRoleAdd = () => {
@@ -113,19 +140,22 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   const handleRoleDelete = (role, index) => () => {
     const excludeRole = (entry, i) => !(i === index);
 
-    return role[2].isAdditionalRole
+    return role.metadata.isAdditionalRole
       ? setAdditionalRoles(additionalRoles.filter(excludeRole))
       : setRoles(roles.filter(excludeRole));
   };
 
-  // TODO: Add save logic
   const handleSignoffSave = async () => {
-    // Call the save endpoint with the appropriate parameters
-    await sleep(2000);
+    const { error } = await saveRS({
+      product: productTextValue,
+      channel: channelTextValue,
+      roles,
+      originalRoles,
+      additionalRoles,
+      isNewSignoff,
+    });
 
-    if (!sleepAction.error) {
-      // Save was successful
-      // You could possibly navigate the user back to /required-signoffs
+    if (!error) {
       props.history.push('/required-signoffs');
     }
   };
@@ -143,6 +173,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           const roles = getRolesFromRequiredSignoffs(rs.data, product, channel);
 
           setRoles(roles);
+          setOriginalRoles(JSON.parse(JSON.stringify(roles)));
         }
       );
     }
@@ -150,18 +181,18 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
   const renderRole = (role, index) => (
     <Grid
-      key={role[2].id}
+      key={role.metadata.id}
       className={classes.gridWithIcon}
       container
       spacing={2}>
       <Grid item xs>
         <TextField
           required
-          disabled={role[2].isAdditionalRole ? false : !isNewSignoff}
+          disabled={role.metadata.isAdditionalRole ? false : !isNewSignoff}
           onChange={handleRoleNameChange(role, index)}
           fullWidth
           label="Role"
-          value={role[0]}
+          value={role.name}
         />
       </Grid>
       <Grid item xs>
@@ -170,7 +201,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           required
           label="Signoffs Required"
           fullWidth
-          value={role[1]}
+          value={role.sc ? role.sc.signoffs_required : role.signoffs_required}
           customInput={TextField}
           onValueChange={handleRoleValueChange(role, index)}
           decimalScale={0}
@@ -186,7 +217,6 @@ function ViewSignoff({ isNewSignoff, ...props }) {
     </Grid>
   );
   const getSuggestions = suggestions => value => {
-    // const suggestions = products.data.data.product;
     const inputValue = value.trim().toLowerCase();
     const inputLength = inputValue.length;
     let count = 0;
@@ -291,7 +321,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           </form>
           <Tooltip title="Save Signoff">
             <Fab
-              disabled={sleepAction.loading}
+              disabled={saveAction.loading}
               onClick={handleSignoffSave}
               color="primary"
               className={classes.fab}>
@@ -301,7 +331,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
           {!isNewSignoff && (
             <SpeedDial ariaLabel="Secondary Actions">
               <SpeedDialAction
-                disabled={sleepAction.loading}
+                disabled={saveAction.loading}
                 icon={<DeleteIcon />}
                 tooltipOpen
                 tooltipTitle="Delete Signoff"

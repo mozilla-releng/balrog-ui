@@ -1,12 +1,11 @@
-import axios from 'axios';
 import { stringify } from 'qs';
+import axios from 'axios';
 
-const baseUrl = `${process.env.BALROG_ROOT_URL}/api`;
-const getRules = () => axios.get(`${baseUrl}/rules`);
-const getChannels = () => axios.get(`${baseUrl}/rules/columns/channel`);
-const getProducts = () => axios.get(`${baseUrl}/rules/columns/product`);
+const getRules = () => axios.get('/rules');
+const getChannels = () => axios.get('/rules/columns/channel');
+const getProducts = () => axios.get('/rules/columns/product');
 const getHistory = (id, limit, page) =>
-  axios.get(`${baseUrl}/${id}/revisions?${stringify({ limit, page })}`);
+  axios.get(`/${id}/revisions?${stringify({ limit, page })}`);
 // const getRule = () => axios.get();
 // const updateRule = () => axios.put();
 // const deleteRule = () => axios.delete();
@@ -14,12 +13,10 @@ const getHistory = (id, limit, page) =>
 // const revertRule = () => axios.post();
 const getScheduledChanges = all => {
   if (!all || all === true) {
-    return axios.get(
-      `${baseUrl}/scheduled_changes/rules?${stringify({ all: 1 })}`
-    );
+    return axios.get(`/scheduled_changes/rules?${stringify({ all: 1 })}`);
   }
 
-  return axios.get(`${baseUrl}/scheduled_changes/rules/`);
+  return axios.get('/scheduled_changes/rules/');
 };
 // const getScheduledChange = () => axios.get();
 // const addScheduledChange = () => axios.get();
