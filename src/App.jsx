@@ -3,10 +3,32 @@ import React, { Fragment, useState } from 'react';
 import { Authorize } from 'react-auth0-components';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/styles';
+import axios from 'axios';
 import { AuthContext } from './utils/AuthContext';
-import { USER_SESSION } from './utils/constants';
+import { BASE_URL, USER_SESSION } from './utils/constants';
 import theme from './theme';
 import Main from './Main';
+
+axios.interceptors.request.use(config => {
+  const result = config;
+  let accessToken = null;
+
+  result.baseURL = BASE_URL;
+
+  try {
+    ({ accessToken } = JSON.parse(
+      localStorage.getItem(USER_SESSION)
+    ).authResult);
+  } catch {
+    accessToken = null;
+  }
+
+  if (accessToken) {
+    result.headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  return result;
+});
 
 const App = () => {
   const [authorize, setAuthorize] = useState(

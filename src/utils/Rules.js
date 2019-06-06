@@ -1,5 +1,5 @@
 import { stringify } from 'qs';
-import axios from './axios';
+import axios from 'axios';
 
 const getRules = () => axios.get('/rules');
 const getChannels = () => axios.get('/rules/columns/channel');
@@ -13,12 +13,10 @@ const getHistory = (id, limit, page) =>
 // const revertRule = () => axios.post();
 const getScheduledChanges = all => {
   if (!all || all === true) {
-    return axios.get(
-      `${baseUrl}/scheduled_changes/rules?${stringify({ all: 1 })}`
-    );
+    return axios.get(`/scheduled_changes/rules?${stringify({ all: 1 })}`);
   }
 
-  return axios.get(`${baseUrl}/scheduled_changes/rules/`);
+  return axios.get('/scheduled_changes/rules/');
 };
 // const getScheduledChange = () => axios.get();
 // const addScheduledChange = () => axios.get();

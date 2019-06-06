@@ -29,13 +29,13 @@ export default action => {
       // If we don't explicitly overwrite `error` here, any previous errors
       // will remain when the caller receives the return value, which
       // prevents them from accurately detecting success/failure
-      return { ...state, data, error: null };
+      return { loading: false, data, error: null };
     } catch (e) {
       setError(e);
 
       // Similarly, the caller will not see the error immediately without
       // explicitly setting it.
-      return { ...state, error: e };
+      return { ...state, loading: false, error: e };
     } finally {
       setLoading(false);
     }

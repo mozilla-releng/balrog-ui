@@ -1,5 +1,5 @@
 import { stringify } from 'qs';
-import axios from './axios';
+import axios from 'axios';
 
 const getHistory = params => {
   const qs = stringify(

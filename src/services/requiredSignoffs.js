@@ -1,4 +1,4 @@
-import axios from '../utils/axios';
+import axios from 'axios';
 
 const getRequiredSignoffs = objectName => axios.get(`/${objectName}`);
 const getScheduledChanges = objectName =>

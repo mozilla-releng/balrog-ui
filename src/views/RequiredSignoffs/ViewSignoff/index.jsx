@@ -98,7 +98,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
         return entry;
       }
 
-      const result = Object.assign(entry);
+      const result = entry;
 
       if (result.sc) {
         result.sc.signoffs_required = value;
@@ -120,7 +120,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
         return entry;
       }
 
-      const result = Object.assign(entry);
+      const result = entry;
 
       result.name = value;
 
