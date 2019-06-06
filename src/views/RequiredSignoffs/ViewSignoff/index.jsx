@@ -237,7 +237,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   };
 
   return (
-    <Dashboard>
+    <Dashboard title="Required Signoff">
       {error && <ErrorPanel error={error} />}
       {isLoading && <Spinner loading />}
       {!isLoading && (

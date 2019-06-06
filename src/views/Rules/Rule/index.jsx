@@ -4,7 +4,7 @@ import Dashboard from '../../../components/Dashboard';
 
 export default function Rule() {
   return (
-    <Dashboard>
+    <Dashboard title="Rule">
       <Typography variant="subtitle1">Create a Rule</Typography>
     </Dashboard>
   );

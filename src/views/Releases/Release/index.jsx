@@ -4,7 +4,7 @@ import Dashboard from '../../../components/Dashboard';
 
 export default function Release() {
   return (
-    <Dashboard>
+    <Dashboard title="Release">
       <Typography variant="subtitle1">Create a Release</Typography>
     </Dashboard>
   );

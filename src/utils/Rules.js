@@ -11,7 +11,15 @@ const getHistory = (id, limit, page) =>
 // const deleteRule = () => axios.delete();
 // const addRule = () => axios.post();
 // const revertRule = () => axios.post();
-// const getScheduledChanges = () => axios.get();
+const getScheduledChanges = all => {
+  if (!all || all === true) {
+    return axios.get(
+      `${baseUrl}/scheduled_changes/rules?${stringify({ all: 1 })}`
+    );
+  }
+
+  return axios.get(`${baseUrl}/scheduled_changes/rules/`);
+};
 // const getScheduledChange = () => axios.get();
 // const addScheduledChange = () => axios.get();
 // const getScheduledChangeHistory = () => axios.get();
@@ -22,4 +30,4 @@ const getHistory = (id, limit, page) =>
 // const ruleSignoffsRequired = () => axios.get();
 
 // Rules factory
-export { getRules, getChannels, getProducts, getHistory };
+export { getRules, getChannels, getProducts, getHistory, getScheduledChanges };
