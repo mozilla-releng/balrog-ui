@@ -67,6 +67,7 @@ function ListRules(props) {
   );
   const [deleteAction, delRule] = useAction(deleteRule);
   const isLoading = products.loading || channels.loading || rules.loading;
+  // todo: delete errors aren't being shown
   const error =
     products.error ||
     channels.error ||

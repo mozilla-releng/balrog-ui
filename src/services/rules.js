@@ -1,6 +1,7 @@
 import { stringify } from 'qs';
 import axios from 'axios';
 
+// TODO: should this move to services/Rules.jsx?
 const getRules = () => axios.get('/rules');
 const getChannels = () => axios.get('/rules/columns/channel');
 const getProducts = () => axios.get('/rules/columns/product');
