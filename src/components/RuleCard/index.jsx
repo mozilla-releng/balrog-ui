@@ -88,7 +88,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function RuleCard({ rule, ...props }) {
+function RuleCard({ rule, handleRuleDelete, ...props }) {
   const classes = useStyles();
   const [{ type, hunks }, setDiff] = useState('');
   const getChipIcon = changeType => {
@@ -388,7 +388,9 @@ function RuleCard({ rule, ...props }) {
       <CardActions className={classes.cardActions}>
         <Button color="secondary">Duplicate</Button>
         <Button color="secondary">Update</Button>
-        <Button color="secondary">Delete</Button>
+        <Button color="secondary" onClick={handleRuleDelete}>
+          Delete
+        </Button>
       </CardActions>
     </Card>
   );

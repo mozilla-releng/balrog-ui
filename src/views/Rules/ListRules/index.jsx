@@ -13,12 +13,14 @@ import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import RuleCard from '../../../components/RuleCard';
 import Link from '../../../utils/Link';
+import tryCatch from '../../../utils/tryCatch';
 import useAction from '../../../hooks/useAction';
 import {
   getProducts,
   getChannels,
   getRules,
   getScheduledChanges,
+  deleteRule,
 } from '../../../utils/Rules';
 import { RULES_ROWS_PER_PAGE } from '../../../utils/constants';
 
@@ -64,9 +66,15 @@ function ListRules(props) {
   const [scheduledChanges, fetchScheduledChanges] = useAction(
     getScheduledChanges
   );
+  const [deleteAction, delRule] = useAction(deleteRule);
   const isLoading = products.loading || channels.loading || rules.loading;
+  // todo: delete errors aren't being shown
   const error =
-    products.error || channels.error || rules.error || scheduledChanges.error;
+    products.error ||
+    channels.error ||
+    rules.error ||
+    scheduledChanges.error ||
+    deleteAction.error;
   const handleFilterChange = ({ target: { value } }) => {
     const [product, channel] = value.split(productChannelSeparator);
     const query =
@@ -215,6 +223,20 @@ function ListRules(props) {
       rowsPerPage={RULES_ROWS_PER_PAGE}
     />
   );
+  const handleRuleDelete = async rule => {
+    const error = await tryCatch(
+      delRule({ ruleId: rule.rule_id, dataVersion: rule.data_version })
+    )[0];
+
+    if (error) {
+      // do something better here!
+      console.log(error);
+    }
+
+    setRulesWithScheduledChanges(
+      rulesWithScheduledChanges.filter(i => i.rule_id !== rule.rule_id)
+    );
+  };
 
   return (
     <Dashboard title="Rules">
@@ -245,7 +267,11 @@ function ListRules(props) {
                   key={`${rule.product}-${rule.channel}-${rule.rule_id}`}
                   item
                   xs={12}>
-                  <RuleCard key={rule.rule_id} rule={rule} />
+                  <RuleCard
+                    key={rule.rule_id}
+                    rule={rule}
+                    handleRuleDelete={() => handleRuleDelete(rule)}
+                  />
                 </Grid>
               ))}
             </Grid>
