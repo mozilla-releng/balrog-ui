@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
+import Spinner from '@mozilla-frontend-infra/components/Spinner';
+import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import { makeStyles } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import { getUsers } from '../../../utils/Users';
-import tryCatch from '../../../utils/tryCatch';
+import useAction from '../../../hooks/useAction';
 import UserList from '../../../components/UserList';
 
 const useStyles = makeStyles(theme => ({
@@ -18,18 +19,16 @@ const useStyles = makeStyles(theme => ({
 function ListUsers() {
   const classes = useStyles();
   const [users, setUsers] = useState({});
+  const [usersAction, fetchUsers] = useAction(getUsers);
+  const isLoading = usersAction.loading;
+  const { error } = usersAction;
 
   useEffect(() => {
-    (async () => {
-      const [error, result] = await tryCatch(getUsers());
-
-      if (error !== null) {
-        // TODO: what's the proper way of handling this?
-        console.log(error);
-      } else {
-        setUsers(result.data);
+    fetchUsers().then(({ data, error }) => {
+      if (!error) {
+        setUsers(data.data);
       }
-    })();
+    });
   }, []);
 
   function handleUserAdd() {
@@ -38,17 +37,22 @@ function ListUsers() {
 
   return (
     <Dashboard title="Users">
-      <Typography variant="subtitle1">Users</Typography>
-      <UserList users={users} />
-      <Tooltip title="Add Users">
-        <Fab
-          color="primary"
-          className={classes.fab}
-          classes={{ root: classes.fab }}
-          onClick={handleUserAdd}>
-          <PlusIcon />
-        </Fab>
-      </Tooltip>
+      {isLoading && <Spinner loading />}
+      {error && <ErrorPanel error={error} />}
+      {!isLoading && users && (
+        <Fragment>
+          <UserList users={users} />
+          <Tooltip title="Add Users">
+            <Fab
+              color="primary"
+              className={classes.fab}
+              classes={{ root: classes.fab }}
+              onClick={handleUserAdd}>
+              <PlusIcon />
+            </Fab>
+          </Tooltip>
+        </Fragment>
+      )}
     </Dashboard>
   );
 }
