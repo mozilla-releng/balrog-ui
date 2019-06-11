@@ -13,14 +13,13 @@ import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import RuleCard from '../../../components/RuleCard';
 import Link from '../../../utils/Link';
-import tryCatch from '../../../utils/tryCatch';
 import useAction from '../../../hooks/useAction';
+import deleteRule from '../utils/deleteRule';
 import {
   getProducts,
   getChannels,
   getRules,
   getScheduledChanges,
-  deleteRule,
 } from '../../../utils/Rules';
 import { RULES_ROWS_PER_PAGE } from '../../../utils/constants';
 
@@ -224,18 +223,13 @@ function ListRules(props) {
     />
   );
   const handleRuleDelete = async rule => {
-    const error = await tryCatch(
-      delRule({ ruleId: rule.rule_id, dataVersion: rule.data_version })
-    )[0];
+    const { error } = await delRule(rule);
 
-    if (error) {
-      // do something better here!
-      console.log(error);
+    if (!error) {
+      setRulesWithScheduledChanges(
+        rulesWithScheduledChanges.filter(i => i.rule_id !== rule.rule_id)
+      );
     }
-
-    setRulesWithScheduledChanges(
-      rulesWithScheduledChanges.filter(i => i.rule_id !== rule.rule_id)
-    );
   };
 
   return (
