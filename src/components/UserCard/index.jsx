@@ -5,13 +5,19 @@ import { makeStyles } from '@material-ui/styles';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
-import Chip from '@material-ui/core/Chip';
+import AccountGroupIcon from 'mdi-react/AccountGroupIcon';
+import AccountSupervisorIcon from 'mdi-react/AccountSupervisorIcon';
 import PencilIcon from 'mdi-react/PencilIcon';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
 import Link from '../../utils/Link';
+import { getPermissionString, getRolesString } from '../../utils/Users';
 
 const useStyles = makeStyles(theme => ({
   card: {
-    minWidth: '325px',
+    display: 'block',
   },
   cardHeader: {
     borderBottom: '1px gray dashed',
@@ -30,6 +36,13 @@ const useStyles = makeStyles(theme => ({
 export default function User(props) {
   const classes = useStyles();
   const { username, roles, permissions } = props;
+  const returnOptionIfExists = (options, key, defaultValue) => {
+    if (options && options[key]) {
+      return options[key];
+    }
+
+    return defaultValue;
+  };
 
   // TODO: Add admin-or-not marker. Needs backend support.
   // should links like the ones below be in a component?
@@ -45,18 +58,33 @@ export default function User(props) {
           />
         </CardActionArea>
         <CardContent>
-          {Object.keys(roles).length === 0 && (
-            <Chip className={classes.roleless} label="No Roles" />
-          )}
-          {Object.keys(roles).map(role => (
-            <Chip
-              key={role}
-              label={role}
-              component="a"
-              href={`/roles/${role}`}
-              clickable
-            />
-          ))}
+          <List>
+            {Object.entries(permissions).map(([permission, details]) => (
+              <ListItem key={permission}>
+                <ListItemIcon>
+                  <AccountSupervisorIcon />
+                </ListItemIcon>
+                <ListItemText>
+                  {getPermissionString(
+                    permission,
+                    returnOptionIfExists(details.options, 'actions', []),
+                    returnOptionIfExists(details.options, 'products', [])
+                  )}
+                </ListItemText>
+              </ListItem>
+            ))}
+            {Object.keys(roles).length > 0 && (
+              <ListItem>
+                <ListItemIcon>
+                  <AccountGroupIcon />
+                </ListItemIcon>
+                <ListItemText>
+                  {username} holds the&nbsp;
+                  {getRolesString(Object.keys(roles))}
+                </ListItemText>
+              </ListItem>
+            )}
+          </List>
         </CardContent>
       </Card>
     </GridListTile>

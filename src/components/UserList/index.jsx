@@ -6,7 +6,7 @@ export default function UserList(props) {
   const { users } = props;
 
   return (
-    <GridList>
+    <GridList cols={1}>
       {Object.keys(users).map(user => (
         <UserCard
           key={user}
