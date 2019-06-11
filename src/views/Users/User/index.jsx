@@ -74,7 +74,7 @@ function User(props) {
             </ListItemIcon>
             {/* TODO: Should these be inside of a Chip like on the UserCards */}
             <ListItemText>
-              {user.username} holds the
+              {user.username} holds the&nbsp;
               {getRolesString(Object.keys(user.roles))}
             </ListItemText>
           </ListItem>
