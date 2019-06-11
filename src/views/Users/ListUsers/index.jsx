@@ -9,6 +9,7 @@ import Dashboard from '../../../components/Dashboard';
 import { getUsers } from '../../../utils/Users';
 import useAction from '../../../hooks/useAction';
 import UserList from '../../../components/UserList';
+import getUserInfo from '../utils/getUserInfo';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -20,13 +21,18 @@ function ListUsers() {
   const classes = useStyles();
   const [users, setUsers] = useState({});
   const [usersAction, fetchUsers] = useAction(getUsers);
-  const isLoading = usersAction.loading;
-  const { error } = usersAction;
+  const [userInfoAction, fetchUserInfo] = useAction(getUserInfo);
+  const isLoading = usersAction.loading || userInfoAction.loading;
+  const error = usersAction.error || userInfoAction.error;
 
   useEffect(() => {
     fetchUsers().then(({ data, error }) => {
       if (!error) {
-        setUsers(data.data);
+        fetchUserInfo(Object.keys(data.data)).then(({ data, error }) => {
+          if (!error) {
+            setUsers(data);
+          }
+        });
       }
     });
   }, []);

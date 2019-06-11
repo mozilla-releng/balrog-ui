@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function User(props) {
   const classes = useStyles();
-  const { username, roles } = props;
+  const { username, roles, permissions } = props;
 
   // TODO: Add admin-or-not marker. Needs backend support.
   // should links like the ones below be in a component?
@@ -45,15 +45,15 @@ export default function User(props) {
           />
         </CardActionArea>
         <CardContent>
-          {roles.length === 0 && (
+          {Object.keys(roles).length === 0 && (
             <Chip className={classes.roleless} label="No Roles" />
           )}
-          {roles.map(role => (
+          {Object.keys(roles).map(role => (
             <Chip
-              key={role.role}
-              label={role.role}
+              key={role}
+              label={role}
               component="a"
-              href={`/roles/${role.role}`}
+              href={`/roles/${role}`}
               clickable
             />
           ))}

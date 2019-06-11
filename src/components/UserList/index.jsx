@@ -8,7 +8,12 @@ export default function UserList(props) {
   return (
     <GridList>
       {Object.keys(users).map(user => (
-        <UserCard key={user} username={user} roles={users[user].roles} />
+        <UserCard
+          key={user}
+          username={user}
+          roles={users[user].roles}
+          permissions={users[user].permissions}
+        />
       ))}
     </GridList>
   );
