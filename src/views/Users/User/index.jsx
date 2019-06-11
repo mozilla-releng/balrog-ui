@@ -47,7 +47,7 @@ function User(props) {
   }, []);
 
   return (
-    <Dashboard>
+    <Dashboard title="Users">
       {error && <ErrorPanel error={error} />}
       {!error && !user && <Spinner loading />}
       {user && <Typography variant="h4">{user.username}…</Typography>}

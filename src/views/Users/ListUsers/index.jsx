@@ -37,7 +37,7 @@ function ListUsers() {
   }
 
   return (
-    <Dashboard>
+    <Dashboard title="Users">
       <Typography variant="subtitle1">Users</Typography>
       <UserList users={users} />
       <Tooltip title="Add Users">

@@ -10,14 +10,6 @@ const getPermissionScheduledChangeLens = rs =>
   lensPath([rs.product, 'permissions', rs.role, 'sc']);
 
 export default class RequiredSignoffs {
-  constructor() {
-    // Make sure it's a singleton in order not
-    // to re-create the object on each render
-    if (RequiredSignoffs.instance) {
-      return RequiredSignoffs.instance;
-    }
-  }
-
   #value = {};
 
   value() {

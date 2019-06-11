@@ -4,7 +4,7 @@ import Dashboard from '../../components/Dashboard';
 
 function History() {
   return (
-    <Dashboard>
+    <Dashboard title="Home">
       <Typography variant="subtitle1">Home</Typography>
     </Dashboard>
   );

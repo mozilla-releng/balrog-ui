@@ -23,6 +23,14 @@ export default createMuiTheme({
       bottom: SPACING.DOUBLE,
       right: SPACING.TRIPLE,
     },
+    textEllipsis: {
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      '&:hover': {
+        overflow: 'unset',
+        textOverflow: 'unset',
+      },
+    },
   },
   overrides: {
     MuiListItem: {

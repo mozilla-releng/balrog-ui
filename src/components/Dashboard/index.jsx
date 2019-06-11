@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { node } from 'prop-types';
+import { string, node } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -12,11 +12,15 @@ import UserMenu from './UserMenu';
 import SettingsMenu from './SettingsMenu';
 
 const useStyles = makeStyles(theme => ({
+  appbar: {
+    height: theme.spacing(8),
+  },
   title: {
     textDecoration: 'none',
   },
   main: {
     maxWidth: 980,
+    height: window.innerHeight - theme.spacing(8),
     margin: `${theme.spacing(10)}px auto`,
   },
   nav: {
@@ -36,11 +40,11 @@ const useStyles = makeStyles(theme => ({
 
 export default function Dashboard(props) {
   const classes = useStyles();
-  const { children } = props;
+  const { title, children } = props;
 
   return (
     <Fragment>
-      <AppBar>
+      <AppBar className={classes.appbar}>
         <Toolbar>
           <Typography
             className={classes.title}
@@ -49,7 +53,7 @@ export default function Dashboard(props) {
             noWrap
             component={Link}
             to="/">
-            Balrog Admin
+            Balrog Admin ┃ {title}
           </Typography>
           <nav className={classes.nav}>
             {menuItems.main.map(menuItem => (
@@ -66,7 +70,6 @@ export default function Dashboard(props) {
           </nav>
         </Toolbar>
       </AppBar>
-      <div>Dashboard</div>
       <main className={classes.main}>{children}</main>
     </Fragment>
   );
@@ -74,4 +77,6 @@ export default function Dashboard(props) {
 
 Dashboard.prototype = {
   children: node.isRequired,
+  // A title for the view.
+  title: string.isRequired,
 };
