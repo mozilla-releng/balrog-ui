@@ -9,7 +9,7 @@ export default path => [
   // TODO: This page doesn't work as a deep link
   {
     component: User,
-    path: '/users/:username',
+    path: `${path}/:username`,
   },
   {
     component: ListUsers,
