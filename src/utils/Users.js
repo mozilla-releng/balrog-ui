@@ -46,7 +46,7 @@ const getPermissionString = (permission, actions, products) => {
 };
 
 const getRolesString = roles => {
-  const joined = niceJoin(roles);
+  const joined = niceJoin(Array.from(roles));
   let roleStr = 'role';
 
   if (roles.length > 1) {

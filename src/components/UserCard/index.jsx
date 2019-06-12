@@ -79,8 +79,7 @@ export default function User(props) {
                   <AccountGroupIcon />
                 </ListItemIcon>
                 <ListItemText>
-                  {username} holds the&nbsp;
-                  {getRolesString(Object.keys(roles))}
+                  holds the {getRolesString(Object.keys(roles))}
                 </ListItemText>
               </ListItem>
             )}
