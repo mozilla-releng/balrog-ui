@@ -1,12 +1,20 @@
 import React from 'react';
+import { makeStyles } from '@material-ui/styles';
 import GridList from '@material-ui/core/GridList';
 import UserCard from '../UserCard';
 
+const useStyles = makeStyles(() => ({
+  gridlist: {
+    display: 'block',
+  },
+}));
+
 export default function UserList(props) {
+  const classes = useStyles();
   const { users } = props;
 
   return (
-    <GridList cols={1}>
+    <GridList className={classes.gridlist}>
       {Object.keys(users).map(user => (
         <UserCard
           key={user}
