@@ -38,6 +38,8 @@ function ViewUser({ isNewUser, ...props }) {
   const handleRoleNameChange = () => {};
   const handlePermissionNameChange = () => {};
 
+  let i = 0;
+
   return (
     <Dashboard title="Users">
       {error && <ErrorPanel error={error} />}
@@ -82,17 +84,21 @@ function ViewUser({ isNewUser, ...props }) {
             <br />
             <Typography variant="h5">Permissions</Typography>
             <div>
-              {/* This is super ugly, and duplicates the first column */}
+              {/* Need to figure out how to reset i at the start of each iteration */}
             </div>
             {Object.keys(permissions).map(permission =>
               (
-                (permissions[permission].options &&
-                  permissions[permission].options.products) ||
-                []
+                [].concat(
+                  (permissions[permission].options &&
+                    permissions[permission].options.products) ||
+                  [],
+                  (permissions[permission].options &&
+                    permissions[permission].options.actions) ||
+                  [],
+                )
               ).map(product => (
                 <Grid container spacing={2} key={`${permission}-${product}`}>
-                  {permissions[permission].options.products.indexOf(product) ===
-                  0 ? (
+                  {i === 0 ? (
                     <Grid item xs>
                       <TextField
                         onChange={handlePermissionNameChange}
@@ -106,31 +112,7 @@ function ViewUser({ isNewUser, ...props }) {
                   <Grid item xs key={product}>
                     <TextField value={product} label="Product restrictions" />
                   </Grid>
-                </Grid>
-              ))
-            )}
-            {Object.keys(permissions).map(permission =>
-              (
-                (permissions[permission].options &&
-                  permissions[permission].options.actions) ||
-                []
-              ).map(action => (
-                <Grid container spacing={2} key={`${permission}-${action}`}>
-                  {permissions[permission].options.actions.indexOf(action) ===
-                  0 ? (
-                    <Grid item xs>
-                      <TextField
-                        onChange={handlePermissionNameChange}
-                        value={permission}
-                        label="Object"
-                      />
-                    </Grid>
-                  ) : (
-                    <Grid item xs />
-                  )}
-                  <Grid item xs key={action}>
-                    <TextField value={action} label="Action restrictions" />
-                  </Grid>
+                  <div style={{display: "none"}}>{i = i + 1}</div>
                 </Grid>
               ))
             )}
