@@ -1,6 +1,7 @@
 import lazy from './utils/lazy';
 import releaseRoutes from './views/Releases/routes';
 import ruleRoutes from './views/Rules/routes';
+import userRoutes from './views/Users/routes';
 import requiredSignoffsRoutes from './views/RequiredSignoffs/routes';
 
 const History = lazy(() =>
@@ -44,6 +45,7 @@ export default [
   {
     component: Users,
     path: '/users',
+    routes: userRoutes('/users'),
   },
   {
     component: Roles,
