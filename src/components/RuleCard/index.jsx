@@ -23,8 +23,9 @@ import PlusCircleIcon from 'mdi-react/PlusCircleIcon';
 import HistoryIcon from 'mdi-react/HistoryIcon';
 import { diffLines, formatLines } from 'unidiff';
 import { parseDiff, Diff, Hunk } from 'react-diff-view';
-import { distanceInWordsStrict } from 'date-fns';
+import { formatDistanceStrict } from 'date-fns';
 import 'react-diff-view/style/index.css';
+import Link from '../../utils/Link';
 import { RULE_DIFF_PROPERTIES } from '../../utils/constants';
 import { rule } from '../../utils/prop-types';
 import getDiff from '../../utils/diff';
@@ -356,9 +357,9 @@ function RuleCard({ rule, onRuleDelete, ...props }) {
                     rule.scheduledChange.change_type === 'delete',
                 })}
                 icon={<ChipIcon className={classes.chipIcon} size={16} />}
-                label={`${distanceInWordsStrict(
-                  new Date(),
+                label={`${formatDistanceStrict(
                   rule.scheduledChange.when,
+                  new Date(),
                   { addSuffix: true }
                 )} (${rule.scheduledChange.change_type})`}
               />
@@ -387,8 +388,18 @@ function RuleCard({ rule, onRuleDelete, ...props }) {
         )}
       </CardContent>
       <CardActions className={classes.cardActions}>
-        <Button color="secondary">Duplicate</Button>
-        <Button color="secondary">Update</Button>
+        <Link
+          to={{
+            pathname: '/rules/create',
+            state: {
+              rule,
+            },
+          }}>
+          <Button color="secondary">Duplicate</Button>
+        </Link>
+        <Link to={`/rules/${rule.rule_id}`}>
+          <Button color="secondary">Update</Button>
+        </Link>
         <Button color="secondary" onClick={() => onRuleDelete(rule)}>
           Delete
         </Button>
