@@ -8,7 +8,6 @@ const ViewUser = lazy(() =>
 );
 
 export default path => [
-  // TODO: This page doesn't work as a deep link
   {
     component: ViewUser,
     path: `${path}/create`,
