@@ -1,10 +1,13 @@
 import React, { useEffect, useState, Fragment } from 'react';
 import { bool } from 'prop-types';
+import { makeStyles } from '@material-ui/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
 import DeleteIcon from 'mdi-react/DeleteIcon';
+import PlusIcon from 'mdi-react/PlusIcon';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import Dashboard from '../../../components/Dashboard';
@@ -12,12 +15,22 @@ import useAction from '../../../hooks/useAction';
 import { getUserInfo } from '../../../utils/Users';
 import zip from '../../../utils/zip';
 
+const useStyles = makeStyles(theme => ({
+  fullWidth: {
+    width: '100%',
+  },
+  addGrid: {
+    marginTop: theme.spacing(0),
+  },
+}));
+
 function ViewUser({ isNewUser, ...props }) {
   const {
     match: {
       params: { username: existingUsername },
     },
   } = props;
+  const classes = useStyles();
   const [username, setUsername] = useState('');
   const [roles, setRoles] = useState({});
   const [permissions, setPermissions] = useState({});
@@ -37,6 +50,8 @@ function ViewUser({ isNewUser, ...props }) {
 
   const handleUsernameChange = ({ target: { value } }) => setUsername(value);
   const handleRoleNameChange = () => {};
+  const handleProductAdd = () => {};
+  const handleActionAdd = () => {};
 
   return (
     <Dashboard title="Users">
@@ -81,36 +96,69 @@ function ViewUser({ isNewUser, ...props }) {
             <br />
             <br />
             <Typography variant="h5">Permissions</Typography>
+            <Grid container spacing={2}>
+              <Grid item xs>Name</Grid>
+              <Grid item xs>Product Restrictions</Grid>
+              <Grid item xs>Action Restrictions</Grid>
+            </Grid>
             {Object.keys(permissions).map(permission =>
               zip(
                 [permission],
                 (permissions[permission].options &&
-                  permissions[permission].options.products) ||
-                  [],
+                  permissions[permission].options.products ||
+                  []).concat(["add"]),
                 (permissions[permission].options &&
-                  permissions[permission].options.actions) ||
-                  []
+                  permissions[permission].options.actions ||
+                  []).concat(["add"])
               ).map(row => (
                 <Grid container spacing={2} key={`${row[0]}`}>
                   <Grid item xs>
                     {row[0] !== undefined && (
                       <TextField
                         value={row[0]}
+                        className={classes.fullWidth}
                         disabled
-                        label="Permission Name"
                       />
                     )}
                   </Grid>
-                  <Grid item xs>
-                    {row[1] !== undefined && (
-                      <TextField value={row[1]} label="Product restriction" />
+                    {row[1] === "add" && (
+                      <Grid item xs className={classes.addGrid}>
+                        <Button
+                          onClick={handleProductAdd}
+                          className={classes.fullWidth}
+                          variant="outlined">
+                          <PlusIcon />
+                        </Button>
+                      </Grid>
                     )}
-                  </Grid>
-                  <Grid item xs>
-                    {row[2] !== undefined && (
-                      <TextField value={row[2]} label="Action restriction" />
+                    {row[1] !== undefined && row[1] !== "add" && (
+                      <Grid item xs>
+                        <TextField value={row[1]} className={classes.fullWidth} />
+                      </Grid>
                     )}
-                  </Grid>
+                    {row[1] === undefined && (
+                      <Grid item xs>
+                      </Grid>
+                    )}
+                    {row[2] === "add" && (
+                      <Grid item xs className={classes.addGrid}>
+                        <Button
+                          onClick={handleProductAdd}
+                          className={classes.fullWidth}
+                          variant="outlined">
+                          <PlusIcon />
+                        </Button>
+                      </Grid>
+                    )}
+                    {row[2] !== undefined && row[2] !== "add" && (
+                      <Grid item xs>
+                        <TextField value={row[2]} className={classes.fullWidth} />
+                      </Grid>
+                    )}
+                    {row[2] === undefined && (
+                      <Grid item xs>
+                      </Grid>
+                    )}
                 </Grid>
               ))
             )}
