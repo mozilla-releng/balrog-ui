@@ -5,17 +5,26 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
+import Fab from '@material-ui/core/Fab';
+import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
+import Tooltip from '@material-ui/core/Tooltip';
+import ContentSaveIcon from 'mdi-react/ContentSaveIcon';
 import Button from '@material-ui/core/Button';
 import DeleteIcon from 'mdi-react/DeleteIcon';
 import PlusIcon from 'mdi-react/PlusIcon';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import Dashboard from '../../../components/Dashboard';
+import SpeedDial from '../../../components/SpeedDial';
 import useAction from '../../../hooks/useAction';
 import { getUserInfo } from '../../../utils/Users';
 import zip from '../../../utils/zip';
 
 const useStyles = makeStyles(theme => ({
+  fab: {
+    ...theme.mixins.fab,
+    right: theme.spacing(12),
+  },
   fullWidth: {
     width: '100%',
   },
@@ -35,8 +44,9 @@ function ViewUser({ isNewUser, ...props }) {
   const [roles, setRoles] = useState({});
   const [permissions, setPermissions] = useState({});
   const [userAction, fetchUser] = useAction(getUserInfo);
+  const [saveAction, saveUser] = useAction(() => {});
   const isLoading = userAction.loading;
-  const { error } = userAction;
+  const error = userAction.error || saveAction.error;
 
   useEffect(() => {
     if (!isNewUser) {
@@ -52,6 +62,8 @@ function ViewUser({ isNewUser, ...props }) {
   const handleRoleNameChange = () => {};
   const handleProductAdd = () => {};
   const handleActionAdd = () => {};
+  const handleUserSave = () => {};
+  const handleUserDelete = () => {};
 
   return (
     <Dashboard title="Users">
@@ -171,6 +183,26 @@ function ViewUser({ isNewUser, ...props }) {
               ))
             )}
           </form>
+          <Tooltip title="Save User">
+            <Fab
+              disabled={saveAction.loading}
+              onClick={handleUserSave}
+              color="primary"
+              className={classes.fab}>
+              <ContentSaveIcon />
+            </Fab>
+          </Tooltip>
+          {!isNewUser && (
+            <SpeedDial ariaLabel="Secondary Actions">
+              <SpeedDialAction
+                disabled={saveAction.loading}
+                icon={<DeleteIcon />}
+                tooltipOpen
+                tooltipTitle="Delete Signoff"
+                onClick={handleUserDelete}
+              />
+            </SpeedDial>
+          )}
         </Fragment>
       )}
     </Dashboard>
