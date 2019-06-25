@@ -10,6 +10,7 @@ import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import Dashboard from '../../../components/Dashboard';
 import useAction from '../../../hooks/useAction';
 import { getUserInfo } from '../../../utils/Users';
+import zip from '../../../utils/zip';
 
 function ViewUser({ isNewUser, ...props }) {
   const {
@@ -36,9 +37,6 @@ function ViewUser({ isNewUser, ...props }) {
 
   const handleUsernameChange = ({ target: { value } }) => setUsername(value);
   const handleRoleNameChange = () => {};
-  const handlePermissionNameChange = () => {};
-
-  let i = 0;
 
   return (
     <Dashboard title="Users">
@@ -83,36 +81,36 @@ function ViewUser({ isNewUser, ...props }) {
             <br />
             <br />
             <Typography variant="h5">Permissions</Typography>
-            <div>
-              {/* Need to figure out how to reset i at the start of each iteration */}
-            </div>
             {Object.keys(permissions).map(permission =>
-              (
-                [].concat(
-                  (permissions[permission].options &&
-                    permissions[permission].options.products) ||
+              zip(
+                [permission],
+                (permissions[permission].options &&
+                  permissions[permission].options.products) ||
                   [],
-                  (permissions[permission].options &&
-                    permissions[permission].options.actions) ||
-                  [],
-                )
-              ).map(product => (
-                <Grid container spacing={2} key={`${permission}-${product}`}>
-                  {i === 0 ? (
-                    <Grid item xs>
+                (permissions[permission].options &&
+                  permissions[permission].options.actions) ||
+                  []
+              ).map(row => (
+                <Grid container spacing={2} key={`${row[0]}`}>
+                  <Grid item xs>
+                    {row[0] !== undefined && (
                       <TextField
-                        onChange={handlePermissionNameChange}
-                        value={permission}
-                        label="Object"
+                        value={row[0]}
+                        disabled
+                        label="Permission Name"
                       />
-                    </Grid>
-                  ) : (
-                    <Grid item xs />
-                  )}
-                  <Grid item xs key={product}>
-                    <TextField value={product} label="Product restrictions" />
+                    )}
                   </Grid>
-                  <div style={{display: "none"}}>{i = i + 1}</div>
+                  <Grid item xs>
+                    {row[1] !== undefined && (
+                      <TextField value={row[1]} label="Product restriction" />
+                    )}
+                  </Grid>
+                  <Grid item xs>
+                    {row[2] !== undefined && (
+                      <TextField value={row[2]} label="Action restriction" />
+                    )}
+                  </Grid>
                 </Grid>
               ))
             )}
