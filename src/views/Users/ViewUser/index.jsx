@@ -34,6 +34,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ViewUser({ isNewUser, ...props }) {
+  const getEmptyPermission = () => ({
+    options: {
+      products: [],
+      actions: [],
+    },
+  });
   const {
     match: {
       params: { username: existingUsername },
@@ -43,6 +49,8 @@ function ViewUser({ isNewUser, ...props }) {
   const [username, setUsername] = useState('');
   const [roles, setRoles] = useState({});
   const [permissions, setPermissions] = useState({});
+  const [originalPermissions, setOriginalPermissions] = useState({});
+  const [additionalPermissions, setAdditionalPermissions] = useState({});
   const [userAction, fetchUser] = useAction(getUserInfo);
   const [saveAction, saveUser] = useAction(() => {});
   const isLoading = userAction.loading;
@@ -51,37 +59,114 @@ function ViewUser({ isNewUser, ...props }) {
   useEffect(() => {
     if (!isNewUser) {
       fetchUser(existingUsername).then(result => {
+        const { permissions } = result.data.data;
+
         setUsername(result.data.data.username);
         setRoles(result.data.data.roles);
-        setPermissions(result.data.data.permissions);
+        setPermissions(permissions);
+        setOriginalPermissions(JSON.parse(JSON.stringify(permissions)));
       });
     }
   }, []);
 
-  const handleUsernameChange = ({ target: { value } }) => setUsername(value);
-  const handleRoleNameChange = () => {};
-  const handleProductAdd = permission => {
-    if (permissions[permission].options.products === undefined) {
-      permissions[permission].options.products = ['[product name]'];
+  const addNewProduct = (permissions, permission) => {
+    const toModify = permissions;
+
+    if (toModify[permission].options.products === undefined) {
+      toModify[permission].options.products = ['[product name]'];
     } else {
-      permissions[permission].options.products.push('[product name]');
+      toModify[permission].options.products.push('[product name]');
     }
 
-    setPermissions(Object.assign({}, permissions));
+    return toModify;
   };
 
-  const handleActionAdd = permission => {
-    if (permissions[permission].options.actions === undefined) {
-      permissions[permission].options.actions = ['[action]'];
+  const addNewAction = (permissions, permission) => {
+    const toModify = permissions;
+
+    if (toModify[permission].options.actions === undefined) {
+      toModify[permission].options.actions = ['[action]'];
     } else {
-      permissions[permission].options.actions.push('[action]');
+      toModify[permission].options.actions.push('[action]');
     }
 
-    setPermissions(Object.assign({}, permissions));
+    return toModify;
+  };
+
+  const handleUsernameChange = ({ target: { value } }) => setUsername(value);
+  const handleRoleNameChange = () => {};
+  const handleProductAdd = permission => () => {
+    for (const [key, value] of Object.entries(permissions)) {
+      if (key === permission) {
+        setPermissions(addNewProduct(permissions, permission));
+      }
+    }
+  };
+
+  const handleActionAdd = permission => () => {
+    for (const [key, value] of Object.entries(permissions)) {
+      if (key === permission) {
+        setPermissions(addNewAction(permissions, permission));
+      }
+    }
+  };
+
+  const handlePermissionAdd = () => {
+    additionalPermissions[''] = getEmptyPermission();
+    setAdditionalPermissions(Object.assign({}, additionalPermissions));
   };
 
   const handleUserSave = () => {};
   const handleUserDelete = () => {};
+  const renderPermissionRow = (permission, product, action, isNew) => (
+    <Grid
+      container
+      spacing={2}
+      key={`${permission}-${product}-${action}`}
+      className={classes.permission}>
+      <Grid item xs>
+        {permission !== undefined && (
+          <TextField
+            value={permission}
+            className={classes.fullWidth}
+            disabled={!isNew}
+          />
+        )}
+      </Grid>
+      {product === undefined && <Grid item xs />}
+      {product !== undefined && product !== 'add' && (
+        <Grid item xs>
+          <TextField value={product} className={classes.fullWidth} />
+        </Grid>
+      )}
+      {product === 'add' && (
+        <Grid item xs className={classes.addGrid}>
+          <Button
+            onClick={handleProductAdd(permission)}
+            className={classes.fullWidth}
+            variant="outlined">
+            <PlusIcon />
+          </Button>
+        </Grid>
+      )}
+      {action === undefined && <Grid item xs />}
+      {action !== undefined && action !== 'add' && (
+        <Grid item xs>
+          <TextField value={action} className={classes.fullWidth} />
+        </Grid>
+      )}
+      {action === 'add' && (
+        <Grid item xs className={classes.addGrid}>
+          <Button
+            onClick={handleActionAdd(permission)}
+            className={classes.fullWidth}
+            variant="outlined">
+            <PlusIcon />
+          </Button>
+        </Grid>
+      )}
+    </Grid>
+  );
 
   return (
     <Dashboard title="Users">
@@ -150,56 +235,33 @@ function ViewUser({ isNewUser, ...props }) {
                     permissions[permission].options.actions) ||
                   []
                 ).concat(['add'])
-              ).map(row => (
-                <Grid
-                  container
-                  spacing={2}
-                  key={`${row[0]}-${row[1]}-${row[2]}`}
-                  className={classes.permission}>
-                  <Grid item xs>
-                    {row[0] !== undefined && (
-                      <TextField
-                        value={row[0]}
-                        className={classes.fullWidth}
-                        disabled
-                      />
-                    )}
-                  </Grid>
-                  {row[1] === 'add' && (
-                    <Grid item xs className={classes.addGrid}>
-                      <Button
-                        onClick={() => handleProductAdd(permission)}
-                        className={classes.fullWidth}
-                        variant="outlined">
-                        <PlusIcon />
-                      </Button>
-                    </Grid>
-                  )}
-                  {row[1] !== undefined && row[1] !== 'add' && (
-                    <Grid item xs>
-                      <TextField value={row[1]} className={classes.fullWidth} />
-                    </Grid>
-                  )}
-                  {row[1] === undefined && <Grid item xs />}
-                  {row[2] === 'add' && (
-                    <Grid item xs className={classes.addGrid}>
-                      <Button
-                        onClick={() => handleActionAdd(permission)}
-                        className={classes.fullWidth}
-                        variant="outlined">
-                        <PlusIcon />
-                      </Button>
-                    </Grid>
-                  )}
-                  {row[2] !== undefined && row[2] !== 'add' && (
-                    <Grid item xs>
-                      <TextField value={row[2]} className={classes.fullWidth} />
-                    </Grid>
-                  )}
-                  {row[2] === undefined && <Grid item xs />}
-                </Grid>
-              ))
+              ).map(row => renderPermissionRow(row[0], row[1], row[2]))
             )}
+            {Object.keys(additionalPermissions).map(permission =>
+              zip(
+                [permission],
+                (
+                  (additionalPermissions[permission].options &&
+                    additionalPermissions[permission].options.products) ||
+                  []
+                ).concat(['add']),
+                (
+                  (additionalPermissions[permission].options &&
+                    additionalPermissions[permission].options.actions) ||
+                  []
+                ).concat(['add'])
+              ).map(row => renderPermissionRow(row[0], row[1], row[2], true))
+            )}
+            <Grid item xs className={classes.addGrid}>
+              <Grid item xs={11}>
+                <Button
+                  onClick={handlePermissionAdd}
+                  className={classes.fullWidth}
+                  variant="outlined">
+                  <PlusIcon />
+                </Button>
+              </Grid>
+            </Grid>
           </form>
           <Tooltip title="Save User">
             <Fab
