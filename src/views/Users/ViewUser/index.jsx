@@ -60,8 +60,26 @@ function ViewUser({ isNewUser, ...props }) {
 
   const handleUsernameChange = ({ target: { value } }) => setUsername(value);
   const handleRoleNameChange = () => {};
-  const handleProductAdd = () => {};
-  const handleActionAdd = () => {};
+  const handleProductAdd = permission => {
+    if (permissions[permission].options.products === undefined) {
+      permissions[permission].options.products = ['[product name]'];
+    } else {
+      permissions[permission].options.products.push('[product name]');
+    }
+
+    setPermissions(Object.assign({}, permissions));
+  };
+
+  const handleActionAdd = permission => {
+    if (permissions[permission].options.actions === undefined) {
+      permissions[permission].options.actions = ['[action]'];
+    } else {
+      permissions[permission].options.actions.push('[action]');
+    }
+
+    setPermissions(Object.assign({}, permissions));
+  };
+
   const handleUserSave = () => {};
   const handleUserDelete = () => {};
 
@@ -136,7 +154,7 @@ function ViewUser({ isNewUser, ...props }) {
                 <Grid
                   container
                   spacing={2}
-                  key={`${row[0]}`}
+                  key={`${row[0]}-${row[1]}-${row[2]}`}
                   className={classes.permission}>
                   <Grid item xs>
                     {row[0] !== undefined && (
@@ -150,7 +168,7 @@ function ViewUser({ isNewUser, ...props }) {
                   {row[1] === 'add' && (
                     <Grid item xs className={classes.addGrid}>
                       <Button
-                        onClick={handleProductAdd}
+                        onClick={() => handleProductAdd(permission)}
                         className={classes.fullWidth}
                         variant="outlined">
                         <PlusIcon />
@@ -166,7 +184,7 @@ function ViewUser({ isNewUser, ...props }) {
                   {row[2] === 'add' && (
                     <Grid item xs className={classes.addGrid}>
                       <Button
-                        onClick={handleActionAdd}
+                        onClick={() => handleActionAdd(permission)}
                         className={classes.fullWidth}
                         variant="outlined">
                         <PlusIcon />
