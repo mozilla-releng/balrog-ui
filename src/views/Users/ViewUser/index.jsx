@@ -97,21 +97,35 @@ function ViewUser({ isNewUser, ...props }) {
             <br />
             <Typography variant="h5">Permissions</Typography>
             <Grid container spacing={2}>
-              <Grid item xs>Name</Grid>
-              <Grid item xs>Product Restrictions</Grid>
-              <Grid item xs>Action Restrictions</Grid>
+              <Grid item xs>
+                Name
+              </Grid>
+              <Grid item xs>
+                Product Restrictions
+              </Grid>
+              <Grid item xs>
+                Action Restrictions
+              </Grid>
             </Grid>
             {Object.keys(permissions).map(permission =>
               zip(
                 [permission],
-                (permissions[permission].options &&
-                  permissions[permission].options.products ||
-                  []).concat(["add"]),
-                (permissions[permission].options &&
-                  permissions[permission].options.actions ||
-                  []).concat(["add"])
+                (
+                  (permissions[permission].options &&
+                    permissions[permission].options.products) ||
+                  []
+                ).concat(['add']),
+                (
+                  (permissions[permission].options &&
+                    permissions[permission].options.actions) ||
+                  []
+                ).concat(['add'])
               ).map(row => (
-                <Grid container spacing={2} key={`${row[0]}`}>
+                <Grid
+                  container
+                  spacing={2}
+                  key={`${row[0]}`}
+                  className={classes.permission}>
                   <Grid item xs>
                     {row[0] !== undefined && (
                       <TextField
@@ -121,44 +135,38 @@ function ViewUser({ isNewUser, ...props }) {
                       />
                     )}
                   </Grid>
-                    {row[1] === "add" && (
-                      <Grid item xs className={classes.addGrid}>
-                        <Button
-                          onClick={handleProductAdd}
-                          className={classes.fullWidth}
-                          variant="outlined">
-                          <PlusIcon />
-                        </Button>
-                      </Grid>
-                    )}
-                    {row[1] !== undefined && row[1] !== "add" && (
-                      <Grid item xs>
-                        <TextField value={row[1]} className={classes.fullWidth} />
-                      </Grid>
-                    )}
-                    {row[1] === undefined && (
-                      <Grid item xs>
-                      </Grid>
-                    )}
-                    {row[2] === "add" && (
-                      <Grid item xs className={classes.addGrid}>
-                        <Button
-                          onClick={handleProductAdd}
-                          className={classes.fullWidth}
-                          variant="outlined">
-                          <PlusIcon />
-                        </Button>
-                      </Grid>
-                    )}
-                    {row[2] !== undefined && row[2] !== "add" && (
-                      <Grid item xs>
-                        <TextField value={row[2]} className={classes.fullWidth} />
-                      </Grid>
-                    )}
-                    {row[2] === undefined && (
-                      <Grid item xs>
-                      </Grid>
-                    )}
+                  {row[1] === 'add' && (
+                    <Grid item xs className={classes.addGrid}>
+                      <Button
+                        onClick={handleProductAdd}
+                        className={classes.fullWidth}
+                        variant="outlined">
+                        <PlusIcon />
+                      </Button>
+                    </Grid>
+                  )}
+                  {row[1] !== undefined && row[1] !== 'add' && (
+                    <Grid item xs>
+                      <TextField value={row[1]} className={classes.fullWidth} />
+                    </Grid>
+                  )}
+                  {row[1] === undefined && <Grid item xs />}
+                  {row[2] === 'add' && (
+                    <Grid item xs className={classes.addGrid}>
+                      <Button
+                        onClick={handleActionAdd}
+                        className={classes.fullWidth}
+                        variant="outlined">
+                        <PlusIcon />
+                      </Button>
+                    </Grid>
+                  )}
+                  {row[2] !== undefined && row[2] !== 'add' && (
+                    <Grid item xs>
+                      <TextField value={row[2]} className={classes.fullWidth} />
+                    </Grid>
+                  )}
+                  {row[2] === undefined && <Grid item xs />}
                 </Grid>
               ))
             )}
