@@ -48,9 +48,11 @@ function ViewUser({ isNewUser, ...props }) {
   const classes = useStyles();
   const [username, setUsername] = useState('');
   const [roles, setRoles] = useState({});
-  const [permissions, setPermissions] = useState({});
-  const [originalPermissions, setOriginalPermissions] = useState({});
-  const [additionalPermissions, setAdditionalPermissions] = useState({});
+  const [permissions, setPermissions] = useState([]);
+  const [originalPermissions, setOriginalPermissions] = useState([]);
+  const [additionalPermissions, setAdditionalPermissions] = useState(
+    isNewUser ? [getEmptyPermission()] : []
+  );
   const [userAction, fetchUser] = useAction(getUserInfo);
   const [saveAction, saveUser] = useAction(() => {});
   const isLoading = userAction.loading;
@@ -59,7 +61,17 @@ function ViewUser({ isNewUser, ...props }) {
   useEffect(() => {
     if (!isNewUser) {
       fetchUser(existingUsername).then(result => {
-        const { permissions } = result.data.data;
+        const permissions = Object.keys(result.data.data.permissions).map(
+          permission => {
+            const details = result.data.data.permissions[permission];
+
+            return {
+              permission,
+              options: details.options,
+              data_version: details.data_version,
+            };
+          }
+        );
 
         setUsername(result.data.data.username);
         setRoles(result.data.data.roles);
@@ -69,51 +81,16 @@ function ViewUser({ isNewUser, ...props }) {
     }
   }, []);
 
-  const addNewProduct = (permissions, permission) => {
-    const toModify = permissions;
-
-    if (toModify[permission].options.products === undefined) {
-      toModify[permission].options.products = ['[product name]'];
-    } else {
-      toModify[permission].options.products.push('[product name]');
-    }
-
-    return toModify;
-  };
-
-  const addNewAction = (permissions, permission) => {
-    const toModify = permissions;
-
-    if (toModify[permission].options.actions === undefined) {
-      toModify[permission].options.actions = ['[action]'];
-    } else {
-      toModify[permission].options.actions.push('[action]');
-    }
-
-    return toModify;
-  };
-
   const handleUsernameChange = ({ target: { value } }) => setUsername(value);
   const handleRoleNameChange = () => {};
-  const handleProductAdd = permission => () => {
-    for (const [key, value] of Object.entries(permissions)) {
-      if (key === permission) {
-        setPermissions(addNewProduct(permissions, permission));
-      }
-    }
-  };
-
-  const handleActionAdd = permission => () => {
-    for (const [key, value] of Object.entries(permissions)) {
-      if (key === permission) {
-        setPermissions(addNewAction(permissions, permission));
-      }
-    }
+  const handleProductAdd = event => {
+    console.log(event.target.value);
   };
 
   const handlePermissionAdd = () => {
-    additionalPermissions[''] = getEmptyPermission();
-    setAdditionalPermissions(Object.assign({}, additionalPermissions));
+    setAdditionalPermissions(
+      additionalPermissions.concat(getEmptyPermission())
+    );
   };
 
   const handleUserSave = () => {};
@@ -142,7 +119,8 @@ function ViewUser({ isNewUser, ...props }) {
       {product === 'add' && (
         <Grid item xs className={classes.addGrid}>
           <Button
-            onClick={handleProductAdd(permission)}
+            value={permission}
+            onClick={handleProductAdd}
             className={classes.fullWidth}
             variant="outlined">
             <PlusIcon />
@@ -157,10 +135,7 @@ function ViewUser({ isNewUser, ...props }) {
       )}
       {action === 'add' && (
         <Grid item xs className={classes.addGrid}>
-          <Button
-            onClick={handleActionAdd(permission)}
-            className={classes.fullWidth}
-            variant="outlined">
+          <Button className={classes.fullWidth} variant="outlined">
             <PlusIcon />
           </Button>
         </Grid>
@@ -222,35 +197,14 @@ function ViewUser({ isNewUser, ...props }) {
                 Action Restrictions
               </Grid>
             </Grid>
-            {Object.keys(permissions).map(permission =>
+            {permissions.map(entry =>
               zip(
-                [permission],
-                (
-                  (permissions[permission].options &&
-                    permissions[permission].options.products) ||
-                  []
-                ).concat(['add']),
-                (
-                  (permissions[permission].options &&
-                    permissions[permission].options.actions) ||
-                  []
-                ).concat(['add'])
+                [entry.permission],
+                ((entry.options && entry.options.products) || []).concat([
+                  'add',
+                ]),
+                ((entry.options && entry.options.actions) || []).concat(['add'])
               ).map(row => renderPermissionRow(row[0], row[1], row[2]))
-            )}
-            {Object.keys(additionalPermissions).map(permission =>
-              zip(
-                [permission],
-                (
-                  (additionalPermissions[permission].options &&
-                    additionalPermissions[permission].options.products) ||
-                  []
-                ).concat(['add']),
-                (
-                  (additionalPermissions[permission].options &&
-                    additionalPermissions[permission].options.actions) ||
-                  []
-                ).concat(['add'])
-              ).map(row => renderPermissionRow(row[0], row[1], row[2], true))
             )}
             <Grid item xs className={classes.addGrid}>
               <Grid item xs={11}>
