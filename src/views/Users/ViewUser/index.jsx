@@ -176,6 +176,63 @@ function ViewUser({ isNewUser, ...props }) {
       : setPermissions(permissions.map(removeProduct));
   };
 
+  const handleActionAdd = permission => {
+    const addAction = (entry) => {
+      if (entry.name !== permission.name) {
+        return entry;
+      }
+
+      const result = entry;
+
+      if (! result.options.actions) {
+        result.options.actions = [];
+      }
+
+      result.options.actions.push('');
+
+      return result;
+    };
+
+    return permission.metadata.isAdditional
+      ? setAdditionalPermissions(additionalPermissions.map(addAction))
+      : setPermissions(permissions.map(addAction));
+  };
+
+  const handleActionNameChange = (permission, index, value) => {
+    const setAction = (entry) => {
+        if (entry.name !== permission.name) {
+          return entry;
+        }
+
+        const result = entry;
+
+        result.options.actions[index] = value;
+
+        return result;
+    };
+    return permission.metadata.isAdditional
+      ? setAdditionalPermissions(additionalPermissions.map(setAction))
+      : setPermissions(permissions.map(setAction));
+  };
+
+  const handleActionDelete = (permission, index) => {
+    const removeAction = (entry) => {
+      if (entry.name !== permission.name) {
+        return entry;
+      }
+
+      const result = entry;
+
+      result.options.actions.splice(index, 1);
+
+      return result;
+    };
+
+    return permission.metadata.isAdditional
+      ? setAdditionalPermissions(additionalPermissions.map(removeAction))
+      : setPermissions(permissions.map(removeAction));
+  };
+
   const handlePermissionAdd = () => {
     setAdditionalPermissions(
       additionalPermissions.concat([getEmptyPermission()])
@@ -268,8 +325,12 @@ function ViewUser({ isNewUser, ...props }) {
         {row[2] !== undefined && row[2] !== 'add' && (
           <Fragment>
             <Grid item xs>
-              <TextField value={row[2]} style={{ width: '85%' }} />
-              <IconButton style={{ width: '15%' }}>
+              <TextField
+                value={row[2]}
+                onChange={(e) => handleActionNameChange(permission, index, e.target.value)}
+                style={{ width: '85%' }}
+              />
+              <IconButton onClick={() => handleActionDelete(permission, index)} style={{ width: '15%' }}>
                 <DeleteIcon />
               </IconButton>
             </Grid>
@@ -277,7 +338,7 @@ function ViewUser({ isNewUser, ...props }) {
         )}
         {row[2] === 'add' && (
           <Grid item xs className={classes.addGrid}>
-            <Button className={classes.fullWidth} variant="outlined">
+            <Button className={classes.fullWidth} variant="outlined" onClick={() => handleActionAdd(permission)}>
               <PlusIcon />
             </Button>
           </Grid>
