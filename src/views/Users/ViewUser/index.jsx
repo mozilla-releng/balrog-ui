@@ -99,24 +99,27 @@ function ViewUser({ isNewUser, ...props }) {
   }, []);
 
   const handleUsernameChange = ({ target: { value } }) => setUsername(value);
+  // this currently throws an error about controlled components
+  // (https://reactjs.org/docs/forms.html#controlled-components)
+  // not sure how to fix it yet
   const handleRoleNameChange = (role, index, value) => {
-    const setRole = additionalRoles.map((entry, i) => {
-      if (i !== index) {
-        return entry;
-      }
+    setAdditionalRoles(
+      additionalRoles.map((entry, i) => {
+        if (i !== index) {
+          return entry;
+        }
 
-      const result = entry;
+        const result = entry;
 
-      result.name = value;
+        result.name = value;
 
-      return result;
-    });
+        return result;
+      })
+    );
   };
 
   const handleRoleAdd = () => {
-    const role = {};
-
-    setAdditionalRoles(additionalRoles.concat([role]));
+    setAdditionalRoles(additionalRoles.concat([{}]));
   };
 
   const handleRoleDelete = (role, index) => {
@@ -292,6 +295,8 @@ function ViewUser({ isNewUser, ...props }) {
       ]),
       ((permission.options && permission.options.actions) || []).concat(['add'])
     ).map((row, index) => (
+      // TODO: need to replace key with something that's not the index, but also won't
+      // change when the data changes.
       <Grid container spacing={2} key={index} className={classes.gridWithIcon}>
         <Grid item xs>
           {row[0] !== undefined && (
