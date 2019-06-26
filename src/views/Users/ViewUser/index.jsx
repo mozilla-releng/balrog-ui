@@ -83,8 +83,8 @@ function ViewUser({ isNewUser, ...props }) {
 
   const handleUsernameChange = ({ target: { value } }) => setUsername(value);
   const handleRoleNameChange = () => {};
-  const handleProductAdd = event => {
-    console.log(event.target.value);
+  const handleProductAdd = permission => {
+    console.log(permission);
   };
 
   const handlePermissionAdd = () => {
@@ -119,8 +119,7 @@ function ViewUser({ isNewUser, ...props }) {
       {product === 'add' && (
         <Grid item xs className={classes.addGrid}>
           <Button
-            value={permission}
-            onClick={handleProductAdd}
+            onClick={() => handleProductAdd(permission)}
             className={classes.fullWidth}
             variant="outlined">
             <PlusIcon />
