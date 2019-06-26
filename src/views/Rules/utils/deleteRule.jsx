@@ -13,8 +13,8 @@ export default async rule => {
 
   if (error) {
     const errorMsg =
-      error.response.data.exception ||
-      error.response.data.detail ||
+      (error.response &&
+        (error.response.data.exception || error.response.data.detail)) ||
       'Unknown Error';
 
     throw new Error(errorMsg);
