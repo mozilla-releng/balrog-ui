@@ -121,7 +121,7 @@ function ViewUser({ isNewUser, ...props }) {
 
   const handleProductAdd = permission => {
     const addProduct = (entry) => {
-      if (entry.permission !== permission) {
+      if (entry.name !== permission.name) {
         return entry;
       }
 
@@ -131,9 +131,14 @@ function ViewUser({ isNewUser, ...props }) {
         result.options.products = [];
       }
 
-      result.options.products.push({'': {}});
+      result.options.products.push('');
+
+      return result;
     };
-    return setPermissions(permissions.map(addProduct));
+
+    return permission.metadata.isAdditional
+      ? setAdditionalPermissions(additionalPermissions.map(addProduct))
+      : setPermissions(permissions.map(addProduct));
   };
 
   const handleProductDelete = () => {};
