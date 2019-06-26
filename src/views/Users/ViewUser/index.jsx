@@ -38,6 +38,7 @@ const useStyles = makeStyles(theme => ({
 
 function ViewUser({ isNewUser, ...props }) {
   const getEmptyPermission = () => ({
+    name: '',
     options: {
       products: [],
       actions: [],
@@ -73,11 +74,11 @@ function ViewUser({ isNewUser, ...props }) {
           };
         });
         const permissions = Object.keys(result.data.data.permissions).map(
-          permission => {
-            const details = result.data.data.permissions[permission];
+          name => {
+            const details = result.data.data.permissions[name];
 
             return {
-              permission,
+              name,
               options: details.options,
               data_version: details.data_version,
             };
@@ -156,7 +157,7 @@ function ViewUser({ isNewUser, ...props }) {
   );
   const renderPermission = permission => (
     zip(
-    [permission.permission],
+    [permission.name],
     ((permission.options && permission.options.products) || []).concat([
         'add',
     ]),
@@ -165,7 +166,7 @@ function ViewUser({ isNewUser, ...props }) {
       <Grid
         container
         spacing={2}
-        key={`${permission.permission}-${row[1]}-${row[2]}`}
+        key={`${permission.name}-${row[1]}-${row[2]}`}
         className={classes.gridWithIcon}>
         <Grid item xs>
           {row[0] !== undefined && (
@@ -190,7 +191,7 @@ function ViewUser({ isNewUser, ...props }) {
         {row[1] === 'add' && (
           <Grid item xs className={classes.addGrid}>
             <Button
-              onClick={handleProductAdd(permission)}
+              onClick={() => handleProductAdd(permission)}
               className={classes.fullWidth}
               variant="outlined">
               <PlusIcon />
@@ -256,6 +257,7 @@ function ViewUser({ isNewUser, ...props }) {
             <br />
             <br />
             <Typography variant="h5">Permissions</Typography>
+            {permissions.map(renderPermission)}
             <Grid container spacing={2}>
               <Grid item xs>
                 Name
