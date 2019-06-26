@@ -50,7 +50,9 @@ function ViewUser({ isNewUser, ...props }) {
   } = props;
   const classes = useStyles();
   const [username, setUsername] = useState('');
-  const [roles, setRoles] = useState({});
+  const [roles, setRoles] = useState([]);
+  const [originalRoles, setOriginalRoles] = useState([]);
+  const [additionalRoles, setAdditionalRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
   const [originalPermissions, setOriginalPermissions] = useState([]);
   const [additionalPermissions, setAdditionalPermissions] = useState(
@@ -64,6 +66,12 @@ function ViewUser({ isNewUser, ...props }) {
   useEffect(() => {
     if (!isNewUser) {
       fetchUser(existingUsername).then(result => {
+        const roles = Object.keys(result.data.data.roles).map(key => {
+          return {
+            name: key,
+            data_version: result.data.data.roles[key].data_version
+          };
+        });
         const permissions = Object.keys(result.data.data.permissions).map(
           permission => {
             const details = result.data.data.permissions[permission];
@@ -77,7 +85,8 @@ function ViewUser({ isNewUser, ...props }) {
         );
 
         setUsername(result.data.data.username);
-        setRoles(result.data.data.roles);
+        setRoles(roles);
+        setOriginalRoles(JSON.parse(JSON.stringify(roles)));
         setPermissions(permissions);
         setOriginalPermissions(JSON.parse(JSON.stringify(permissions)));
       });
@@ -86,7 +95,40 @@ function ViewUser({ isNewUser, ...props }) {
 
   const handleUsernameChange = ({ target: { value } }) => setUsername(value);
   const handleRoleNameChange = () => {};
-  const handleProductAdd = () => {};
+  const handleRoleAdd = () => {
+    const role = {};
+
+    setAdditionalRoles(additionalRoles.concat([role]));
+  };
+
+  const handleRoleDelete = (role, index) => {
+    const excludeRole = (entry, i) => !(i === index);
+
+    if (roles.filter(entry => entry.name === role.name).length > 0) {
+      setRoles(roles.filter(excludeRole));
+    }
+    else {
+      setAdditionalRoles(additionalRoles.filter(excludeRole));
+    }
+  };
+
+  const handleProductAdd = permission => {
+    const addProduct = (entry) => {
+      if (entry.permission !== permission) {
+        return entry;
+      }
+
+      const result = entry;
+
+      if (! result.options.products) {
+        result.options.products = [];
+      }
+
+      result.options.products.push({'': {}});
+    };
+    return setPermissions(permissions.map(addProduct));
+  };
+
   const handleProductDelete = () => {};
   const handlePermissionAdd = () => {
     setAdditionalPermissions(
@@ -96,61 +138,85 @@ function ViewUser({ isNewUser, ...props }) {
 
   const handleUserSave = () => {};
   const handleUserDelete = () => {};
-  const renderPermissionRow = (permission, product, action, isNew) => (
-    <Grid
-      container
-      spacing={2}
-      key={`${permission}-${product}-${action}`}
-      className={classes.gridWithIcon}>
+
+  const renderRole = (role, index) => (
+    <Grid container spacing={2} key={index}>
       <Grid item xs>
-        {permission !== undefined && (
-          <TextField
-            value={permission}
-            className={classes.fullWidth}
-            disabled={!isNew}
-          />
+        <TextField
+          onChange={handleRoleNameChange(role, index)}
+          value={role.name}
+        />
+      </Grid>
+      <Grid item xs>
+        <IconButton onClick={() => handleRoleDelete(role, index)}>
+          <DeleteIcon />
+        </IconButton>
+      </Grid>
+    </Grid>
+  );
+  const renderPermission = permission => (
+    zip(
+    [permission.permission],
+    ((permission.options && permission.options.products) || []).concat([
+        'add',
+    ]),
+    ((permission.options && permission.options.actions) || []).concat(['add'])
+    ).map(row => (
+      <Grid
+        container
+        spacing={2}
+        key={`${permission.permission}-${row[1]}-${row[2]}`}
+        className={classes.gridWithIcon}>
+        <Grid item xs>
+          {row[0] !== undefined && (
+            <TextField
+              value={row[0]}
+              className={classes.fullWidth}
+              disabled={!isNewUser}
+            />
+          )}
+        </Grid>
+        {row[1] === undefined && <Grid item xs />}
+        {row[1] !== undefined && row[1] !== 'add' && (
+          <Fragment>
+            <Grid item xs>
+              <TextField value={row[1]} style={{ width: '85%' }} />
+              <IconButton onClick={handleProductDelete} style={{ width: '15%' }}>
+                <DeleteIcon />
+              </IconButton>
+            </Grid>
+          </Fragment>
+        )}
+        {row[1] === 'add' && (
+          <Grid item xs className={classes.addGrid}>
+            <Button
+              onClick={handleProductAdd(permission)}
+              className={classes.fullWidth}
+              variant="outlined">
+              <PlusIcon />
+            </Button>
+          </Grid>
+        )}
+        {row[2] === undefined && <Grid item xs />}
+        {row[2] !== undefined && row[2] !== 'add' && (
+          <Fragment>
+            <Grid item xs>
+              <TextField value={row[2]} style={{ width: '85%' }} />
+              <IconButton style={{ width: '15%' }}>
+                <DeleteIcon />
+              </IconButton>
+            </Grid>
+          </Fragment>
+        )}
+        {row[2] === 'add' && (
+          <Grid item xs className={classes.addGrid}>
+            <Button className={classes.fullWidth} variant="outlined">
+              <PlusIcon />
+            </Button>
+          </Grid>
         )}
       </Grid>
-      {product === undefined && <Grid item xs />}
-      {product !== undefined && product !== 'add' && (
-        <Fragment>
-          <Grid item xs>
-            <TextField value={product} style={{ width: '85%' }} />
-            <IconButton onClick={handleProductDelete} style={{ width: '15%' }}>
-              <DeleteIcon />
-            </IconButton>
-          </Grid>
-        </Fragment>
-      )}
-      {product === 'add' && (
-        <Grid item xs className={classes.addGrid}>
-          <Button
-            onClick={e => handleProductAdd(permission, e)}
-            className={classes.fullWidth}
-            variant="outlined">
-            <PlusIcon />
-          </Button>
-        </Grid>
-      )}
-      {action === undefined && <Grid item xs />}
-      {action !== undefined && action !== 'add' && (
-        <Fragment>
-          <Grid item xs>
-            <TextField value={action} style={{ width: '85%' }} />
-            <IconButton style={{ width: '15%' }}>
-              <DeleteIcon />
-            </IconButton>
-          </Grid>
-        </Fragment>
-      )}
-      {action === 'add' && (
-        <Grid item xs className={classes.addGrid}>
-          <Button className={classes.fullWidth} variant="outlined">
-            <PlusIcon />
-          </Button>
-        </Grid>
-      )}
-    </Grid>
+    ))
   );
 
   return (
@@ -176,22 +242,16 @@ function ViewUser({ isNewUser, ...props }) {
             <br />
             <br />
             <Typography variant="h5">Roles</Typography>
-            {Object.keys(roles).map(role => (
-              <Grid container spacing={2} key={role}>
-                <Grid item xs>
-                  <TextField
-                    onChange={handleRoleNameChange}
-                    fullWidth
-                    value={role}
-                  />
-                </Grid>
-                <Grid item xs={1}>
-                  <IconButton>
-                    <DeleteIcon />
-                  </IconButton>
-                </Grid>
-              </Grid>
-            ))}
+            {roles.map(renderRole)}
+            {additionalRoles.map(renderRole)}
+            <Grid item xs className={classes.addGrid}>
+              <Button
+                onClick={handleRoleAdd}
+                className={classes.fullWidth}
+                variant="outlined">
+                <PlusIcon />
+              </Button>
+            </Grid>
             <br />
             <br />
             <br />
@@ -207,15 +267,6 @@ function ViewUser({ isNewUser, ...props }) {
                 Action Restrictions
               </Grid>
             </Grid>
-            {permissions.map(entry =>
-              zip(
-                [entry.permission],
-                ((entry.options && entry.options.products) || []).concat([
-                  'add',
-                ]),
-                ((entry.options && entry.options.actions) || []).concat(['add'])
-              ).map(row => renderPermissionRow(row[0], row[1], row[2]))
-            )}
             <Grid item xs className={classes.addGrid}>
               <Grid item xs={11}>
                 <Button
