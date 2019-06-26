@@ -70,10 +70,10 @@ function ViewUser({ isNewUser, ...props }) {
   useEffect(() => {
     if (!isNewUser) {
       fetchUser(existingUsername).then(result => {
-        const roles = Object.keys(result.data.data.roles).map(key => {
+        const roles = Object.keys(result.data.data.roles).map(name => {
           return {
-            name: key,
-            data_version: result.data.data.roles[key].data_version
+            name,
+            data_version: result.data.data.roles[name].data_version
           };
         });
         const permissions = Object.keys(result.data.data.permissions).map(
@@ -101,7 +101,20 @@ function ViewUser({ isNewUser, ...props }) {
   }, []);
 
   const handleUsernameChange = ({ target: { value } }) => setUsername(value);
-  const handleRoleNameChange = () => {};
+  const handleRoleNameChange = (role, index, value) => {
+    const setRole = additionalRoles.map((entry, i) => {
+      if (i !== index) {
+        return entry;
+      }
+
+      const result = entry;
+
+      result.name = value;
+
+      return result;
+    });
+  };
+
   const handleRoleAdd = () => {
     const role = {};
 
@@ -261,7 +274,7 @@ function ViewUser({ isNewUser, ...props }) {
     <Grid container spacing={2} key={index}>
       <Grid item xs>
         <TextField
-          onChange={handleRoleNameChange(role, index)}
+          onChange={(e) => handleRoleNameChange(role, index, e.target.value)}
           value={role.name}
         />
       </Grid>
