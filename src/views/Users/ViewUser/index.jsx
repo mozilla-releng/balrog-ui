@@ -31,6 +31,9 @@ const useStyles = makeStyles(theme => ({
   addGrid: {
     marginTop: theme.spacing(0),
   },
+  gridWithIcon: {
+    marginTop: theme.spacing(3),
+  },
 }));
 
 function ViewUser({ isNewUser, ...props }) {
@@ -83,10 +86,8 @@ function ViewUser({ isNewUser, ...props }) {
 
   const handleUsernameChange = ({ target: { value } }) => setUsername(value);
   const handleRoleNameChange = () => {};
-  const handleProductAdd = permission => {
-    console.log(permission);
-  };
-
+  const handleProductAdd = () => {};
+  const handleProductDelete = () => {};
   const handlePermissionAdd = () => {
     setAdditionalPermissions(
       additionalPermissions.concat(getEmptyPermission())
@@ -100,7 +101,7 @@ function ViewUser({ isNewUser, ...props }) {
       container
       spacing={2}
       key={`${permission}-${product}-${action}`}
-      className={classes.permission}>
+      className={classes.gridWithIcon}>
       <Grid item xs>
         {permission !== undefined && (
           <TextField
@@ -112,14 +113,19 @@ function ViewUser({ isNewUser, ...props }) {
       </Grid>
       {product === undefined && <Grid item xs />}
       {product !== undefined && product !== 'add' && (
-        <Grid item xs>
-          <TextField value={product} className={classes.fullWidth} />
-        </Grid>
+        <Fragment>
+          <Grid item xs>
+            <TextField value={product} style={{ width: '85%' }} />
+            <IconButton onClick={handleProductDelete} style={{ width: '15%' }}>
+              <DeleteIcon />
+            </IconButton>
+          </Grid>
+        </Fragment>
       )}
       {product === 'add' && (
         <Grid item xs className={classes.addGrid}>
           <Button
-            onClick={() => handleProductAdd(permission)}
+            onClick={e => handleProductAdd(permission, e)}
             className={classes.fullWidth}
             variant="outlined">
             <PlusIcon />
@@ -128,9 +134,14 @@ function ViewUser({ isNewUser, ...props }) {
       )}
       {action === undefined && <Grid item xs />}
       {action !== undefined && action !== 'add' && (
-        <Grid item xs>
-          <TextField value={action} className={classes.fullWidth} />
-        </Grid>
+        <Fragment>
+          <Grid item xs>
+            <TextField value={action} style={{ width: '85%' }} />
+            <IconButton style={{ width: '15%' }}>
+              <DeleteIcon />
+            </IconButton>
+          </Grid>
+        </Fragment>
       )}
       {action === 'add' && (
         <Grid item xs className={classes.addGrid}>
