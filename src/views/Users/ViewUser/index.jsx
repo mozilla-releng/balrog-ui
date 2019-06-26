@@ -166,8 +166,8 @@ function ViewUser({ isNewUser, ...props }) {
   };
 
   const handlePermissionNameChange = (permission, index, value) => {
-    const setName = additionalPermissions.map((entry, i) => {
-        if (i !== index) {
+    const setName = additionalPermissions.map(entry => {
+        if (entry.name !== permission.name) {
           return entry;
         }
 
