@@ -20,7 +20,7 @@ import {
   getChannels,
   getRules,
   getScheduledChanges,
-} from '../../../utils/Rules';
+} from '../../../services/rules';
 import { RULES_ROWS_PER_PAGE } from '../../../utils/constants';
 
 const ALL = 'all';

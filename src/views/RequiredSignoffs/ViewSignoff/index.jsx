@@ -23,7 +23,7 @@ import DeleteIcon from 'mdi-react/DeleteIcon';
 import Dashboard from '../../../components/Dashboard';
 import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
-import { getChannels, getProducts } from '../../../utils/Rules';
+import { getChannels, getProducts } from '../../../services/rules';
 import getRequiredSignoffs from '../utils/getRequiredSignoffs';
 import updateRequiredSignoffs from '../utils/updateRequiredSignoffs';
 import getRolesFromRequiredSignoffs from '../utils/getRolesFromRequiredSignoffs';

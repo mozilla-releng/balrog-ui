@@ -1,5 +1,5 @@
 import tryCatch from '../../../utils/tryCatch';
-import { deleteRule } from '../../../utils/Rules';
+import { deleteRule } from '../../../services/rules';
 
 export default async rule => {
   // TODO: why can't we index the result to just get the error?
