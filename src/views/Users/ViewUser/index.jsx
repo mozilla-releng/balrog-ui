@@ -70,12 +70,10 @@ function ViewUser({ isNewUser, ...props }) {
   useEffect(() => {
     if (!isNewUser) {
       fetchUser(existingUsername).then(result => {
-        const roles = Object.keys(result.data.data.roles).map(name => {
-          return {
-            name,
-            data_version: result.data.data.roles[name].data_version
-          };
-        });
+        const roles = Object.keys(result.data.data.roles).map(name => ({
+          name,
+          data_version: result.data.data.roles[name].data_version,
+        }));
         const permissions = Object.keys(result.data.data.permissions).map(
           name => {
             const details = result.data.data.permissions[name];
@@ -126,21 +124,20 @@ function ViewUser({ isNewUser, ...props }) {
 
     if (roles.filter(entry => entry.name === role.name).length > 0) {
       setRoles(roles.filter(excludeRole));
-    }
-    else {
+    } else {
       setAdditionalRoles(additionalRoles.filter(excludeRole));
     }
   };
 
   const handleProductAdd = permission => {
-    const addProduct = (entry) => {
+    const addProduct = entry => {
       if (entry.name !== permission.name) {
         return entry;
       }
 
       const result = entry;
 
-      if (! result.options.products) {
+      if (!result.options.products) {
         result.options.products = [];
       }
 
@@ -155,24 +152,25 @@ function ViewUser({ isNewUser, ...props }) {
   };
 
   const handleProductNameChange = (permission, index, value) => {
-    const setProduct = (entry) => {
-        if (entry.name !== permission.name) {
-          return entry;
-        }
+    const setProduct = entry => {
+      if (entry.name !== permission.name) {
+        return entry;
+      }
 
-        const result = entry;
+      const result = entry;
 
-        result.options.products[index] = value;
+      result.options.products[index] = value;
 
-        return result;
+      return result;
     };
+
     return permission.metadata.isAdditional
       ? setAdditionalPermissions(additionalPermissions.map(setProduct))
       : setPermissions(permissions.map(setProduct));
   };
 
   const handleProductDelete = (permission, index) => {
-    const removeProduct = (entry) => {
+    const removeProduct = entry => {
       if (entry.name !== permission.name) {
         return entry;
       }
@@ -190,14 +188,14 @@ function ViewUser({ isNewUser, ...props }) {
   };
 
   const handleActionAdd = permission => {
-    const addAction = (entry) => {
+    const addAction = entry => {
       if (entry.name !== permission.name) {
         return entry;
       }
 
       const result = entry;
 
-      if (! result.options.actions) {
+      if (!result.options.actions) {
         result.options.actions = [];
       }
 
@@ -212,24 +210,25 @@ function ViewUser({ isNewUser, ...props }) {
   };
 
   const handleActionNameChange = (permission, index, value) => {
-    const setAction = (entry) => {
-        if (entry.name !== permission.name) {
-          return entry;
-        }
+    const setAction = entry => {
+      if (entry.name !== permission.name) {
+        return entry;
+      }
 
-        const result = entry;
+      const result = entry;
 
-        result.options.actions[index] = value;
+      result.options.actions[index] = value;
 
-        return result;
+      return result;
     };
+
     return permission.metadata.isAdditional
       ? setAdditionalPermissions(additionalPermissions.map(setAction))
       : setPermissions(permissions.map(setAction));
   };
 
   const handleActionDelete = (permission, index) => {
-    const removeAction = (entry) => {
+    const removeAction = entry => {
       if (entry.name !== permission.name) {
         return entry;
       }
@@ -254,27 +253,27 @@ function ViewUser({ isNewUser, ...props }) {
 
   const handlePermissionNameChange = (permission, index, value) => {
     const setName = additionalPermissions.map(entry => {
-        if (entry.name !== permission.name) {
-          return entry;
-        }
+      if (entry.name !== permission.name) {
+        return entry;
+      }
 
-        const result = entry;
+      const result = entry;
 
-        result.name = value;
+      result.name = value;
 
-        return result;
-      })
+      return result;
+    });
+
     setAdditionalPermissions(setName);
   };
 
   const handleUserSave = () => {};
   const handleUserDelete = () => {};
-
   const renderRole = (role, index) => (
     <Grid container spacing={2} key={index}>
       <Grid item xs>
         <TextField
-          onChange={(e) => handleRoleNameChange(role, index, e.target.value)}
+          onChange={e => handleRoleNameChange(role, index, e.target.value)}
           value={role.name}
         />
       </Grid>
@@ -285,27 +284,25 @@ function ViewUser({ isNewUser, ...props }) {
       </Grid>
     </Grid>
   );
-  const renderPermission = permission => (
+  const renderPermission = permission =>
     zip(
-    [permission.name],
-    ((permission.options && permission.options.products) || []).concat([
+      [permission.name],
+      ((permission.options && permission.options.products) || []).concat([
         'add',
-    ]),
-    ((permission.options && permission.options.actions) || []).concat(['add'])
+      ]),
+      ((permission.options && permission.options.actions) || []).concat(['add'])
     ).map((row, index) => (
-      <Grid
-        container
-        spacing={2}
-        key={index}
-        className={classes.gridWithIcon}>
+      <Grid container spacing={2} key={index} className={classes.gridWithIcon}>
         <Grid item xs>
           {row[0] !== undefined && (
             <TextField
               required
               value={row[0]}
               className={classes.fullWidth}
-              disabled={permission.metadata.isAdditional ? false: !isNewUser}
-              onChange={(e) => handlePermissionNameChange(permission, index, e.target.value)}
+              disabled={permission.metadata.isAdditional ? false : !isNewUser}
+              onChange={e =>
+                handlePermissionNameChange(permission, index, e.target.value)
+              }
             />
           )}
         </Grid>
@@ -316,9 +313,13 @@ function ViewUser({ isNewUser, ...props }) {
               <TextField
                 value={row[1]}
                 style={{ width: '85%' }}
-                onChange={(e) => handleProductNameChange(permission, index, e.target.value)}
+                onChange={e =>
+                  handleProductNameChange(permission, index, e.target.value)
+                }
               />
-              <IconButton onClick={() => handleProductDelete(permission, index)} style={{ width: '15%' }}>
+              <IconButton
+                onClick={() => handleProductDelete(permission, index)}
+                style={{ width: '15%' }}>
                 <DeleteIcon />
               </IconButton>
             </Grid>
@@ -340,10 +341,14 @@ function ViewUser({ isNewUser, ...props }) {
             <Grid item xs>
               <TextField
                 value={row[2]}
-                onChange={(e) => handleActionNameChange(permission, index, e.target.value)}
+                onChange={e =>
+                  handleActionNameChange(permission, index, e.target.value)
+                }
                 style={{ width: '85%' }}
               />
-              <IconButton onClick={() => handleActionDelete(permission, index)} style={{ width: '15%' }}>
+              <IconButton
+                onClick={() => handleActionDelete(permission, index)}
+                style={{ width: '15%' }}>
                 <DeleteIcon />
               </IconButton>
             </Grid>
@@ -351,14 +356,16 @@ function ViewUser({ isNewUser, ...props }) {
         )}
         {row[2] === 'add' && (
           <Grid item xs className={classes.addGrid}>
-            <Button className={classes.fullWidth} variant="outlined" onClick={() => handleActionAdd(permission)}>
+            <Button
+              className={classes.fullWidth}
+              variant="outlined"
+              onClick={() => handleActionAdd(permission)}>
               <PlusIcon />
             </Button>
           </Grid>
         )}
       </Grid>
-    ))
-  );
+    ));
 
   return (
     <Dashboard title="Users">
