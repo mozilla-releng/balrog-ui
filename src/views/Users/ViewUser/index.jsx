@@ -141,6 +141,23 @@ function ViewUser({ isNewUser, ...props }) {
       : setPermissions(permissions.map(addProduct));
   };
 
+  const handleProductNameChange = (permission, index, value) => {
+    const setProduct = (entry) => {
+        if (entry.name !== permission.name) {
+          return entry;
+        }
+
+        const result = entry;
+
+        result.options.products[index] = value;
+
+        return result;
+    };
+    return permission.metadata.isAdditional
+      ? setAdditionalPermissions(additionalPermissions.map(setProduct))
+      : setPermissions(permissions.map(setProduct));
+  };
+
   const handleProductDelete = () => {};
   const handlePermissionAdd = () => {
     setAdditionalPermissions(
@@ -209,7 +226,11 @@ function ViewUser({ isNewUser, ...props }) {
         {row[1] !== undefined && row[1] !== 'add' && (
           <Fragment>
             <Grid item xs>
-              <TextField value={row[1]} style={{ width: '85%' }} />
+              <TextField
+                value={row[1]}
+                style={{ width: '85%' }}
+                onChange={(e) => handleProductNameChange(permission, index, e.target.value)}
+              />
               <IconButton onClick={handleProductDelete} style={{ width: '15%' }}>
                 <DeleteIcon />
               </IconButton>
