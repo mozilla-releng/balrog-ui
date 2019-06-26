@@ -14,6 +14,9 @@ module.exports = {
         devServer: {
           host: process.env.HOST || DEFAULT_HOST,
           port,
+          historyApiFallback: {
+            disableDotRule: true,
+          },
         },
         html: {
           title: 'Balrog Admin',
