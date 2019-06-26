@@ -43,6 +43,9 @@ function ViewUser({ isNewUser, ...props }) {
       products: [],
       actions: [],
     },
+    metadata: {
+      isAdditional: true,
+    },
   });
   const {
     match: {
@@ -81,6 +84,9 @@ function ViewUser({ isNewUser, ...props }) {
               name,
               options: details.options,
               data_version: details.data_version,
+              metadata: {
+                isAdditional: false,
+              },
             };
           }
         );
@@ -133,8 +139,23 @@ function ViewUser({ isNewUser, ...props }) {
   const handleProductDelete = () => {};
   const handlePermissionAdd = () => {
     setAdditionalPermissions(
-      additionalPermissions.concat(getEmptyPermission())
+      additionalPermissions.concat([getEmptyPermission()])
     );
+  };
+
+  const handlePermissionNameChange = (permission, index, value) => {
+    const setName = additionalPermissions.map((entry, i) => {
+        if (i !== index) {
+          return entry;
+        }
+
+        const result = entry;
+
+        result.name = value;
+
+        return result;
+      })
+    setAdditionalPermissions(setName);
   };
 
   const handleUserSave = () => {};
@@ -162,18 +183,20 @@ function ViewUser({ isNewUser, ...props }) {
         'add',
     ]),
     ((permission.options && permission.options.actions) || []).concat(['add'])
-    ).map(row => (
+    ).map((row, index) => (
       <Grid
         container
         spacing={2}
-        key={`${permission.name}-${row[1]}-${row[2]}`}
+        key={index}
         className={classes.gridWithIcon}>
         <Grid item xs>
           {row[0] !== undefined && (
             <TextField
+              required
               value={row[0]}
               className={classes.fullWidth}
-              disabled={!isNewUser}
+              disabled={permission.metadata.isAdditional ? false: !isNewUser}
+              onChange={(e) => handlePermissionNameChange(permission, index, e.target.value)}
             />
           )}
         </Grid>
@@ -258,6 +281,7 @@ function ViewUser({ isNewUser, ...props }) {
             <br />
             <Typography variant="h5">Permissions</Typography>
             {permissions.map(renderPermission)}
+            {additionalPermissions.map(renderPermission)}
             <Grid container spacing={2}>
               <Grid item xs>
                 Name
