@@ -158,7 +158,24 @@ function ViewUser({ isNewUser, ...props }) {
       : setPermissions(permissions.map(setProduct));
   };
 
-  const handleProductDelete = () => {};
+  const handleProductDelete = (permission, index) => {
+    const removeProduct = (entry) => {
+      if (entry.name !== permission.name) {
+        return entry;
+      }
+
+      const result = entry;
+
+      result.options.products.splice(index, 1);
+
+      return result;
+    };
+
+    return permission.metadata.isAdditional
+      ? setAdditionalPermissions(additionalPermissions.map(removeProduct))
+      : setPermissions(permissions.map(removeProduct));
+  };
+
   const handlePermissionAdd = () => {
     setAdditionalPermissions(
       additionalPermissions.concat([getEmptyPermission()])
@@ -231,7 +248,7 @@ function ViewUser({ isNewUser, ...props }) {
                 style={{ width: '85%' }}
                 onChange={(e) => handleProductNameChange(permission, index, e.target.value)}
               />
-              <IconButton onClick={handleProductDelete} style={{ width: '15%' }}>
+              <IconButton onClick={() => handleProductDelete(permission, index)} style={{ width: '15%' }}>
                 <DeleteIcon />
               </IconButton>
             </Grid>
