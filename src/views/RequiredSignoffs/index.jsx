@@ -1,7 +1,8 @@
-import React from 'react';
-import { Switch } from 'react-router-dom';
+import React, { Fragment } from 'react';
+import { Switch, Redirect } from 'react-router-dom';
 import RouteWithProps from '../../components/RouteWithProps';
 import routes from './routes';
+import isLoggedIn from '../../utils/isLoggedIn';
 
 export default function Rules(props) {
   const {
@@ -9,10 +10,19 @@ export default function Rules(props) {
   } = props;
 
   return (
-    <Switch>
-      {routes(path).map(({ routes, ...routeProps }) => (
-        <RouteWithProps key={routeProps.path || 'not-found'} {...routeProps} />
-      ))}
-    </Switch>
+    <Fragment>
+      {isLoggedIn() ? (
+        <Switch>
+          {routes(path).map(({ routes, ...routeProps }) => (
+            <RouteWithProps
+              key={routeProps.path || 'not-found'}
+              {...routeProps}
+            />
+          ))}
+        </Switch>
+      ) : (
+        <Redirect to="/" />
+      )}
+    </Fragment>
   );
 }
