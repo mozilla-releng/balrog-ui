@@ -1,4 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react';
+import { func } from 'prop-types';
 import classNames from 'classnames';
 import { makeStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
@@ -88,7 +89,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function RuleCard({ rule, handleRuleDelete, ...props }) {
+function RuleCard({ rule, onRuleDelete, ...props }) {
   const classes = useStyles();
   const [{ type, hunks }, setDiff] = useState('');
   const getChipIcon = changeType => {
@@ -388,7 +389,7 @@ function RuleCard({ rule, handleRuleDelete, ...props }) {
       <CardActions className={classes.cardActions}>
         <Button color="secondary">Duplicate</Button>
         <Button color="secondary">Update</Button>
-        <Button color="secondary" onClick={handleRuleDelete}>
+        <Button color="secondary" onClick={() => onRuleDelete(rule)}>
           Delete
         </Button>
       </CardActions>
@@ -398,6 +399,7 @@ function RuleCard({ rule, handleRuleDelete, ...props }) {
 
 RuleCard.propTypes = {
   rule,
+  onRuleDelete: func.isRequired,
 };
 
 export default RuleCard;
