@@ -1,7 +1,6 @@
 import React, { Fragment, useEffect, useState, useMemo } from 'react';
 import { stringify, parse } from 'qs';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
-import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import { makeStyles } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -11,6 +10,7 @@ import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
+import ErrorPanel from '../../../components/ErrorPanel';
 import RuleCard from '../../../components/RuleCard';
 import Link from '../../../utils/Link';
 import useAction from '../../../hooks/useAction';
@@ -219,7 +219,7 @@ function ListRules(props) {
   return (
     <Dashboard title="Rules">
       {isLoading && <Spinner loading />}
-      {error && <ErrorPanel error={error} />}
+      {error && <ErrorPanel fixed error={error} />}
       {!isLoading && productChannelOptions && (
         <Fragment>
           <div className={classes.options}>
