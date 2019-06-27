@@ -315,7 +315,7 @@ function RuleCard({ rule, ...props }) {
                 <ListItem className={classes.listItem}>
                   <ListItemText
                     primary="64-bit Migration Opt-in"
-                    secondary={rule.mig64}
+                    secondary={String(rule.mig64)}
                   />
                 </ListItem>
               )}
@@ -323,7 +323,7 @@ function RuleCard({ rule, ...props }) {
                 <ListItem className={classes.listItem}>
                   <ListItemText
                     primary="Incompatible JAWS Screen Reader"
-                    secondary={rule.jaws}
+                    secondary={String(rule.jaws)}
                   />
                 </ListItem>
               )}
