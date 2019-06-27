@@ -2,16 +2,17 @@ import React, { Fragment } from 'react';
 import { Switch, Redirect } from 'react-router-dom';
 import RouteWithProps from '../../components/RouteWithProps';
 import routes from './routes';
-import isLoggedIn from '../../utils/isLoggedIn';
+import { withUser } from '../../utils/AuthContext';
 
-export default function Rules(props) {
+function RequiredSignoffs(props) {
   const {
+    user,
     match: { path },
   } = props;
 
   return (
     <Fragment>
-      {isLoggedIn() ? (
+      {user ? (
         <Switch>
           {routes(path).map(({ routes, ...routeProps }) => (
             <RouteWithProps
@@ -26,3 +27,5 @@ export default function Rules(props) {
     </Fragment>
   );
 }
+
+export default withUser(RequiredSignoffs);

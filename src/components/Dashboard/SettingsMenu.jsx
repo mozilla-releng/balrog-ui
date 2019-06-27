@@ -5,7 +5,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import SettingsOutlineIcon from 'mdi-react/SettingsOutlineIcon';
 import Link from '../../utils/Link';
-import isLoggedIn from '../../utils/isLoggedIn';
+import { withUser } from '../../utils/AuthContext';
 import menuItems from './menuItems';
 
 const useStyles = makeStyles(theme => ({
@@ -19,14 +19,14 @@ const useStyles = makeStyles(theme => ({
     fill: '#fff',
   },
   settingsIconDisabled: {
-    fill: '#aaa',
+    fill: theme.palette.grey[500],
   },
   link: {
     ...theme.mixins.link,
   },
 }));
 
-export default function SettingsMenu() {
+function SettingsMenu({ user }) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const handleMenuOpen = e => setAnchorEl(e.currentTarget);
@@ -35,7 +35,7 @@ export default function SettingsMenu() {
   return (
     <Fragment>
       <IconButton
-        disabled={!isLoggedIn}
+        disabled={!user}
         className={classes.settings}
         aria-haspopup="true"
         aria-controls="user-menu"
@@ -43,9 +43,7 @@ export default function SettingsMenu() {
         onClick={handleMenuOpen}>
         <SettingsOutlineIcon
           size={24}
-          className={
-            isLoggedIn() ? classes.settingsIcon : classes.settingsIconDisabled
-          }
+          className={user ? classes.settingsIcon : classes.settingsIconDisabled}
         />
       </IconButton>
       <Menu
@@ -66,3 +64,5 @@ export default function SettingsMenu() {
     </Fragment>
   );
 }
+
+export default withUser(SettingsMenu);
