@@ -24,7 +24,7 @@ export default async params => {
     role => !currentRoles.includes(role.name)
   );
   let useScheduledChange = !isNewSignoff;
-  const error = await tryCatch(
+  const [error] = await tryCatch(
     Promise.all(
       [].concat(
         roles.map(async role => {
@@ -113,7 +113,7 @@ export default async params => {
         })
       )
     )
-  )[0];
+  );
 
   if (error) {
     const config = JSON.parse(error.config.data);
