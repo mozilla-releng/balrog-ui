@@ -14,12 +14,13 @@ import ErrorPanel from '../../../components/ErrorPanel';
 import RuleCard from '../../../components/RuleCard';
 import Link from '../../../utils/Link';
 import useAction from '../../../hooks/useAction';
+import deleteRule from '../utils/deleteRule';
 import {
   getProducts,
   getChannels,
   getRules,
   getScheduledChanges,
-} from '../../../utils/Rules';
+} from '../../../services/rules';
 import { RULES_ROWS_PER_PAGE } from '../../../utils/constants';
 
 const ALL = 'all';
@@ -64,9 +65,14 @@ function ListRules(props) {
   const [scheduledChanges, fetchScheduledChanges] = useAction(
     getScheduledChanges
   );
+  const [deleteAction, delRule] = useAction(deleteRule);
   const isLoading = products.loading || channels.loading || rules.loading;
   const error =
-    products.error || channels.error || rules.error || scheduledChanges.error;
+    products.error ||
+    channels.error ||
+    rules.error ||
+    scheduledChanges.error ||
+    deleteAction.error;
   const handleFilterChange = ({ target: { value } }) => {
     const [product, channel] = value.split(productChannelSeparator);
     const query =
@@ -215,6 +221,15 @@ function ListRules(props) {
       rowsPerPage={RULES_ROWS_PER_PAGE}
     />
   );
+  const handleRuleDelete = async rule => {
+    const { error } = await delRule(rule);
+
+    if (!error) {
+      setRulesWithScheduledChanges(
+        rulesWithScheduledChanges.filter(i => i.rule_id !== rule.rule_id)
+      );
+    }
+  };
 
   return (
     <Dashboard title="Rules">
@@ -245,7 +260,11 @@ function ListRules(props) {
                   key={`${rule.product}-${rule.channel}-${rule.rule_id}`}
                   item
                   xs={12}>
-                  <RuleCard key={rule.rule_id} rule={rule} />
+                  <RuleCard
+                    key={rule.rule_id}
+                    rule={rule}
+                    onRuleDelete={handleRuleDelete}
+                  />
                 </Grid>
               ))}
             </Grid>

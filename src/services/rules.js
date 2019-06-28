@@ -8,7 +8,8 @@ const getHistory = (id, limit, page) =>
   axios.get(`/${id}/revisions?${stringify({ limit, page })}`);
 // const getRule = () => axios.get();
 // const updateRule = () => axios.put();
-// const deleteRule = () => axios.delete();
+const deleteRule = ({ ruleId, dataVersion }) =>
+  axios.delete(`/rules/${ruleId}`, { params: { data_version: dataVersion } });
 // const addRule = () => axios.post();
 // const revertRule = () => axios.post();
 const getScheduledChanges = all => {
@@ -28,4 +29,11 @@ const getScheduledChanges = all => {
 // const ruleSignoffsRequired = () => axios.get();
 
 // Rules factory
-export { getRules, getChannels, getProducts, getHistory, getScheduledChanges };
+export {
+  getRules,
+  deleteRule,
+  getChannels,
+  getProducts,
+  getHistory,
+  getScheduledChanges,
+};
