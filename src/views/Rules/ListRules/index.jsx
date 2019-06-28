@@ -79,7 +79,7 @@ function ListRules(props) {
   const delRule = useAction(deleteRule)[1];
   const isLoading = products.loading || channels.loading || rules.loading;
   const error =
-    products.error || channels.error || rules.error || scheduledChanges.error;
+    products.error || channels.error || rules.error || scheduledChanges.error || dialogState.error;
   const handleFilterChange = ({ target: { value } }) => {
     const [product, channel] = value.split(productChannelSeparator);
     const query =
@@ -228,6 +228,21 @@ function ListRules(props) {
       rowsPerPage={RULES_ROWS_PER_PAGE}
     />
   );
+  const handleDateTimePickerError = error => {
+    console.log(error);
+    setDateTimePickerError(error);
+  };
+
+  const handleDateTimeChange = date => {
+    console.log(date);
+    setScheduleDeleteDate(date);
+    setDateTimePickerError(null);
+  };
+
+  const handleDialogError = error => {
+    setDialogState({ ...dialogState, error });
+  };
+
   const handleRuleDelete = rule => {
     setDialogState({
       ...dialogState,
@@ -258,12 +273,6 @@ function ListRules(props) {
       confirmText: 'Delete',
       item: rule,
     });
-  };
-
-  const handleDateTimePickerError = error => {};
-  const handleDateTimeChange = event => {};
-  const handleDialogError = error => {
-    setDialogState({ ...dialogState, error });
   };
 
   const handleDialogClose = () => {
