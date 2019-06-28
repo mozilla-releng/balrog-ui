@@ -1,11 +1,17 @@
 import tryCatch from '../../../utils/tryCatch';
-import { deleteRule } from '../../../services/rules';
+import { deleteRule, addScheduledChange } from '../../../services/rules';
 
 export default async rule => {
   const [error] = await tryCatch(
-    deleteRule({
+    rule.sc
+      ?  deleteRule({
       ruleId: rule.rule_id,
       dataVersion: rule.data_version,
+    }) : addScheduledChange({
+      ruleId: rule.rule_id,
+      dataVersion: rule.data_version,
+      change_type: 'delete',
+      when: new Date().getTime() + 5000,
     })
   );
 

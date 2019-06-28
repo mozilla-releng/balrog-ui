@@ -20,7 +20,15 @@ const getScheduledChanges = all => {
   return axios.get('/scheduled_changes/rules/');
 };
 // const getScheduledChange = () => axios.get();
-// const addScheduledChange = () => axios.get();
+
+const addScheduledChange = ({ ruleId, dataVersion, changeType, when, ...data }) =>
+  axios.post(`/scheduled_changes/rules`, {
+    rule_id: ruleId,
+    data_version: dataVersion,
+    change_type: changeType,
+    when,
+    ...data,
+  });
 // const getScheduledChangeHistory = () => axios.get();
 // const updateScheduledChange = () => axios.get();
 // const deleteScheduledChange = () => axios.get();
@@ -36,4 +44,5 @@ export {
   getProducts,
   getHistory,
   getScheduledChanges,
+  addScheduledChange,
 };
