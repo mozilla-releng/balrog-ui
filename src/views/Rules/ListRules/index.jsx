@@ -227,7 +227,7 @@ function ListRules(props) {
       ...dialogState,
       open: true,
       title: 'Delete Rule?',
-      body: `This will schedule a delete for rule ${rule.rule_id}.`,
+      body: `This will delete rule ${rule.rule_id}.`,
       confirmText: 'Delete',
       item: rule,
     });
