@@ -1,20 +1,10 @@
-import React, { Fragment } from 'react';
-import { Redirect } from 'react-router-dom';
+import React from 'react';
 import Dashboard from '../../components/Dashboard';
-import { withUser } from '../../utils/AuthContext';
 
-function Roles({ user }) {
+export default function Roles() {
   return (
-    <Fragment>
-      {user ? (
-        <Dashboard title="Roles">
-          <div>ROLES!</div>
-        </Dashboard>
-      ) : (
-        <Redirect to="/" />
-      )}
-    </Fragment>
+    <Dashboard title="Roles">
+      <div>ROLES!</div>
+    </Dashboard>
   );
 }
-
-export default withUser(Roles);
