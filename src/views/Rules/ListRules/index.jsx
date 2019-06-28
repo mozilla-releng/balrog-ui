@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState, useMemo } from 'react';
 import { stringify, parse } from 'qs';
+import { addSeconds } from 'date-fns';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { makeStyles } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
@@ -13,6 +14,7 @@ import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
 import RuleCard from '../../../components/RuleCard';
 import DialogAction from '../../../components/DialogAction';
+import DateTimePicker from '../../../components/DateTimePicker';
 import Link from '../../../utils/Link';
 import useAction from '../../../hooks/useAction';
 import deleteRule from '../utils/deleteRule';
@@ -64,6 +66,10 @@ function ListRules(props) {
       : ALL
   );
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
+  const [scheduleDeleteDate, setScheduleDeleteDate] = useState(
+    addSeconds(new Date(), -30)
+  );
+  const [dateTimePickerError, setDateTimePickerError] = useState(null);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
   const [rules, fetchRules] = useAction(getRules);
@@ -227,12 +233,35 @@ function ListRules(props) {
       ...dialogState,
       open: true,
       title: 'Delete Rule?',
-      body: `This will delete rule ${rule.rule_id}.`,
+      // body: `This will delete rule ${rule.rule_id}.`,
+      body: rule.scheduledChange ? (
+        <Fragment>
+          <DateTimePicker
+            disablePast
+            inputVariant="outlined"
+            fullWidth
+            label="When"
+            onError={handleDateTimePickerError}
+            helperText={
+              dateTimePickerError ||
+              (scheduleDeleteDate < new Date()
+                ? 'Scheduled for ASAP'
+                : undefined)
+            }
+            onDateTimeChange={handleDateTimeChange}
+            value={scheduleDeleteDate}
+          />
+        </Fragment>
+      ) : (
+        `This will delete rule ${rule.rule_id}.`
+      ),
       confirmText: 'Delete',
       item: rule,
     });
   };
 
+  const handleDateTimePickerError = error => {};
+  const handleDateTimeChange = event => {};
   const handleDialogError = error => {
     setDialogState({ ...dialogState, error });
   };
