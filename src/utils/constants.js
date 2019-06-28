@@ -42,3 +42,4 @@ export const DIALOG_ACTION_INITIAL_STATE = {
   item: null,
   open: false,
 };
+export const EMPTY_MENU_ITEM_CHAR = '-';
