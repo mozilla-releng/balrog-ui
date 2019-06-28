@@ -23,6 +23,7 @@ import Dashboard from '../../../components/Dashboard';
 import SpeedDial from '../../../components/SpeedDial';
 import ErrorPanel from '../../../components/ErrorPanel';
 import AutoCompleteText from '../../../components/AutoCompleteText';
+import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 import { getChannels, getProducts } from '../../../services/rules';
 import getRequiredSignoffs from '../utils/getRequiredSignoffs';
 import updateRequiredSignoffs from '../utils/updateRequiredSignoffs';
@@ -216,25 +217,6 @@ function ViewSignoff({ isNewSignoff, ...props }) {
       </Grid>
     </Grid>
   );
-  const getSuggestions = suggestions => value => {
-    const inputValue = value.trim().toLowerCase();
-    const inputLength = inputValue.length;
-    let count = 0;
-
-    return inputLength === 0
-      ? []
-      : suggestions.filter(suggestion => {
-          const keep =
-            count < 5 &&
-            suggestion.slice(0, inputLength).toLowerCase() === inputValue;
-
-          if (keep) {
-            count += 1;
-          }
-
-          return keep;
-        });
-  };
 
   return (
     <Dashboard title="Required Signoff">

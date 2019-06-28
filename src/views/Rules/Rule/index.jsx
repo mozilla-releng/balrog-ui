@@ -14,9 +14,17 @@ import Fab from '@material-ui/core/Fab';
 import ScheduleIcon from 'mdi-react/ScheduleIcon';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
+import AutoCompleteText from '../../../components/AutoCompleteText';
+import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 import DateTimePicker from '../../../components/DateTimePicker';
 import useAction from '../../../hooks/useAction';
-import { getScheduledChange, getRule } from '../../../utils/Rules';
+import {
+  getScheduledChange,
+  getRule,
+  getProducts,
+  getChannels,
+} from '../../../services/rules';
+import { getReleaseNames } from '../../../services/releases';
 import { EMPTY_MENU_ITEM_CHAR } from '../../../utils/constants';
 
 const initialRule = {
@@ -63,18 +71,31 @@ export default function Rule({ isNewRule, ...props }) {
       ? props.location.state.rule
       : initialRule
   );
+  const [products, fetchProducts] = useAction(getProducts);
+  const [channels, fetchChannels] = useAction(getChannels);
+  const [releaseNames, fetchReleaseNames] = useAction(getReleaseNames);
   // 30 seconds - to make sure the helper text "Scheduled for ASAP" shows up
   const [scheduleDate, setScheduleDate] = useState(addSeconds(new Date(), -30));
   const [dateTimePickerError, setDateTimePickerError] = useState(null);
   const [{ loading, error }, fetchRule] = useAction(getRule);
   // eslint-disable-next-line no-unused-vars
   const [scheduleChange, fetchScheduledChange] = useAction(getScheduledChange);
+  const isLoading =
+    loading || scheduleChange.loading || products.loading || channels.loading;
   const { ruleId } = props.match.params;
   const defaultToEmptyString = defaultTo('');
   const handleInputChange = ({ target: { name, value } }) => {
     setRule(assocPath([name], value, rule));
   };
 
+  const handleProductChange = value =>
+    setRule(assocPath(['product'], value, rule));
+  const handleChannelChange = value =>
+    setRule(assocPath(['channel'], value, rule));
+  const handleMappingChange = value =>
+    setRule(assocPath(['mapping'], value, rule));
+  const handleFallbackMappingChange = value =>
+    setRule(assocPath(['fallbackMapping'], value, rule));
   const handleNumberChange = name => ({ floatValue: value }) => {
     setRule(assocPath([name], value, rule));
   };
@@ -90,7 +111,13 @@ export default function Rule({ isNewRule, ...props }) {
 
   useEffect(() => {
     if (!isNewRule) {
-      Promise.all([fetchRule(ruleId), fetchScheduledChange(ruleId)]).then(
+      Promise.all([
+        fetchRule(ruleId),
+        fetchScheduledChange(ruleId),
+        fetchProducts(),
+        fetchChannels(),
+        fetchReleaseNames(),
+      ]).then(
         // Fetching an individual schedule change for a rule throws a 405
         // Example: https://localhost:8010/api/scheduled_changes/rules/195
         // eslint-disable-next-line no-unused-vars
@@ -101,6 +128,8 @@ export default function Rule({ isNewRule, ...props }) {
           });
         }
       );
+    } else {
+      Promise.all([fetchProducts(), fetchChannels(), fetchReleaseNames()]);
     }
   }, [ruleId]);
 
@@ -111,9 +140,9 @@ export default function Rule({ isNewRule, ...props }) {
           ? 'Create Rule'
           : `Update Rule ${ruleId}${rule.alias ? ` (${rule.alias})` : ''}`
       }>
-      {loading && <Spinner loading />}
+      {isLoading && <Spinner loading />}
       {error && <ErrorPanel error={error} />}
-      {!loading && (
+      {!isLoading && (
         <Fragment>
           <div className={classes.scheduleDiv}>
             <DateTimePicker
@@ -133,40 +162,62 @@ export default function Rule({ isNewRule, ...props }) {
           </div>
           <Grid container spacing={4}>
             <Grid item xs={12} sm={6}>
-              <TextField
-                autoFocus
-                fullWidth
+              <AutoCompleteText
+                inputValue={defaultToEmptyString(rule.product)}
+                onInputValueChange={handleProductChange}
+                getSuggestions={
+                  products.data && getSuggestions(products.data.data.product)
+                }
                 label="Product"
-                value={defaultToEmptyString(rule.product)}
-                name="product"
-                onChange={handleInputChange}
+                required
+                inputProps={{
+                  autoFocus: true,
+                  fullWidth: true,
+                }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
+              <AutoCompleteText
+                inputValue={defaultToEmptyString(rule.channel)}
+                onInputValueChange={handleChannelChange}
+                getSuggestions={
+                  channels.data && getSuggestions(channels.data.data.channel)
+                }
                 label="Channel"
-                value={defaultToEmptyString(rule.channel)}
-                name="channel"
-                onChange={handleInputChange}
+                required
+                inputProps={{
+                  fullWidth: true,
+                }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
+              <AutoCompleteText
+                inputValue={defaultToEmptyString(rule.mapping)}
+                onInputValueChange={handleMappingChange}
+                getSuggestions={
+                  releaseNames.data &&
+                  getSuggestions(releaseNames.data.data.names)
+                }
                 label="Mapping"
-                value={defaultToEmptyString(rule.mapping)}
-                name="mapping"
-                onChange={handleInputChange}
+                required
+                inputProps={{
+                  fullWidth: true,
+                }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
+              <AutoCompleteText
+                inputValue={defaultToEmptyString(rule.fallbackMapping)}
+                onInputValueChange={handleFallbackMappingChange}
+                getSuggestions={
+                  releaseNames.data &&
+                  getSuggestions(releaseNames.data.data.names)
+                }
                 label="Fallback Mapping"
-                value={defaultToEmptyString(rule.fallbackMapping)}
-                name="fallbackMapping"
-                onChange={handleInputChange}
+                required
+                inputProps={{
+                  fullWidth: true,
+                }}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
