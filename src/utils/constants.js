@@ -34,3 +34,11 @@ export const RULE_DIFF_PROPERTIES = [
 ];
 export const RULES_ROWS_PER_PAGE = 25;
 export const CONTENT_MAX_WIDTH = 980;
+export const DIALOG_ACTION_INITIAL_STATE = {
+  error: null,
+  title: '',
+  body: '',
+  confirmText: '',
+  item: null,
+  open: false,
+};
