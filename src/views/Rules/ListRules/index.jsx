@@ -12,6 +12,7 @@ import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
 import RuleCard from '../../../components/RuleCard';
+import DialogAction from '../../../components/DialogAction';
 import Link from '../../../utils/Link';
 import useAction from '../../../hooks/useAction';
 import deleteRule from '../utils/deleteRule';
@@ -21,7 +22,10 @@ import {
   getRules,
   getScheduledChanges,
 } from '../../../services/rules';
-import { RULES_ROWS_PER_PAGE } from '../../../utils/constants';
+import {
+  DIALOG_ACTION_INITIAL_STATE,
+  RULES_ROWS_PER_PAGE,
+} from '../../../utils/constants';
 
 const ALL = 'all';
 const useStyles = makeStyles(theme => ({
@@ -59,21 +63,17 @@ function ListRules(props) {
       ? searchQueries.filter(Boolean).join(productChannelSeparator)
       : ALL
   );
+  const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
   const [rules, fetchRules] = useAction(getRules);
   const [scheduledChanges, fetchScheduledChanges] = useAction(
     getScheduledChanges
   );
-  const [deleteAction, delRule] = useAction(deleteRule);
+  const delRule = useAction(deleteRule)[1];
   const isLoading = products.loading || channels.loading || rules.loading;
-  // todo: delete errors aren't being shown
   const error =
-    products.error ||
-    channels.error ||
-    rules.error ||
-    scheduledChanges.error ||
-    deleteAction.error;
+    products.error || channels.error || rules.error || scheduledChanges.error;
   const handleFilterChange = ({ target: { value } }) => {
     const [product, channel] = value.split(productChannelSeparator);
     const query =
@@ -222,14 +222,36 @@ function ListRules(props) {
       rowsPerPage={RULES_ROWS_PER_PAGE}
     />
   );
-  const handleRuleDelete = async rule => {
-    const { error } = await delRule(rule);
+  const handleRuleDelete = rule => {
+    setDialogState({
+      ...dialogState,
+      open: true,
+      title: 'Delete Rule?',
+      body: `This will schedule a delete for rule ${rule.rule_id}.`,
+      confirmText: 'Delete',
+      item: rule,
+    });
+  };
 
-    if (!error) {
-      setRulesWithScheduledChanges(
-        rulesWithScheduledChanges.filter(i => i.rule_id !== rule.rule_id)
-      );
+  const handleDialogError = error => {
+    setDialogState({ ...dialogState, error });
+  };
+
+  const handleDialogClose = () => {
+    setDialogState(DIALOG_ACTION_INITIAL_STATE);
+  };
+
+  const handleDialogSubmit = async () => {
+    const dialogRule = dialogState.item;
+    const { error } = await delRule(dialogRule);
+
+    if (error) {
+      throw error;
     }
+
+    setRulesWithScheduledChanges(
+      rulesWithScheduledChanges.filter(i => i.rule_id !== dialogRule.rule_id)
+    );
   };
 
   return (
@@ -280,6 +302,17 @@ function ListRules(props) {
           </Link>
         </Fragment>
       )}
+      <DialogAction
+        open={dialogState.open}
+        title={dialogState.title}
+        body={dialogState.body}
+        confirmText={dialogState.confirmText}
+        onSubmit={handleDialogSubmit}
+        onError={handleDialogError}
+        error={dialogState.error}
+        onComplete={handleDialogClose}
+        onClose={handleDialogClose}
+      />
     </Dashboard>
   );
 }
