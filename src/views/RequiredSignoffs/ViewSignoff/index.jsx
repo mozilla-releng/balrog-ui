@@ -1,6 +1,5 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { bool } from 'prop-types';
-import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { makeStyles } from '@material-ui/styles';
 import TextField from '@material-ui/core/TextField';
@@ -22,6 +21,7 @@ import PlusIcon from 'mdi-react/PlusIcon';
 import DeleteIcon from 'mdi-react/DeleteIcon';
 import Dashboard from '../../../components/Dashboard';
 import SpeedDial from '../../../components/SpeedDial';
+import ErrorPanel from '../../../components/ErrorPanel';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import { getChannels, getProducts } from '../../../utils/Rules';
 import getRequiredSignoffs from '../utils/getRequiredSignoffs';
@@ -238,7 +238,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
   return (
     <Dashboard title="Required Signoff">
-      {error && <ErrorPanel error={error} />}
+      {error && <ErrorPanel fixed error={error} />}
       {isLoading && <Spinner loading />}
       {!isLoading && (
         <Fragment>

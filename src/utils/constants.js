@@ -33,3 +33,4 @@ export const RULE_DIFF_PROPERTIES = [
   'version',
 ];
 export const RULES_ROWS_PER_PAGE = 25;
+export const CONTENT_MAX_WIDTH = 980;
