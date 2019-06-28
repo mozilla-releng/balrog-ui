@@ -46,15 +46,18 @@ export default [
     component: Users,
     path: '/users',
     routes: userRoutes('/users'),
+    requiresAuth: true,
   },
   {
     component: Roles,
     path: '/roles',
+    requiresAuth: true,
   },
   {
     component: RequiredSignoffs,
     path: '/required-signoffs',
     routes: requiredSignoffsRoutes('/required-signoffs'),
+    requiresAuth: true,
   },
   {
     component: Login,
