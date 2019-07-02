@@ -24,7 +24,7 @@ const deleteRequiredSignoff = params => {
 };
 
 // requiredSignoffs factory
-export default {
+export {
   getRequiredSignoffs,
   getScheduledChanges,
   updateRequiredSignoff,

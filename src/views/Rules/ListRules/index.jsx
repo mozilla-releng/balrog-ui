@@ -24,10 +24,13 @@ import {
   getRules,
   getScheduledChanges,
 } from '../../../services/rules';
+import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
 import {
   DIALOG_ACTION_INITIAL_STATE,
   RULES_ROWS_PER_PAGE,
+  OBJECT_NAMES,
 } from '../../../utils/constants';
+import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
 
 const ALL = 'all';
 const useStyles = makeStyles(theme => ({
@@ -76,6 +79,7 @@ function ListRules(props) {
   const [scheduledChanges, fetchScheduledChanges] = useAction(
     getScheduledChanges
   );
+  const [requiredSignoffs, fetchRequiredSignoffs] = useAction(getRequiredSignoffs);
   const delRule = useAction(deleteRule)[1];
   const isLoading = products.loading || channels.loading || rules.loading;
   const error =
@@ -125,14 +129,16 @@ function ListRules(props) {
     Promise.all([
       fetchScheduledChanges(),
       fetchRules(),
+      fetchRequiredSignoffs(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
       fetchProducts(),
       fetchChannels(),
-    ]).then(([sc, r]) => {
-      if (!sc.data || !r.data) {
+    ]).then(([sc, r, rs]) => {
+      if (!sc.data || !r.data || !rs.data) {
         return;
       }
 
       const scheduledChanges = sc.data.data.scheduled_changes;
+      const requiredSignoffs = rs.data.data.required_signoffs;
       const { rules } = r.data.data;
       const rulesWithScheduledChanges = rules.map(rule => {
         const sc = scheduledChanges.find(sc => rule.rule_id === sc.rule_id);
@@ -143,6 +149,13 @@ function ListRules(props) {
             when: new Date(rule.scheduledChange.when),
           });
         }
+
+        rule.requiredSignoffs = {};
+        requiredSignoffs.forEach(rs => {
+          if (ruleMatchesRequiredSignoff(rule, rs)) {
+            rule.requiredSignoffs[rs.role] = rs.signoffs_required;
+          }
+        });
 
         return rule;
       });
@@ -182,6 +195,7 @@ function ListRules(props) {
       setRulesWithScheduledChanges(sortedRules);
     });
   }, []);
+  console.log(rulesWithScheduledChanges);
   const filteredRulesWithScheduledChanges = useMemo(
     () =>
       productChannelFilter === ALL
@@ -229,12 +243,10 @@ function ListRules(props) {
     />
   );
   const handleDateTimePickerError = error => {
-    console.log(error);
     setDateTimePickerError(error);
   };
 
   const handleDateTimeChange = date => {
-    console.log(date);
     setScheduleDeleteDate(date);
     setDateTimePickerError(null);
   };
@@ -243,14 +255,7 @@ function ListRules(props) {
     setDialogState({ ...dialogState, error });
   };
 
-  const handleRuleDelete = rule => {
-    setDialogState({
-      ...dialogState,
-      open: true,
-      title: 'Delete Rule?',
-      // body: `This will delete rule ${rule.rule_id}.`,
-      body: rule.scheduledChange ? (
-        <Fragment>
+  const scheduledDeletePicker = 
           <DateTimePicker
             disablePast
             inputVariant="outlined"
@@ -265,8 +270,16 @@ function ListRules(props) {
             }
             onDateTimeChange={handleDateTimeChange}
             value={scheduleDeleteDate}
-          />
-        </Fragment>
+          />;
+
+  const handleRuleDelete = rule => {
+    setDialogState({
+      ...dialogState,
+      open: true,
+      title: 'Delete Rule?',
+      // body: `This will delete rule ${rule.rule_id}.`,
+      body: rule.scheduledChange ? (
+        scheduledDeletePicker
       ) : (
         `This will delete rule ${rule.rule_id}.`
       ),
