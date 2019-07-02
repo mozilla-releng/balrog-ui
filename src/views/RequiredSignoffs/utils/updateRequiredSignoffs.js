@@ -1,4 +1,7 @@
-import { deleteRequiredSignoff, updateRequiredSignoff } from '../../../services/requiredSignoffs';
+import {
+  deleteRequiredSignoff,
+  updateRequiredSignoff,
+} from '../../../services/requiredSignoffs';
 import tryCatch from '../../../utils/tryCatch';
 
 // A utlity to holds all of the Required Signoffs - product, permissions,

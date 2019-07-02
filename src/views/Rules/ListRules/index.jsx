@@ -30,7 +30,7 @@ import {
   RULES_ROWS_PER_PAGE,
   OBJECT_NAMES,
 } from '../../../utils/constants';
-import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
+import ruleMatchesRequiredSignoff from '../../../utils/requiredSignoffs';
 
 const ALL = 'all';
 const useStyles = makeStyles(theme => ({
@@ -79,11 +79,17 @@ function ListRules(props) {
   const [scheduledChanges, fetchScheduledChanges] = useAction(
     getScheduledChanges
   );
-  const [requiredSignoffs, fetchRequiredSignoffs] = useAction(getRequiredSignoffs);
+  const [requiredSignoffs, fetchRequiredSignoffs] = useAction(
+    getRequiredSignoffs
+  );
   const delRule = useAction(deleteRule)[1];
   const isLoading = products.loading || channels.loading || rules.loading;
   const error =
-    products.error || channels.error || rules.error || scheduledChanges.error || dialogState.error;
+    products.error ||
+    channels.error ||
+    rules.error ||
+    scheduledChanges.error ||
+    dialogState.error;
   const handleFilterChange = ({ target: { value } }) => {
     const [product, channel] = value.split(productChannelSeparator);
     const query =
@@ -142,22 +148,23 @@ function ListRules(props) {
       const { rules } = r.data.data;
       const rulesWithScheduledChanges = rules.map(rule => {
         const sc = scheduledChanges.find(sc => rule.rule_id === sc.rule_id);
+        const returnedRule = Object.assign({}, rule);
 
         if (sc) {
-          Object.assign(rule, { scheduledChange: sc });
-          Object.assign(rule.scheduledChange, {
-            when: new Date(rule.scheduledChange.when),
-          });
+          returnedRule.scheduledChange = sc;
+          returnedRule.scheduledChange.when = new Date(
+            returnedRule.scheduledChange.when
+          );
         }
 
-        rule.requiredSignoffs = {};
+        returnedRule.requiredSignoffs = {};
         requiredSignoffs.forEach(rs => {
           if (ruleMatchesRequiredSignoff(rule, rs)) {
-            rule.requiredSignoffs[rs.role] = rs.signoffs_required;
+            returnedRule.requiredSignoffs[rs.role] = rs.signoffs_required;
           }
         });
 
-        return rule;
+        return returnedRule;
       });
 
       scheduledChanges.forEach(sc => {
@@ -195,7 +202,6 @@ function ListRules(props) {
       setRulesWithScheduledChanges(sortedRules);
     });
   }, []);
-  console.log(rulesWithScheduledChanges);
   const filteredRulesWithScheduledChanges = useMemo(
     () =>
       productChannelFilter === ALL
@@ -255,34 +261,30 @@ function ListRules(props) {
     setDialogState({ ...dialogState, error });
   };
 
-  const scheduledDeletePicker = 
-          <DateTimePicker
-            disablePast
-            inputVariant="outlined"
-            fullWidth
-            label="When"
-            onError={handleDateTimePickerError}
-            helperText={
-              dateTimePickerError ||
-              (scheduleDeleteDate < new Date()
-                ? 'Scheduled for ASAP'
-                : undefined)
-            }
-            onDateTimeChange={handleDateTimeChange}
-            value={scheduleDeleteDate}
-          />;
-
+  const scheduledDeletePicker = (
+    <DateTimePicker
+      disablePast
+      inputVariant="outlined"
+      fullWidth
+      label="When"
+      onError={handleDateTimePickerError}
+      helperText={
+        dateTimePickerError ||
+        (scheduleDeleteDate < new Date() ? 'Scheduled for ASAP' : undefined)
+      }
+      onDateTimeChange={handleDateTimeChange}
+      value={scheduleDeleteDate}
+    />
+  );
   const handleRuleDelete = rule => {
     setDialogState({
       ...dialogState,
       open: true,
       title: 'Delete Rule?',
       // body: `This will delete rule ${rule.rule_id}.`,
-      body: rule.scheduledChange ? (
-        scheduledDeletePicker
-      ) : (
-        `This will delete rule ${rule.rule_id}.`
-      ),
+      body: rule.scheduledChange
+        ? scheduledDeletePicker
+        : `This will delete rule ${rule.rule_id}.`,
       confirmText: 'Delete',
       item: rule,
     });
