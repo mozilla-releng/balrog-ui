@@ -79,9 +79,7 @@ function ListRules(props) {
   const [scheduledChanges, fetchScheduledChanges] = useAction(
     getScheduledChanges
   );
-  const [requiredSignoffs, fetchRequiredSignoffs] = useAction(
-    getRequiredSignoffs
-  );
+  const fetchRequiredSignoffs = useAction(getRequiredSignoffs)[1];
   const delRule = useAction(deleteRule)[1];
   const isLoading = products.loading || channels.loading || rules.loading;
   const error =
@@ -257,7 +255,6 @@ function ListRules(props) {
     setDialogState({ ...dialogState, error });
   };
 
-  console.log(rulesWithScheduledChanges);
   const dialogBody =
     dialogState.item &&
     (Object.keys(dialogState.item.requiredSignoffs).length > 0 ? (
@@ -299,9 +296,31 @@ function ListRules(props) {
       throw error;
     }
 
-    setRulesWithScheduledChanges(
-      rulesWithScheduledChanges.filter(i => i.rule_id !== dialogRule.rule_id)
-    );
+    if (Object.keys(dialogRule.requiredSignoffs).length > 0) {
+      // A change was scheduled, we need to update the card
+      // to reflect that.
+      try {
+        const sc = (await getScheduledChanges(false, dialogRule.rule_id)).data.scheduled_changes[0];
+        setRulesWithScheduledChanges(
+          rulesWithScheduledChanges.map(i => {
+            if (i.rule_id !== sc.rule_id) {
+              return i;
+            }
+
+            i.scheduledChange = sc;
+
+            return i;
+          })
+        );
+      } catch (e) {
+        throw(new Error("Scheduled change created but page failed to properly update page. Please refresh."));
+      }
+    } else {
+      // The rule was directly deleted, just remove it.
+      setRulesWithScheduledChanges(
+        rulesWithScheduledChanges.filter(i => i.rule_id !== dialogRule.rule_id)
+      );
+    }
   };
 
   return (
