@@ -257,9 +257,10 @@ function ListRules(props) {
     setDialogState({ ...dialogState, error });
   };
 
+  console.log(rulesWithScheduledChanges);
   const dialogBody =
     dialogState.item &&
-    (dialogState.item.scheduledChange ? (
+    (Object.keys(dialogState.item.requiredSignoffs).length > 0 ? (
       <DateTimePicker
         disablePast
         inputVariant="outlined"
