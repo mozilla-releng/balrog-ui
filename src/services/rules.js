@@ -12,20 +12,16 @@ const deleteRule = ({ ruleId, dataVersion }) =>
   axios.delete(`/rules/${ruleId}`, { params: { data_version: dataVersion } });
 // const addRule = () => axios.post();
 // const revertRule = () => axios.post();
-const getScheduledChanges = (all, ruleId) => {
-  const params = {};
-
-  if (all === undefined || all === true) {
-    params.all = '1';
-  }
-  if (ruleId) {
-    params.rule_id = ruleId;
+const getScheduledChanges = all => {
+  if (!all || all === true) {
+    return axios.get(`/scheduled_changes/rules?${stringify({ all: 1 })}`);
   }
 
-  return axios.get('/scheduled_changes/rules', { params });
+  return axios.get('/scheduled_changes/rules');
 };
-// const getScheduledChange = () => axios.get();
 
+const getScheduledChange = ruleId =>
+  axios.get(`/scheduled_changes/rules/${ruleId}`);
 const addScheduledChange = ({
   ruleId,
   dataVersion,
@@ -55,5 +51,6 @@ export {
   getProducts,
   getHistory,
   getScheduledChanges,
+  getScheduledChange,
   addScheduledChange,
 };

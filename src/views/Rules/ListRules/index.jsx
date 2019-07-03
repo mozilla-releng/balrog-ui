@@ -23,6 +23,7 @@ import {
   getChannels,
   getRules,
   getScheduledChanges,
+  getScheduledChange
 } from '../../../services/rules';
 import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
 import {
@@ -300,7 +301,7 @@ function ListRules(props) {
       // A change was scheduled, we need to update the card
       // to reflect that.
       try {
-        const sc = (await getScheduledChanges(false, dialogRule.rule_id)).data.scheduled_changes[0];
+        const sc = (await getScheduledChange(dialogRule.rule_id)).data.scheduled_changes[0];
         setRulesWithScheduledChanges(
           rulesWithScheduledChanges.map(i => {
             if (i.rule_id !== sc.rule_id) {
