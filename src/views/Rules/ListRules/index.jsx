@@ -23,7 +23,7 @@ import {
   getChannels,
   getRules,
   getScheduledChanges,
-  getScheduledChange
+  getScheduledChange,
 } from '../../../services/rules';
 import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
 import {
@@ -301,7 +301,9 @@ function ListRules(props) {
       // A change was scheduled, we need to update the card
       // to reflect that.
       try {
-        const sc = (await getScheduledChange(dialogRule.rule_id)).data.scheduled_changes[0];
+        const sc = (await getScheduledChange(dialogRule.rule_id)).data
+          .scheduled_changes[0];
+
         setRulesWithScheduledChanges(
           rulesWithScheduledChanges.map(i => {
             if (i.rule_id !== sc.rule_id) {
@@ -314,7 +316,9 @@ function ListRules(props) {
           })
         );
       } catch (e) {
-        throw(new Error("Scheduled change created but page failed to properly update page. Please refresh."));
+        throw new Error(
+          'Scheduled change created but page failed to properly update page. Please refresh.'
+        );
       }
     } else {
       // The rule was directly deleted, just remove it.
