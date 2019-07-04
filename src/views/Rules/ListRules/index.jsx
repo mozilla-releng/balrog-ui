@@ -285,8 +285,31 @@ function ListRules(props) {
     });
   };
 
-  const handleDialogClose = () => {
+  const handleDialogClose = result => {
     setDialogState(DIALOG_ACTION_INITIAL_STATE);
+
+    if (typeof result === 'number') {
+      // The rule was directly deleted, just remove it.
+      setRulesWithScheduledChanges(
+        rulesWithScheduledChanges.filter(i => i.rule_id !== result)
+      );
+    } else {
+      // A change was scheduled, we need to update the card
+      // to reflect that.
+      setRulesWithScheduledChanges(
+        rulesWithScheduledChanges.map(r => {
+          if (r.rule_id !== result.rule_id) {
+            return r;
+          }
+
+          const newRule = { ...r };
+
+          newRule.scheduledChange = result;
+
+          return newRule;
+        })
+      );
+    }
   };
 
   const handleDialogSubmit = async () => {
@@ -298,33 +321,17 @@ function ListRules(props) {
     }
 
     if (Object.keys(dialogRule.requiredSignoffs).length > 0) {
-      // A change was scheduled, we need to update the card
-      // to reflect that.
       try {
-        const sc = (await getScheduledChange(dialogRule.rule_id)).data
+        return (await getScheduledChange(dialogRule.rule_id)).data
           .scheduled_changes[0];
-
-        setRulesWithScheduledChanges(
-          rulesWithScheduledChanges.map(i => {
-            if (i.rule_id !== sc.rule_id) {
-              return i;
-            }
-
-            i.scheduledChange = sc;
-
-            return i;
-          })
-        );
       } catch (e) {
         throw new Error(
           'Scheduled change created but page failed to properly update page. Please refresh.'
         );
       }
     } else {
-      // The rule was directly deleted, just remove it.
-      setRulesWithScheduledChanges(
-        rulesWithScheduledChanges.filter(i => i.rule_id !== dialogRule.rule_id)
-      );
+      // No more rule
+      return dialogRule.rule_id;
     }
   };
 
