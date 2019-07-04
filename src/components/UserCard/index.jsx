@@ -1,6 +1,5 @@
 import React from 'react';
 import Card from '@material-ui/core/Card';
-import GridListTile from '@material-ui/core/GridListTile';
 import { makeStyles } from '@material-ui/styles';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardActionArea from '@material-ui/core/CardActionArea';
@@ -28,6 +27,9 @@ const useStyles = makeStyles(theme => ({
   pencilIcon: {
     marginRight: theme.spacing(1),
   },
+  link: {
+    ...theme.mixins.link,
+  },
 }));
 
 export default function User(props) {
@@ -45,14 +47,16 @@ export default function User(props) {
   // should links like the ones below be in a component?
   return (
     <Card className={classes.card}>
-      <CardActionArea component={Link} to={`/users/${username}`}>
-        <CardHeader
-          classes={{ action: classes.cardHeaderAction }}
-          className={classes.cardHeader}
-          title={username}
-          action={<PencilIcon className={classes.pencilIcon} />}
-        />
-      </CardActionArea>
+      <Link className={classes.link} to={`/users/${username}`}>
+        <CardActionArea>
+          <CardHeader
+            classes={{ action: classes.cardHeaderAction }}
+            className={classes.cardHeader}
+            title={username}
+            action={<PencilIcon className={classes.pencilIcon} />}
+          />
+        </CardActionArea>
+      </Link>
       <CardContent>
         <List>
           {Object.entries(permissions).map(([permission, details]) => (

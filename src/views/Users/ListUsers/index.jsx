@@ -3,7 +3,6 @@ import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import { makeStyles } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
-import GridList from '@material-ui/core/GridList';
 import Tooltip from '@material-ui/core/Tooltip';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
