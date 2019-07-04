@@ -7,7 +7,7 @@ import GridList from '@material-ui/core/GridList';
 import Tooltip from '@material-ui/core/Tooltip';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
-import { getUsers } from '../../../utils/Users';
+import { getUsers } from '../../../services/users';
 import useAction from '../../../hooks/useAction';
 import UserCard from '../../../components/UserCard';
 import getUserInfo from '../utils/getUserInfo';

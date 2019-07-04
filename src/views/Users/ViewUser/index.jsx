@@ -17,7 +17,7 @@ import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import Dashboard from '../../../components/Dashboard';
 import SpeedDial from '../../../components/SpeedDial';
 import useAction from '../../../hooks/useAction';
-import { getUserInfo } from '../../../utils/Users';
+import { getUserInfo } from '../../../services/users';
 import zip from '../../../utils/zip';
 
 const useStyles = makeStyles(theme => ({

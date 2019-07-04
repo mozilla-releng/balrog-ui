@@ -1,4 +1,4 @@
-import { getUserInfo } from '../../../utils/Users';
+import { getUserInfo } from '../../../services/users';
 import tryCatch from '../../../utils/tryCatch';
 
 export default async users => {

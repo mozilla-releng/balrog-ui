@@ -1,20 +1,3 @@
-import axios from 'axios';
-import { USER_SESSION } from './constants';
-
-const baseUrl = `${process.env.BALROG_ROOT_URL}/api`;
-const getUsers = () => axios.get(`${baseUrl}/users`);
-const getUserInfo = username => {
-  const session = localStorage.getItem(USER_SESSION);
-  const user = JSON.parse(session);
-  const { accessToken } = user.authResult;
-  const url = `${baseUrl}/users/${username}`;
-  const headers = { Authorization: `Bearer ${accessToken}` };
-
-  axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
-
-  return axios.get(url, { headers });
-};
-
 const niceJoin = array =>
   array.concat(array.splice(-2, 2).join(' and ')).join(', ');
 const permissionStrings = (productStr, actionStr) => ({
@@ -57,4 +40,4 @@ const getRolesString = roles => {
 };
 
 // eslint-disable-next-line import/prefer-default-export
-export { getUsers, getUserInfo, getPermissionString, getRolesString };
+export { getPermissionString, getRolesString };
