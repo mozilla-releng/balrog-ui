@@ -31,7 +31,7 @@ import {
   RULES_ROWS_PER_PAGE,
   OBJECT_NAMES,
 } from '../../../utils/constants';
-import ruleMatchesRequiredSignoff from '../../../utils/requiredSignoffs';
+import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
 
 const ALL = 'all';
 const useStyles = makeStyles(theme => ({
@@ -323,10 +323,9 @@ function ListRules(props) {
     if (Object.keys(dialogRule.requiredSignoffs).length > 0) {
       return (await getScheduledChange(dialogRule.rule_id)).data
         .scheduled_changes[0];
-    } else {
-      // No more rule
-      return dialogRule.rule_id;
     }
+
+    return dialogRule.rule_id;
   };
 
   return (

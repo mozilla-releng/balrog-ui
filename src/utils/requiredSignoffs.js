@@ -1,4 +1,4 @@
-export default (rule, rs) => {
+const ruleMatchesRequiredSignoff = (rule, rs) => {
   if (rule.product !== rs.product) {
     return false;
   }
@@ -18,4 +18,9 @@ export default (rule, rs) => {
   }
 
   return true;
+};
+
+export {
+  // eslint-disable-next-line import/prefer-default-export
+  ruleMatchesRequiredSignoff,
 };
