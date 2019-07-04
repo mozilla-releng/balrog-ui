@@ -321,14 +321,8 @@ function ListRules(props) {
     }
 
     if (Object.keys(dialogRule.requiredSignoffs).length > 0) {
-      try {
-        return (await getScheduledChange(dialogRule.rule_id)).data
-          .scheduled_changes[0];
-      } catch (e) {
-        throw new Error(
-          'Scheduled change created but page failed to properly update page. Please refresh.'
-        );
-      }
+      return (await getScheduledChange(dialogRule.rule_id)).data
+        .scheduled_changes[0];
     } else {
       // No more rule
       return dialogRule.rule_id;
