@@ -1,4 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react';
+import classNames from 'classnames';
 import { bool } from 'prop-types';
 import { defaultTo, assocPath } from 'ramda';
 import { addSeconds } from 'date-fns';
@@ -11,12 +12,15 @@ import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import Fab from '@material-ui/core/Fab';
+import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 import ScheduleIcon from 'mdi-react/ScheduleIcon';
 import PlusIcon from 'mdi-react/PlusIcon';
+import DeleteIcon from 'mdi-react/DeleteIcon';
 import Dashboard from '../../../components/Dashboard';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 import DateTimePicker from '../../../components/DateTimePicker';
+import SpeedDial from '../../../components/SpeedDial';
 import useAction from '../../../hooks/useAction';
 import {
   getScheduledChange,
@@ -54,6 +58,10 @@ const useStyles = makeStyles(theme => ({
   fab: {
     ...theme.mixins.fab,
   },
+  secondFab: {
+    ...theme.mixins.fab,
+    right: theme.spacing(12),
+  },
   scheduleDiv: {
     display: 'flex',
     alignItems: 'center',
@@ -84,6 +92,8 @@ export default function Rule({ isNewRule, ...props }) {
     loading || scheduleChange.loading || products.loading || channels.loading;
   const { ruleId } = props.match.params;
   const defaultToEmptyString = defaultTo('');
+  const hasScheduledChange =
+    scheduleChange.data && scheduleChange.data.data.count > 0;
   const handleInputChange = ({ target: { name, value } }) => {
     setRule(assocPath([name], value, rule));
   };
@@ -109,6 +119,9 @@ export default function Rule({ isNewRule, ...props }) {
     setDateTimePickerError(error);
   };
 
+  // TODO: Add delete logic
+  const handleScheduleChangeDelete = () => {};
+
   useEffect(() => {
     if (!isNewRule) {
       Promise.all([
@@ -118,8 +131,6 @@ export default function Rule({ isNewRule, ...props }) {
         fetchChannels(),
         fetchReleaseNames(),
       ]).then(
-        // Fetching an individual schedule change for a rule throws a 405
-        // Example: https://localhost:8010/api/scheduled_changes/rules/195
         // eslint-disable-next-line no-unused-vars
         ([fetchedRuleResponse, fetchedScheduledChangeResponse]) => {
           setRule({
@@ -394,11 +405,31 @@ export default function Rule({ isNewRule, ...props }) {
           </Grid>
         </Fragment>
       )}
-      <Tooltip title={isNewRule ? 'Create Rule' : 'Update Rule'}>
-        <Fab color="primary" className={classes.fab}>
-          {isNewRule ? <PlusIcon /> : <ScheduleIcon />}
-        </Fab>
-      </Tooltip>
+      {!isLoading && (
+        <Fragment>
+          <Tooltip title={isNewRule ? 'Create Rule' : 'Update Rule'}>
+            <Fab
+              color="primary"
+              className={classNames({
+                [classes.secondFab]: hasScheduledChange,
+                [classes.fab]: !hasScheduledChange,
+              })}>
+              {isNewRule ? <PlusIcon /> : <ScheduleIcon />}
+            </Fab>
+          </Tooltip>
+          {scheduleChange.data && scheduleChange.data.data.count > 0 && (
+            <SpeedDial ariaLabel="Secondary Actions">
+              <SpeedDialAction
+                disabled={scheduleChange.loading}
+                icon={<DeleteIcon />}
+                tooltipOpen
+                tooltipTitle="Delete Scheduled Change"
+                onClick={handleScheduleChangeDelete}
+              />
+            </SpeedDial>
+          )}
+        </Fragment>
+      )}
     </Dashboard>
   );
 }

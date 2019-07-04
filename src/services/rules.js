@@ -22,7 +22,7 @@ const getScheduledChanges = all => {
 };
 
 const getScheduledChange = ruleId =>
-  axios.get(`/scheduled_changes/rules/${ruleId}`);
+  axios.get(`/scheduled_changes/rules?rule_id=${ruleId}`);
 
 // const addScheduledChange = () => axios.get();
 // const getScheduledChangeHistory = () => axios.get();
