@@ -17,7 +17,6 @@ import { getPermissionString, getRolesString } from '../../utils/Users';
 
 const useStyles = makeStyles(theme => ({
   card: {
-    display: 'block',
     listStyle: 'none',
   },
   cardHeader: {
@@ -28,9 +27,6 @@ const useStyles = makeStyles(theme => ({
   },
   pencilIcon: {
     marginRight: theme.spacing(1),
-  },
-  roleless: {
-    backgroundColor: 'red',
   },
 }));
 
