@@ -7,7 +7,6 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import menuItems from './menuItems';
 import Link from '../../utils/Link';
-import { isLoggedIn } from '../../utils/Session';
 import UserMenu from './UserMenu';
 import SettingsMenu from './SettingsMenu';
 import { CONTENT_MAX_WIDTH } from '../../utils/constants';
@@ -67,7 +66,7 @@ export default function Dashboard(props) {
                 <Button color="inherit">{menuItem.value}</Button>
               </Link>
             ))}
-            {isLoggedIn() ? <SettingsMenu /> : null}
+            <SettingsMenu />
             <UserMenu />
           </nav>
         </Toolbar>

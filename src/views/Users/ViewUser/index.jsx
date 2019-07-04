@@ -295,8 +295,8 @@ function ViewUser({ isNewUser, ...props }) {
       ]),
       ((permission.options && permission.options.actions) || []).concat(['add'])
     ).map((row, index) => (
-      // TODO: need to replace key with something that's not the index, but also won't
-      // change when the data changes.
+      // TODO: need to replace key with something that's not the index,
+      // but also won't change when the data changes.
       <Grid container spacing={2} key={index} className={classes.gridWithIcon}>
         <Grid item xs>
           {row[0] !== undefined && (
