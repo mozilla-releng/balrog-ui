@@ -3,17 +3,21 @@ import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import { makeStyles } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
+import GridList from '@material-ui/core/GridList';
 import Tooltip from '@material-ui/core/Tooltip';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import { getUsers } from '../../../utils/Users';
 import useAction from '../../../hooks/useAction';
-import UserList from '../../../components/UserList';
+import UserCard from '../../../components/UserCard';
 import getUserInfo from '../utils/getUserInfo';
 
 const useStyles = makeStyles(theme => ({
   fab: {
     ...theme.mixins.fab,
+  },
+  gridlist: {
+    display: 'block',
   },
 }));
 
@@ -47,7 +51,16 @@ function ListUsers() {
       {error && <ErrorPanel error={error} />}
       {!isLoading && users && (
         <Fragment>
-          <UserList users={users} />
+          <GridList className={classes.gridlist}>
+            {Object.keys(users).map(user => (
+              <UserCard
+                key={user}
+                username={user}
+                roles={users[user].roles}
+                permissions={users[user].permissions}
+              />
+            ))}
+          </GridList>
           <Tooltip title="Add Users">
             <Fab
               color="primary"
