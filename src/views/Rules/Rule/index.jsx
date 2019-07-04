@@ -2,7 +2,6 @@ import React, { Fragment, useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { bool } from 'prop-types';
 import { defaultTo, assocPath } from 'ramda';
-import { addSeconds } from 'date-fns';
 import NumberFormat from 'react-number-format';
 import { makeStyles } from '@material-ui/styles';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
@@ -83,7 +82,7 @@ export default function Rule({ isNewRule, ...props }) {
   const [channels, fetchChannels] = useAction(getChannels);
   const [releaseNames, fetchReleaseNames] = useAction(getReleaseNames);
   // 30 seconds - to make sure the helper text "Scheduled for ASAP" shows up
-  const [scheduleDate, setScheduleDate] = useState(addSeconds(new Date(), -30));
+  const [scheduleDate, setScheduleDate] = useState(new Date());
   const [dateTimePickerError, setDateTimePickerError] = useState(null);
   const [{ loading, error }, fetchRule] = useAction(getRule);
   // eslint-disable-next-line no-unused-vars
@@ -119,8 +118,10 @@ export default function Rule({ isNewRule, ...props }) {
     setDateTimePickerError(error);
   };
 
-  // TODO: Add delete logic
+  // TODO: Add logic for actions
   const handleScheduleChangeDelete = () => {};
+  const handleCreateRule = () => {};
+  const handleUpdateRule = () => {};
 
   useEffect(() => {
     if (!isNewRule) {
@@ -143,6 +144,11 @@ export default function Rule({ isNewRule, ...props }) {
       Promise.all([fetchProducts(), fetchChannels(), fetchReleaseNames()]);
     }
   }, [ruleId]);
+  const today = new Date();
+
+  // This will make sure the helperText
+  // will always be displayed for a "today" date
+  today.setHours(0, 0, 0, 0);
 
   return (
     <Dashboard
@@ -165,7 +171,9 @@ export default function Rule({ isNewRule, ...props }) {
               onError={handleDateTimePickerError}
               helperText={
                 dateTimePickerError ||
-                (scheduleDate < new Date() ? 'Scheduled for ASAP' : undefined)
+                (scheduleDate < new Date()
+                  ? 'This will be scheduled for ASAP'
+                  : undefined)
               }
               onDateTimeChange={handleDateTimeChange}
               value={scheduleDate}
@@ -409,6 +417,7 @@ export default function Rule({ isNewRule, ...props }) {
         <Fragment>
           <Tooltip title={isNewRule ? 'Create Rule' : 'Update Rule'}>
             <Fab
+              onClick={isNewRule ? handleCreateRule : handleUpdateRule}
               color="primary"
               className={classNames({
                 [classes.secondFab]: hasScheduledChange,
@@ -423,7 +432,7 @@ export default function Rule({ isNewRule, ...props }) {
                 disabled={scheduleChange.loading}
                 icon={<DeleteIcon />}
                 tooltipOpen
-                tooltipTitle="Delete Scheduled Change"
+                tooltipTitle="Cancel Pending Change"
                 onClick={handleScheduleChangeDelete}
               />
             </SpeedDial>
