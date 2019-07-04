@@ -18,6 +18,7 @@ import { getPermissionString, getRolesString } from '../../utils/Users';
 const useStyles = makeStyles(theme => ({
   card: {
     display: 'block',
+    listStyle: 'none',
   },
   cardHeader: {
     borderBottom: '1px gray dashed',
@@ -47,45 +48,43 @@ export default function User(props) {
   // TODO: Add admin-or-not marker. Needs backend support.
   // should links like the ones below be in a component?
   return (
-    <GridListTile>
-      <Card className={classes.card}>
-        <CardActionArea component={Link} to={`/users/${username}`}>
-          <CardHeader
-            classes={{ action: classes.cardHeaderAction }}
-            className={classes.cardHeader}
-            title={username}
-            action={<PencilIcon className={classes.pencilIcon} />}
-          />
-        </CardActionArea>
-        <CardContent>
-          <List>
-            {Object.entries(permissions).map(([permission, details]) => (
-              <ListItem key={permission}>
-                <ListItemIcon>
-                  <AccountSupervisorIcon />
-                </ListItemIcon>
-                <ListItemText>
-                  {getPermissionString(
-                    permission,
-                    returnOptionIfExists(details.options, 'actions', []),
-                    returnOptionIfExists(details.options, 'products', [])
-                  )}
-                </ListItemText>
-              </ListItem>
-            ))}
-            {Object.keys(roles).length > 0 && (
-              <ListItem>
-                <ListItemIcon>
-                  <AccountGroupIcon />
-                </ListItemIcon>
-                <ListItemText>
-                  holds the {getRolesString(Object.keys(roles))}
-                </ListItemText>
-              </ListItem>
-            )}
-          </List>
-        </CardContent>
-      </Card>
-    </GridListTile>
+    <Card className={classes.card}>
+      <CardActionArea component={Link} to={`/users/${username}`}>
+        <CardHeader
+          classes={{ action: classes.cardHeaderAction }}
+          className={classes.cardHeader}
+          title={username}
+          action={<PencilIcon className={classes.pencilIcon} />}
+        />
+      </CardActionArea>
+      <CardContent>
+        <List>
+          {Object.entries(permissions).map(([permission, details]) => (
+            <ListItem key={permission}>
+              <ListItemIcon>
+                <AccountSupervisorIcon />
+              </ListItemIcon>
+              <ListItemText>
+                {getPermissionString(
+                  permission,
+                  returnOptionIfExists(details.options, 'actions', []),
+                  returnOptionIfExists(details.options, 'products', [])
+                )}
+              </ListItemText>
+            </ListItem>
+          ))}
+          {Object.keys(roles).length > 0 && (
+            <ListItem>
+              <ListItemIcon>
+                <AccountGroupIcon />
+              </ListItemIcon>
+              <ListItemText>
+                holds the {getRolesString(Object.keys(roles))}
+              </ListItemText>
+            </ListItem>
+          )}
+        </List>
+      </CardContent>
+    </Card>
   );
 }

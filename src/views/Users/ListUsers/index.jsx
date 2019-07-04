@@ -16,9 +16,6 @@ const useStyles = makeStyles(theme => ({
   fab: {
     ...theme.mixins.fab,
   },
-  gridlist: {
-    display: 'block',
-  },
 }));
 
 function ListUsers() {
@@ -51,16 +48,14 @@ function ListUsers() {
       {error && <ErrorPanel error={error} />}
       {!isLoading && users && (
         <Fragment>
-          <GridList className={classes.gridlist}>
-            {Object.keys(users).map(user => (
-              <UserCard
-                key={user}
-                username={user}
-                roles={users[user].roles}
-                permissions={users[user].permissions}
-              />
-            ))}
-          </GridList>
+          {Object.keys(users).map(user => (
+            <UserCard
+              key={user}
+              username={user}
+              roles={users[user].roles}
+              permissions={users[user].permissions}
+            />
+          ))}
           <Tooltip title="Add Users">
             <Fab
               color="primary"
