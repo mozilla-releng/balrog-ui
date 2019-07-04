@@ -12,8 +12,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import Fab from '@material-ui/core/Fab';
 import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
-import ScheduleIcon from 'mdi-react/ScheduleIcon';
-import PlusIcon from 'mdi-react/PlusIcon';
+import ContentSaveIcon from 'mdi-react/ContentSaveIcon';
 import DeleteIcon from 'mdi-react/DeleteIcon';
 import Dashboard from '../../../components/Dashboard';
 import AutoCompleteText from '../../../components/AutoCompleteText';
@@ -423,7 +422,7 @@ export default function Rule({ isNewRule, ...props }) {
                 [classes.secondFab]: hasScheduledChange,
                 [classes.fab]: !hasScheduledChange,
               })}>
-              {isNewRule ? <PlusIcon /> : <ScheduleIcon />}
+              <ContentSaveIcon />
             </Fab>
           </Tooltip>
           {scheduleChange.data && scheduleChange.data.data.count > 0 && (
