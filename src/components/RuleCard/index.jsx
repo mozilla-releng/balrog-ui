@@ -1,4 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react';
+import { func } from 'prop-types';
 import classNames from 'classnames';
 import { makeStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
@@ -88,7 +89,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function RuleCard({ rule, ...props }) {
+function RuleCard({ rule, onRuleDelete, ...props }) {
   const classes = useStyles();
   const [{ type, hunks }, setDiff] = useState('');
   const getChipIcon = changeType => {
@@ -315,7 +316,7 @@ function RuleCard({ rule, ...props }) {
                 <ListItem className={classes.listItem}>
                   <ListItemText
                     primary="64-bit Migration Opt-in"
-                    secondary={rule.mig64}
+                    secondary={String(rule.mig64)}
                   />
                 </ListItem>
               )}
@@ -323,7 +324,7 @@ function RuleCard({ rule, ...props }) {
                 <ListItem className={classes.listItem}>
                   <ListItemText
                     primary="Incompatible JAWS Screen Reader"
-                    secondary={rule.jaws}
+                    secondary={String(rule.jaws)}
                   />
                 </ListItem>
               )}
@@ -388,7 +389,9 @@ function RuleCard({ rule, ...props }) {
       <CardActions className={classes.cardActions}>
         <Button color="secondary">Duplicate</Button>
         <Button color="secondary">Update</Button>
-        <Button color="secondary">Delete</Button>
+        <Button color="secondary" onClick={() => onRuleDelete(rule)}>
+          Delete
+        </Button>
       </CardActions>
     </Card>
   );
@@ -396,6 +399,7 @@ function RuleCard({ rule, ...props }) {
 
 RuleCard.propTypes = {
   rule,
+  onRuleDelete: func.isRequired,
 };
 
 export default RuleCard;

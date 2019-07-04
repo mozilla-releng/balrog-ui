@@ -10,6 +10,7 @@ import Link from '../../utils/Link';
 import { isLoggedIn } from '../../utils/Session';
 import UserMenu from './UserMenu';
 import SettingsMenu from './SettingsMenu';
+import { CONTENT_MAX_WIDTH } from '../../utils/constants';
 
 const useStyles = makeStyles(theme => ({
   appbar: {
@@ -19,9 +20,10 @@ const useStyles = makeStyles(theme => ({
     textDecoration: 'none',
   },
   main: {
-    maxWidth: 980,
+    maxWidth: CONTENT_MAX_WIDTH,
     height: window.innerHeight - theme.spacing(8),
-    margin: `${theme.spacing(10)}px auto`,
+    margin: '0 auto',
+    padding: `${theme.spacing(12)}px ${theme.spacing(8)}px`,
   },
   nav: {
     display: 'flex',

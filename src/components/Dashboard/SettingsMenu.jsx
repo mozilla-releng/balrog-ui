@@ -6,6 +6,7 @@ import IconButton from '@material-ui/core/IconButton';
 import SettingsOutlineIcon from 'mdi-react/SettingsOutlineIcon';
 import { upperCase } from 'change-case';
 import Link from '../../utils/Link';
+import { withUser } from '../../utils/AuthContext';
 import menuItems from './menuItems';
 
 const useStyles = makeStyles(theme => ({
@@ -18,12 +19,15 @@ const useStyles = makeStyles(theme => ({
   settingsIcon: {
     fill: '#fff',
   },
+  settingsIconDisabled: {
+    fill: theme.palette.grey[500],
+  },
   link: {
     ...theme.mixins.link,
   },
 }));
 
-export default function SettingsMenu() {
+function SettingsMenu({ user }) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const handleMenuOpen = e => setAnchorEl(e.currentTarget);
@@ -32,12 +36,16 @@ export default function SettingsMenu() {
   return (
     <Fragment>
       <IconButton
+        disabled={!user}
         className={classes.settings}
         aria-haspopup="true"
         aria-controls="user-menu"
         aria-label="user menu"
         onClick={handleMenuOpen}>
-        <SettingsOutlineIcon size={24} className={classes.settingsIcon} />
+        <SettingsOutlineIcon
+          size={24}
+          className={user ? classes.settingsIcon : classes.settingsIconDisabled}
+        />
       </IconButton>
       <Menu
         id="user-menu"
@@ -57,3 +65,5 @@ export default function SettingsMenu() {
     </Fragment>
   );
 }
+
+export default withUser(SettingsMenu);

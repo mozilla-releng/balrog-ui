@@ -1,7 +1,6 @@
 import React, { Fragment, useEffect, useState, useMemo } from 'react';
 import { stringify, parse } from 'qs';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
-import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import { makeStyles } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -11,16 +10,22 @@ import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
+import ErrorPanel from '../../../components/ErrorPanel';
 import RuleCard from '../../../components/RuleCard';
+import DialogAction from '../../../components/DialogAction';
 import Link from '../../../utils/Link';
 import useAction from '../../../hooks/useAction';
+import deleteRule from '../utils/deleteRule';
 import {
   getProducts,
   getChannels,
   getRules,
   getScheduledChanges,
-} from '../../../utils/Rules';
-import { RULES_ROWS_PER_PAGE } from '../../../utils/constants';
+} from '../../../services/rules';
+import {
+  DIALOG_ACTION_INITIAL_STATE,
+  RULES_ROWS_PER_PAGE,
+} from '../../../utils/constants';
 
 const ALL = 'all';
 const useStyles = makeStyles(theme => ({
@@ -58,12 +63,14 @@ function ListRules(props) {
       ? searchQueries.filter(Boolean).join(productChannelSeparator)
       : ALL
   );
+  const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
   const [rules, fetchRules] = useAction(getRules);
   const [scheduledChanges, fetchScheduledChanges] = useAction(
     getScheduledChanges
   );
+  const delRule = useAction(deleteRule)[1];
   const isLoading = products.loading || channels.loading || rules.loading;
   const error =
     products.error || channels.error || rules.error || scheduledChanges.error;
@@ -215,11 +222,42 @@ function ListRules(props) {
       rowsPerPage={RULES_ROWS_PER_PAGE}
     />
   );
+  const handleRuleDelete = rule => {
+    setDialogState({
+      ...dialogState,
+      open: true,
+      title: 'Delete Rule?',
+      body: `This will delete rule ${rule.rule_id}.`,
+      confirmText: 'Delete',
+      item: rule,
+    });
+  };
+
+  const handleDialogError = error => {
+    setDialogState({ ...dialogState, error });
+  };
+
+  const handleDialogClose = () => {
+    setDialogState(DIALOG_ACTION_INITIAL_STATE);
+  };
+
+  const handleDialogSubmit = async () => {
+    const dialogRule = dialogState.item;
+    const { error } = await delRule(dialogRule);
+
+    if (error) {
+      throw error;
+    }
+
+    setRulesWithScheduledChanges(
+      rulesWithScheduledChanges.filter(i => i.rule_id !== dialogRule.rule_id)
+    );
+  };
 
   return (
     <Dashboard title="Rules">
       {isLoading && <Spinner loading />}
-      {error && <ErrorPanel error={error} />}
+      {error && <ErrorPanel fixed error={error} />}
       {!isLoading && productChannelOptions && (
         <Fragment>
           <div className={classes.options}>
@@ -245,7 +283,11 @@ function ListRules(props) {
                   key={`${rule.product}-${rule.channel}-${rule.rule_id}`}
                   item
                   xs={12}>
-                  <RuleCard key={rule.rule_id} rule={rule} />
+                  <RuleCard
+                    key={rule.rule_id}
+                    rule={rule}
+                    onRuleDelete={handleRuleDelete}
+                  />
                 </Grid>
               ))}
             </Grid>
@@ -260,6 +302,17 @@ function ListRules(props) {
           </Link>
         </Fragment>
       )}
+      <DialogAction
+        open={dialogState.open}
+        title={dialogState.title}
+        body={dialogState.body}
+        confirmText={dialogState.confirmText}
+        onSubmit={handleDialogSubmit}
+        onError={handleDialogError}
+        error={dialogState.error}
+        onComplete={handleDialogClose}
+        onClose={handleDialogClose}
+      />
     </Dashboard>
   );
 }
