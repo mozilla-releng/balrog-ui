@@ -3,18 +3,8 @@ import tryCatch from '../../../utils/tryCatch';
 
 export default async users => {
   const userInfo = {};
-  const [error, result] = await tryCatch(
-    Promise.all([].concat(users.map(user => getUserInfo(user))))
-  );
-
-  if (error) {
-    const errorMsg =
-      error.response.data.exception ||
-      error.response.data.detail ||
-      'Unknown error';
-
-    throw new Error(errorMsg);
-  }
+  const result = await Promise.all([].concat(users.map(user => getUserInfo(user))));
+  console.log(result);
 
   result.forEach(user => {
     userInfo[user.data.username] = {

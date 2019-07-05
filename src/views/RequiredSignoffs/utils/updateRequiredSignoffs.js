@@ -24,8 +24,7 @@ export default async params => {
     role => !currentRoles.includes(role.name)
   );
   let useScheduledChange = !isNewSignoff;
-  const [error] = await tryCatch(
-    Promise.all(
+  await Promise.all(
       [].concat(
         roles.map(async role => {
           const extraData = role.sc
@@ -112,16 +111,5 @@ export default async params => {
           });
         })
       )
-    )
-  );
-
-  if (error) {
-    const config = JSON.parse(error.config.data);
-    const errorMsg =
-      error.response.data.exception ||
-      error.response.data.detail ||
-      'Unknown error';
-
-    throw new Error(`Error updating ${config.role} role: ${errorMsg}`);
-  }
+    );
 };

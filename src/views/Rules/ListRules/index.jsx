@@ -15,12 +15,12 @@ import RuleCard from '../../../components/RuleCard';
 import DialogAction from '../../../components/DialogAction';
 import Link from '../../../utils/Link';
 import useAction from '../../../hooks/useAction';
-import deleteRule from '../utils/deleteRule';
 import {
   getProducts,
   getChannels,
   getRules,
   getScheduledChanges,
+  deleteRule,
 } from '../../../services/rules';
 import {
   DIALOG_ACTION_INITIAL_STATE,
@@ -243,7 +243,10 @@ function ListRules(props) {
 
   const handleDialogSubmit = async () => {
     const dialogRule = dialogState.item;
-    const { error } = await delRule(dialogRule);
+    const { error } = await delRule({
+      ruleId: dialogRule.rule_id,
+      dataVersion: dialogRule.data_version,
+    });
 
     if (error) {
       throw error;
