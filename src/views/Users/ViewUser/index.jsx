@@ -17,6 +17,7 @@ import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import Dashboard from '../../../components/Dashboard';
 import SpeedDial from '../../../components/SpeedDial';
 import useAction from '../../../hooks/useAction';
+import { getProducts } from '../../../services/rules';
 import { getUserInfo } from '../../../services/users';
 import zip from '../../../utils/zip';
 
@@ -73,14 +74,18 @@ function ViewUser({ isNewUser, ...props }) {
   const [additionalPermissions, setAdditionalPermissions] = useState(
     isNewUser ? [getEmptyPermission()] : []
   );
+  const [products, fetchProducts] = useAction(getProducts);
   const [userAction, fetchUser] = useAction(getUserInfo);
   const [saveAction, saveUser] = useAction(() => {});
-  const isLoading = userAction.loading;
-  const error = userAction.error || saveAction.error;
+  const isLoading = userAction.loading || products.loading;
+  const error = userAction.error || products.error || saveAction.error;
 
   useEffect(() => {
     if (!isNewUser) {
-      fetchUser(existingUsername).then(result => {
+      Promise.all([
+        fetchUser(existingUsername),
+        fetchProducts(),
+      ]).then(([result]) => {
         const roles = Object.keys(result.data.data.roles).map(name => ({
           name,
           data_version: result.data.data.roles[name].data_version,
