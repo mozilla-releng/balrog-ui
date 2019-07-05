@@ -34,6 +34,10 @@ const useStyles = makeStyles(theme => ({
   gridWithIcon: {
     marginTop: theme.spacing(3),
   },
+  gridRoleDelete: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+  },
 }));
 
 function ViewUser({ isNewUser, ...props }) {
@@ -284,14 +288,15 @@ function ViewUser({ isNewUser, ...props }) {
   const handleUserDelete = () => {};
   const renderRole = (role, index) => (
     <Grid container spacing={2} key={index}>
-      <Grid item xs>
+      <Grid item xs={11}>
         <TextField
           disabled={role.metadata.isAdditional ? false : !isNewUser}
           onChange={e => handleRoleNameChange(role, index, e.target.value)}
           value={role.name}
+          fullWidth
         />
       </Grid>
-      <Grid item xs>
+      <Grid item xs={1} className={classes.gridRoleDelete}>
         <IconButton onClick={() => handleRoleDelete(role, index)}>
           <DeleteIcon />
         </IconButton>
