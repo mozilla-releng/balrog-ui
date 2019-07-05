@@ -50,6 +50,9 @@ function ViewUser({ isNewUser, ...props }) {
   const getEmptyRole = () => ({
     name: '',
     data_version: null,
+    metadata: {
+      isAdditional: true,
+    },
   });
   const {
     match: {
@@ -77,6 +80,9 @@ function ViewUser({ isNewUser, ...props }) {
         const roles = Object.keys(result.data.data.roles).map(name => ({
           name,
           data_version: result.data.data.roles[name].data_version,
+          metadata: {
+            isAdditional: false,
+          },
         }));
         const permissions = Object.keys(result.data.data.permissions).map(
           name => {
@@ -280,6 +286,7 @@ function ViewUser({ isNewUser, ...props }) {
     <Grid container spacing={2} key={index}>
       <Grid item xs>
         <TextField
+          disabled={role.metadata.isAdditional ? false : !isNewUser}
           onChange={e => handleRoleNameChange(role, index, e.target.value)}
           value={role.name}
         />
@@ -413,8 +420,6 @@ function ViewUser({ isNewUser, ...props }) {
             <br />
             <br />
             <Typography variant="h5">Permissions</Typography>
-            {permissions.map(renderPermission)}
-            {additionalPermissions.map(renderPermission)}
             <Grid container spacing={2}>
               <Grid item xs>
                 Name
@@ -426,6 +431,8 @@ function ViewUser({ isNewUser, ...props }) {
                 Action Restrictions
               </Grid>
             </Grid>
+            {permissions.map(renderPermission)}
+            {additionalPermissions.map(renderPermission)}
             <Grid item xs className={classes.addGrid}>
               <Grid item xs={11}>
                 <Button
