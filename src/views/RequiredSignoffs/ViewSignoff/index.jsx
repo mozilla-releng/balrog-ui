@@ -246,8 +246,8 @@ function ViewSignoff({ isNewSignoff, ...props }) {
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <AutoCompleteText
-                  inputValue={productTextValue}
-                  onInputValueChange={handleProductChange}
+                  onValueChange={handleProductChange}
+                  value={productTextValue}
                   getSuggestions={
                     products.data && getSuggestions(products.data.data.product)
                   }
@@ -286,8 +286,8 @@ function ViewSignoff({ isNewSignoff, ...props }) {
               {type === 'channel' && (
                 <Grid item xs={12}>
                   <AutoCompleteText
-                    inputValue={channelTextValue}
-                    onInputValueChange={handleChannelChange}
+                    value={channelTextValue}
+                    onValueChange={handleChannelChange}
                     getSuggestions={
                       channels.data &&
                       getSuggestions(channels.data.data.channel)
