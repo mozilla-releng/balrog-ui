@@ -9,7 +9,7 @@ import Dashboard from '../../../components/Dashboard';
 import { getUsers } from '../../../services/users';
 import useAction from '../../../hooks/useAction';
 import UserCard from '../../../components/UserCard';
-import getUserInfo from '../utils/getUserInfo';
+import getUsersInfo from '../utils/getUsersInfo';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -21,7 +21,7 @@ function ListUsers() {
   const classes = useStyles();
   const [users, setUsers] = useState({});
   const [usersAction, fetchUsers] = useAction(getUsers);
-  const [userInfoAction, fetchUserInfo] = useAction(getUserInfo);
+  const [userInfoAction, fetchUserInfo] = useAction(getUsersInfo);
   const isLoading = usersAction.loading || userInfoAction.loading;
   const error = usersAction.error || userInfoAction.error;
 
