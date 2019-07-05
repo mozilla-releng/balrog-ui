@@ -117,7 +117,7 @@ function ViewUser({ isNewUser, ...props }) {
           setOriginalRoles(JSON.parse(JSON.stringify(roles)));
           setPermissions(permissions);
           setOriginalPermissions(JSON.parse(JSON.stringify(permissions)));
-          setProducts(productdata.data.data.products);
+          setProducts(productdata.data.data.product);
         }
       );
     }
@@ -356,7 +356,7 @@ function ViewUser({ isNewUser, ...props }) {
       </Grid>
       <Grid item xs>
         <AutoCompleteText
-          value={permission.options.products}
+          value="fixme to make it multiselect"
           onValueChange={handleProductRestrictionChange}
           onChange={() => handleProductRestrictionSelection(permission)}
           selectedItem={null}
@@ -370,7 +370,7 @@ function ViewUser({ isNewUser, ...props }) {
       </Grid>
       <Grid item xs>
         <AutoCompleteText
-          value={permission.options.products}
+          value="fixme to make it multiselect"
           onValueChange={handleProductRestrictionChange}
           onChange={() => handleProductRestrictionSelection(permission)}
           selectedItem={null}
