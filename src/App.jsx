@@ -31,6 +31,7 @@ axios.interceptors.request.use(config => {
 });
 
 const App = () => {
+  const session = localStorage.getItem(USER_SESSION);
   const [authorize, setAuthorize] = useState(
     Boolean(localStorage.getItem(USER_SESSION))
   );
@@ -45,11 +46,33 @@ const App = () => {
     },
     user: null,
   });
+  // Wait until authorization is done before rendering
+  // to make sure users who are logged in are able to access protected views
+  const [ready, setReady] = useState(Boolean(!session));
   const handleAuthorize = user => {
     setAuthContext({
       ...authContext,
       user,
     });
+    setReady(true);
+  };
+
+  const handleError = () => {
+    setReady(true);
+  };
+
+  const render = () => {
+    if (session) {
+      const user = JSON.parse(session);
+      const expires = new Date(user.expiration);
+      const now = new Date();
+
+      if (expires < now && user) {
+        authContext.unauthorize();
+      }
+    }
+
+    return <Main />;
   };
 
   return (
@@ -60,6 +83,7 @@ const App = () => {
           <Authorize
             authorize={authorize}
             onAuthorize={handleAuthorize}
+            onError={handleError}
             popup
             domain={process.env.AUTH0_DOMAIN}
             clientID={process.env.AUTH0_CLIENT_ID}
@@ -67,21 +91,7 @@ const App = () => {
             redirectUri={process.env.AUTH0_REDIRECT_URI}
             responseType={process.env.AUTH0_RESPONSE_TYPE}
             scope={process.env.AUTH0_SCOPE}
-            render={() => {
-              const session = localStorage.getItem(USER_SESSION);
-
-              if (session) {
-                const user = JSON.parse(session);
-                const expires = new Date(user.expiration);
-                const now = new Date();
-
-                if (expires < now && user) {
-                  authContext.unauthorize();
-                }
-              }
-
-              return <Main />;
-            }}
+            render={ready ? render : null}
           />
         </ThemeProvider>
       </AuthContext.Provider>
