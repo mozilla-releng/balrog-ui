@@ -79,26 +79,27 @@ function ViewUser({ isNewUser, ...props }) {
   const [additionalPermissions, setAdditionalPermissions] = useState(
     isNewUser ? [getEmptyPermission()] : []
   );
-  const [products, fetchProducts] = useAction(getProducts);
+  const [products, setProducts] = useState([]);
+  const [productsAction, fetchProducts] = useAction(getProducts);
   const [userAction, fetchUser] = useAction(getUserInfo);
   const [saveAction, saveUser] = useAction(() => {});
-  const isLoading = userAction.loading || products.loading;
-  const error = userAction.error || products.error || saveAction.error;
+  const isLoading = userAction.loading || productsAction.loading;
+  const error = userAction.error || productsAction.error || saveAction.error;
 
   useEffect(() => {
     if (!isNewUser) {
       Promise.all([fetchUser(existingUsername), fetchProducts()]).then(
-        ([result]) => {
-          const roles = Object.keys(result.data.data.roles).map(name => ({
+        ([userdata, productdata]) => {
+          const roles = Object.keys(userdata.data.data.roles).map(name => ({
             name,
-            data_version: result.data.data.roles[name].data_version,
+            data_version: userdata.data.data.roles[name].data_version,
             metadata: {
               isAdditional: false,
             },
           }));
-          const permissions = Object.keys(result.data.data.permissions).map(
+          const permissions = Object.keys(userdata.data.data.permissions).map(
             name => {
-              const details = result.data.data.permissions[name];
+              const details = userdata.data.data.permissions[name];
 
               return {
                 name,
@@ -111,11 +112,12 @@ function ViewUser({ isNewUser, ...props }) {
             }
           );
 
-          setUsername(result.data.data.username);
+          setUsername(userdata.data.data.username);
           setRoles(roles);
           setOriginalRoles(JSON.parse(JSON.stringify(roles)));
           setPermissions(permissions);
           setOriginalPermissions(JSON.parse(JSON.stringify(permissions)));
+          setProducts(productdata.data.data.products);
         }
       );
     }
@@ -332,6 +334,14 @@ function ViewUser({ isNewUser, ...props }) {
         });
   };
 
+  const handleProductRestrictionSelection = permission => selectedItem => {
+    if (permission.metadata.isAdditional) {
+    } else {
+    }
+  };
+
+  const handleProductRestrictionChange= () => {};
+
   const renderPermission = permission =>
     zip(
       [permission.name],
@@ -426,13 +436,33 @@ function ViewUser({ isNewUser, ...props }) {
     <Grid container spacing={2} key={permission}>
       <Grid item xs>
         <AutoCompleteText
-          inputValue={permission.name}
-          onInputValueChange={handlePermissionNameChange(permission)}
+          value={permission.name}
+          onValueChange={handlePermissionNameChange(permission)}
           getSuggestions={getSuggestions(allPermissions)}
           label="Permission"
           inputProps={{
             disabled: !permission.metadata.isAdditional,
           }}
+        />
+      </Grid>
+      <Grid item xs>
+        <AutoCompleteText
+          value={permission.options.products}
+          onValueChange={handleProductRestrictionChange}
+          onChange={() => handleProductRestrictionSelection(permission)}
+          selectedItem={null}
+          getSuggestions={getSuggestions(permissionRestrictionMappings[permission.name].restrict_products && products || [])}
+          label="Product Restrictions"
+        />
+      </Grid>
+      <Grid item xs>
+        <AutoCompleteText
+          value={permission.options.products}
+          onValueChange={handleProductRestrictionChange}
+          onChange={() => handleProductRestrictionSelection(permission)}
+          selectedItem={null}
+          getSuggestions={getSuggestions(permissionRestrictionMappings[permission.name].restrict_actions && permissionRestrictionMappings[permission.name].supported_actions)}
+          label="Action Restrictions"
         />
       </Grid>
     </Grid>
