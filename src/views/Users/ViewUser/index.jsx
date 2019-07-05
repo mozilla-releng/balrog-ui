@@ -47,6 +47,10 @@ function ViewUser({ isNewUser, ...props }) {
       isAdditional: true,
     },
   });
+  const getEmptyRole = () => ({
+    name: '',
+    data_version: null,
+  });
   const {
     match: {
       params: { username: existingUsername },
@@ -119,7 +123,7 @@ function ViewUser({ isNewUser, ...props }) {
   };
 
   const handleRoleAdd = () => {
-    setAdditionalRoles(additionalRoles.concat([{}]));
+    setAdditionalRoles(additionalRoles.concat([getEmptyRole()]));
   };
 
   const handleRoleDelete = (role, index) => {
