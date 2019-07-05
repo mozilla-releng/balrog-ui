@@ -348,7 +348,7 @@ function ViewUser({ isNewUser, ...props }) {
           value={permission.name}
           onValueChange={handlePermissionNameChange(permission)}
           getSuggestions={getSuggestions(allPermissions)}
-          label="Permission"
+          label="Name"
           inputProps={{
             disabled: !permission.metadata.isAdditional,
           }}
@@ -421,17 +421,6 @@ function ViewUser({ isNewUser, ...props }) {
             <br />
             <br />
             <Typography variant="h5">Permissions</Typography>
-            <Grid container spacing={2}>
-              <Grid item xs>
-                Name
-              </Grid>
-              <Grid item xs>
-                Product Restrictions
-              </Grid>
-              <Grid item xs>
-                Action Restrictions
-              </Grid>
-            </Grid>
             {permissions.map(renderPermission)}
             {additionalPermissions.map(renderPermission)}
             <Grid item xs className={classes.addGrid}>
