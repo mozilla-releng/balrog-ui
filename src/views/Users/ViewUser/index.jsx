@@ -313,7 +313,7 @@ function ViewUser({ isNewUser, ...props }) {
     ).map((row, index) => (
       // TODO: need to replace key with something that's not the index,
       // but also won't change when the data changes.
-      <Grid container spacing={2} key={index} className={classes.gridWithIcon}>
+      <Grid container spacing={3} key={index} className={classes.gridWithIcon}>
         <Grid item xs>
           {row[0] !== undefined && (
             <TextField
@@ -330,19 +330,22 @@ function ViewUser({ isNewUser, ...props }) {
         {row[1] === undefined && <Grid item xs />}
         {row[1] !== undefined && row[1] !== 'add' && (
           <Fragment>
-            <Grid item xs>
-              <TextField
-                value={row[1]}
-                style={{ width: '85%' }}
-                onChange={e =>
-                  handleProductNameChange(permission, index, e.target.value)
-                }
-              />
-              <IconButton
-                onClick={() => handleProductDelete(permission, index)}
-                style={{ width: '15%' }}>
-                <DeleteIcon />
-              </IconButton>
+            <Grid container item xs>
+              <Grid item xs={11}>
+                <TextField
+                  value={row[1]}
+                  className={classes.fullWidth}
+                  onChange={e =>
+                    handleProductNameChange(permission, index, e.target.value)
+                  }
+                />
+              </Grid>
+              <Grid item xs={1}>
+                <IconButton
+                  onClick={() => handleProductDelete(permission, index)}>
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
             </Grid>
           </Fragment>
         )}
@@ -359,19 +362,22 @@ function ViewUser({ isNewUser, ...props }) {
         {row[2] === undefined && <Grid item xs />}
         {row[2] !== undefined && row[2] !== 'add' && (
           <Fragment>
-            <Grid item xs>
-              <TextField
-                value={row[2]}
-                onChange={e =>
-                  handleActionNameChange(permission, index, e.target.value)
-                }
-                style={{ width: '85%' }}
-              />
-              <IconButton
-                onClick={() => handleActionDelete(permission, index)}
-                style={{ width: '15%' }}>
-                <DeleteIcon />
-              </IconButton>
+            <Grid container item xs>
+              <Grid item xs={11}>
+                <TextField
+                  value={row[2]}
+                  className={classes.fullWidth}
+                  onChange={e =>
+                    handleActionNameChange(permission, index, e.target.value)
+                  }
+                />
+              </Grid>
+              <Grid item xs={1}>
+                <IconButton
+                  onClick={() => handleActionDelete(permission, index)}>
+                  <DeleteIcon />
+                </IconButton>
+              </Grid>
             </Grid>
           </Fragment>
         )}
