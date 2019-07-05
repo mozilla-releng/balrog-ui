@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState, useMemo } from 'react';
+import React, { Fragment, useRef, useEffect, useState, useMemo } from 'react';
 import { stringify, parse } from 'qs';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { makeStyles, useTheme } from '@material-ui/styles';
@@ -7,7 +7,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import { VariableSizeList } from 'react-window';
-import AutoSizer from 'react-virtualized-auto-sizer';
+import { WindowScroller } from 'react-virtualized';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
@@ -50,11 +50,16 @@ const useStyles = makeStyles(theme => ({
   ruleCard: {
     margin: theme.spacing.unit,
   },
+  windowScrollerOverride: {
+    height: '100% !important',
+    overflow: 'inherit !important',
+  },
 }));
 
 function ListRules(props) {
   const classes = useStyles();
   const theme = useTheme();
+  const listRef = useRef(null);
   const query = parse(props.location.search.slice(1));
   const productChannelSeparator = ' : ';
   const [rulesWithScheduledChanges, setRulesWithScheduledChanges] = useState(
@@ -333,6 +338,16 @@ function ListRules(props) {
     );
   };
 
+  const handleScroll = ({ scrollTop }) => {
+    if (listRef.current) {
+      listRef.current.scrollTo(scrollTop);
+    }
+  };
+
+  const handleListRef = component => {
+    listRef.current = component;
+  };
+
   return (
     <Dashboard title="Rules">
       {isLoading && <Spinner loading />}
@@ -355,19 +370,22 @@ function ListRules(props) {
             </TextField>
           </div>
           {filteredRulesWithScheduledChanges && (
-            <AutoSizer>
-              {({ height, width }) => (
-                <VariableSizeList
-                  key={filteredRulesCount}
-                  height={height}
-                  width={width}
-                  estimatedItemSize={400}
-                  itemSize={getItemSize}
-                  itemCount={filteredRulesCount}>
-                  {Row}
-                </VariableSizeList>
-              )}
-            </AutoSizer>
+            <Fragment>
+              <WindowScroller onScroll={handleScroll}>
+                {() => null}
+              </WindowScroller>
+              <VariableSizeList
+                className={classes.windowScrollerOverride}
+                ref={handleListRef}
+                key={filteredRulesCount}
+                height={window.innerHeight}
+                estimatedItemSize={400}
+                overscanCount={5}
+                itemSize={getItemSize}
+                itemCount={filteredRulesCount}>
+                {Row}
+              </VariableSizeList>
+            </Fragment>
           )}
           <Link to="/rules/create">
             <Tooltip title="Add Rule">
