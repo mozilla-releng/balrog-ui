@@ -20,7 +20,8 @@ module.exports = {
         },
         html: {
           title: 'Balrog Admin',
-          favicon: `${__dirname}/src/images/favicon.png`
+          favicon: `${__dirname}/src/images/favicon.png`,
+          template: 'src/index.html',
         },
         env: {
           HOST: DEFAULT_HOST,
