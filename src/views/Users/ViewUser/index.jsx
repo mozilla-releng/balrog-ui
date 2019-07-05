@@ -14,11 +14,16 @@ import DeleteIcon from 'mdi-react/DeleteIcon';
 import PlusIcon from 'mdi-react/PlusIcon';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
+import AutoCompleteText from '../../../components/AutoCompleteText';
 import Dashboard from '../../../components/Dashboard';
 import SpeedDial from '../../../components/SpeedDial';
 import useAction from '../../../hooks/useAction';
 import { getProducts } from '../../../services/rules';
 import { getUserInfo } from '../../../services/users';
+import {
+  allPermissions,
+  permissionRestrictionMappings,
+} from '../../../utils/Users';
 import zip from '../../../utils/zip';
 
 const useStyles = makeStyles(theme => ({
@@ -82,38 +87,37 @@ function ViewUser({ isNewUser, ...props }) {
 
   useEffect(() => {
     if (!isNewUser) {
-      Promise.all([
-        fetchUser(existingUsername),
-        fetchProducts(),
-      ]).then(([result]) => {
-        const roles = Object.keys(result.data.data.roles).map(name => ({
-          name,
-          data_version: result.data.data.roles[name].data_version,
-          metadata: {
-            isAdditional: false,
-          },
-        }));
-        const permissions = Object.keys(result.data.data.permissions).map(
-          name => {
-            const details = result.data.data.permissions[name];
+      Promise.all([fetchUser(existingUsername), fetchProducts()]).then(
+        ([result]) => {
+          const roles = Object.keys(result.data.data.roles).map(name => ({
+            name,
+            data_version: result.data.data.roles[name].data_version,
+            metadata: {
+              isAdditional: false,
+            },
+          }));
+          const permissions = Object.keys(result.data.data.permissions).map(
+            name => {
+              const details = result.data.data.permissions[name];
 
-            return {
-              name,
-              options: details.options,
-              data_version: details.data_version,
-              metadata: {
-                isAdditional: false,
-              },
-            };
-          }
-        );
+              return {
+                name,
+                options: details.options,
+                data_version: details.data_version,
+                metadata: {
+                  isAdditional: false,
+                },
+              };
+            }
+          );
 
-        setUsername(result.data.data.username);
-        setRoles(roles);
-        setOriginalRoles(JSON.parse(JSON.stringify(roles)));
-        setPermissions(permissions);
-        setOriginalPermissions(JSON.parse(JSON.stringify(permissions)));
-      });
+          setUsername(result.data.data.username);
+          setRoles(roles);
+          setOriginalRoles(JSON.parse(JSON.stringify(roles)));
+          setPermissions(permissions);
+          setOriginalPermissions(JSON.parse(JSON.stringify(permissions)));
+        }
+      );
     }
   }, []);
 
@@ -273,7 +277,7 @@ function ViewUser({ isNewUser, ...props }) {
     );
   };
 
-  const handlePermissionNameChange = (permission, index, value) => {
+  const handlePermissionNameChange = permission => value => {
     const setName = additionalPermissions.map(entry => {
       if (entry.name !== permission.name) {
         return entry;
@@ -308,6 +312,26 @@ function ViewUser({ isNewUser, ...props }) {
       </Grid>
     </Grid>
   );
+  const getSuggestions = suggestions => value => {
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+    let count = 0;
+
+    return inputLength === 0
+      ? []
+      : suggestions.filter(suggestion => {
+          const keep =
+            count < 5 &&
+            suggestion.slice(0, inputLength).toLowerCase() === inputValue;
+
+          if (keep) {
+            count += 1;
+          }
+
+          return keep;
+        });
+  };
+
   const renderPermission = permission =>
     zip(
       [permission.name],
@@ -398,6 +422,21 @@ function ViewUser({ isNewUser, ...props }) {
         )}
       </Grid>
     ));
+  const renderPermissionNew = permission => (
+    <Grid container spacing={2} key={permission}>
+      <Grid item xs>
+        <AutoCompleteText
+          inputValue={permission.name}
+          onInputValueChange={handlePermissionNameChange(permission)}
+          getSuggestions={getSuggestions(allPermissions)}
+          label="Permission"
+          inputProps={{
+            disabled: !permission.metadata.isAdditional,
+          }}
+        />
+      </Grid>
+    </Grid>
+  );
 
   return (
     <Dashboard title="Users">
@@ -447,8 +486,8 @@ function ViewUser({ isNewUser, ...props }) {
                 Action Restrictions
               </Grid>
             </Grid>
-            {permissions.map(renderPermission)}
-            {additionalPermissions.map(renderPermission)}
+            {permissions.map(renderPermissionNew)}
+            {additionalPermissions.map(renderPermissionNew)}
             <Grid item xs className={classes.addGrid}>
               <Grid item xs={11}>
                 <Button

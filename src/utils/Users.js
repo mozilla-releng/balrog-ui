@@ -39,5 +39,69 @@ const getRolesString = roles => {
   return `${joined} ${roleStr}`;
 };
 
+const permissionRestrictionMappings = {
+  admin: {
+    restrict_products: true,
+    restrict_actions: false,
+    supported_actions: [],
+  },
+  emergency_shutoff: {
+    restrict_products: true,
+    restrict_actions: true,
+    supported_actions: ['create', 'modify'],
+  },
+  rule: {
+    restrict_products: true,
+    restrict_actions: true,
+    supported_actions: ['create', 'modify', 'delete'],
+  },
+  release: {
+    restrict_products: true,
+    restrict_actions: true,
+    supported_actions: ['create', 'modify', 'delete'],
+  },
+  release_read_only: {
+    restrict_products: true,
+    restrict_actions: true,
+    supported_actions: ['set', 'unset'],
+  },
+  release_locale: {
+    restrict_products: true,
+    restrict_actions: true,
+    supported_actions: ['modify'],
+  },
+  required_signoff: {
+    restrict_products: true,
+    restrict_actions: true,
+    supported_actions: ['create', 'modify', 'delete'],
+  },
+  permission: {
+    restrict_products: true,
+    restrict_actions: true,
+    supported_actions: ['create', 'modify', 'delete'],
+  },
+  scheduled_change: {
+    restrict_products: true,
+    restrict_actions: true,
+    supported_actions: ['enact'],
+  },
+};
+const allPermissions = [
+  'admin',
+  'emergency_shutoff',
+  'rule',
+  'release',
+  'release_read_only',
+  'release_locale',
+  'required_signoff',
+  'permission',
+  'scheduled_change',
+];
+
 // eslint-disable-next-line import/prefer-default-export
-export { getPermissionString, getRolesString };
+export {
+  getPermissionString,
+  getRolesString,
+  permissionRestrictionMappings,
+  allPermissions,
+};
