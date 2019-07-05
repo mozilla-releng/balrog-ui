@@ -340,99 +340,8 @@ function ViewUser({ isNewUser, ...props }) {
     }
   };
 
-  const handleProductRestrictionChange= () => {};
-
-  const renderPermission = permission =>
-    zip(
-      [permission.name],
-      ((permission.options && permission.options.products) || []).concat([
-        'add',
-      ]),
-      ((permission.options && permission.options.actions) || []).concat(['add'])
-    ).map((row, index) => (
-      // TODO: need to replace key with something that's not the index,
-      // but also won't change when the data changes.
-      <Grid container spacing={3} key={index} className={classes.gridWithIcon}>
-        <Grid item xs>
-          {row[0] !== undefined && (
-            <TextField
-              required
-              value={row[0]}
-              className={classes.fullWidth}
-              disabled={permission.metadata.isAdditional ? false : !isNewUser}
-              onChange={e =>
-                handlePermissionNameChange(permission, index, e.target.value)
-              }
-            />
-          )}
-        </Grid>
-        {row[1] === undefined && <Grid item xs />}
-        {row[1] !== undefined && row[1] !== 'add' && (
-          <Fragment>
-            <Grid container item xs>
-              <Grid item xs={11}>
-                <TextField
-                  value={row[1]}
-                  className={classes.fullWidth}
-                  onChange={e =>
-                    handleProductNameChange(permission, index, e.target.value)
-                  }
-                />
-              </Grid>
-              <Grid item xs={1}>
-                <IconButton
-                  onClick={() => handleProductDelete(permission, index)}>
-                  <DeleteIcon />
-                </IconButton>
-              </Grid>
-            </Grid>
-          </Fragment>
-        )}
-        {row[1] === 'add' && (
-          <Grid item xs className={classes.addGrid}>
-            <Button
-              onClick={() => handleProductAdd(permission)}
-              className={classes.fullWidth}
-              variant="outlined">
-              <PlusIcon />
-            </Button>
-          </Grid>
-        )}
-        {row[2] === undefined && <Grid item xs />}
-        {row[2] !== undefined && row[2] !== 'add' && (
-          <Fragment>
-            <Grid container item xs>
-              <Grid item xs={11}>
-                <TextField
-                  value={row[2]}
-                  className={classes.fullWidth}
-                  onChange={e =>
-                    handleActionNameChange(permission, index, e.target.value)
-                  }
-                />
-              </Grid>
-              <Grid item xs={1}>
-                <IconButton
-                  onClick={() => handleActionDelete(permission, index)}>
-                  <DeleteIcon />
-                </IconButton>
-              </Grid>
-            </Grid>
-          </Fragment>
-        )}
-        {row[2] === 'add' && (
-          <Grid item xs className={classes.addGrid}>
-            <Button
-              className={classes.fullWidth}
-              variant="outlined"
-              onClick={() => handleActionAdd(permission)}>
-              <PlusIcon />
-            </Button>
-          </Grid>
-        )}
-      </Grid>
-    ));
-  const renderPermissionNew = permission => (
+  const handleProductRestrictionChange = () => {};
+  const renderPermission = permission => (
     <Grid container spacing={2} key={permission}>
       <Grid item xs>
         <AutoCompleteText
@@ -451,7 +360,11 @@ function ViewUser({ isNewUser, ...props }) {
           onValueChange={handleProductRestrictionChange}
           onChange={() => handleProductRestrictionSelection(permission)}
           selectedItem={null}
-          getSuggestions={getSuggestions(permissionRestrictionMappings[permission.name].restrict_products && products || [])}
+          getSuggestions={getSuggestions(
+            (permissionRestrictionMappings[permission.name].restrict_products &&
+              products) ||
+              []
+          )}
           label="Product Restrictions"
         />
       </Grid>
@@ -461,7 +374,10 @@ function ViewUser({ isNewUser, ...props }) {
           onValueChange={handleProductRestrictionChange}
           onChange={() => handleProductRestrictionSelection(permission)}
           selectedItem={null}
-          getSuggestions={getSuggestions(permissionRestrictionMappings[permission.name].restrict_actions && permissionRestrictionMappings[permission.name].supported_actions)}
+          getSuggestions={getSuggestions(
+            permissionRestrictionMappings[permission.name].restrict_actions &&
+              permissionRestrictionMappings[permission.name].supported_actions
+          )}
           label="Action Restrictions"
         />
       </Grid>
@@ -516,8 +432,8 @@ function ViewUser({ isNewUser, ...props }) {
                 Action Restrictions
               </Grid>
             </Grid>
-            {permissions.map(renderPermissionNew)}
-            {additionalPermissions.map(renderPermissionNew)}
+            {permissions.map(renderPermission)}
+            {additionalPermissions.map(renderPermission)}
             <Grid item xs className={classes.addGrid}>
               <Grid item xs={11}>
                 <Button
