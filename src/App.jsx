@@ -29,6 +29,21 @@ axios.interceptors.request.use(config => {
 
   return result;
 });
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    const errorMsg =
+      error.response.data.exception || error.response.data.detail || null;
+
+    // If we found a more detailed error message
+    // raise an Error with that instead.
+    if (errorMsg !== null) {
+      throw new Error(errorMsg);
+    }
+
+    throw error;
+  }
+);
 
 const App = () => {
   const session = localStorage.getItem(USER_SESSION);

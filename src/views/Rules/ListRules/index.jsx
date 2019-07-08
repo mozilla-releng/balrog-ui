@@ -18,13 +18,13 @@ import DateTimePicker from '../../../components/DateTimePicker';
 import Link from '../../../utils/Link';
 import getDiffedProperties from '../../../utils/getDiffedProperties';
 import useAction from '../../../hooks/useAction';
-import deleteRule from '../utils/deleteRule';
 import {
   getProducts,
   getChannels,
   getRules,
   getScheduledChanges,
   getScheduledChange,
+  deleteRule,
 } from '../../../services/rules';
 import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
 import {
@@ -309,7 +309,10 @@ function ListRules(props) {
 
   const handleDialogSubmit = async () => {
     const dialogRule = dialogState.item;
-    const { error } = await delRule(dialogRule);
+    const { error } = await delRule({
+      ruleId: dialogRule.rule_id,
+      dataVersion: dialogRule.data_version,
+    });
 
     if (error) {
       throw error;
