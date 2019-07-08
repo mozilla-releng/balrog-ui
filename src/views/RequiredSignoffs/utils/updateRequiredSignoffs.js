@@ -1,4 +1,7 @@
-import rsService from '../../../services/requiredSignoffs';
+import {
+  deleteRequiredSignoff,
+  updateRequiredSignoff,
+} from '../../../services/requiredSignoffs';
 import tryCatch from '../../../utils/tryCatch';
 
 // A utlity to holds all of the Required Signoffs - product, permissions,
@@ -54,14 +57,14 @@ export default async params => {
           }
 
           if (role.sc && role.signoffs_required === role.sc.signoffs_required) {
-            return rsService.deleteRequiredSignoff({
+            return deleteRequiredSignoff({
               scId: role.sc.sc_id,
               type: channel ? 'product' : 'permissions',
               data_version: role.sc.data_version,
             });
           }
 
-          return rsService.updateRequiredSignoff({
+          return updateRequiredSignoff({
             product,
             channel,
             role: role.name,
@@ -77,7 +80,7 @@ export default async params => {
           });
         }),
         additionalRoles.map(role => {
-          const ret = rsService.updateRequiredSignoff({
+          const ret = updateRequiredSignoff({
             product,
             channel,
             useScheduledChange,
@@ -94,14 +97,14 @@ export default async params => {
         removed.map(role => {
           // role doesn't exist yet, we should just delete that scheduled change
           if (role.sc && role.sc.change_type === 'insert') {
-            return rsService.deleteRequiredSignoff({
+            return deleteRequiredSignoff({
               scId: role.sc.sc_id,
               type: channel ? 'product' : 'permissions',
               data_version: role.sc.data_version,
             });
           }
 
-          return rsService.updateRequiredSignoff({
+          return updateRequiredSignoff({
             product,
             channel,
             role: role.name,
