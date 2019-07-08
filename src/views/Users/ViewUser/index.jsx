@@ -361,7 +361,7 @@ function ViewUser({ isNewUser, ...props }) {
           onChange={() => handleProductRestrictionSelection(permission)}
           selectedItem={null}
           getSuggestions={getSuggestions(
-            (permissionRestrictionMappings[permission.name].restrict_products &&
+            (permissionRestrictionMappings.hasOwnProperty(permission.name) && permissionRestrictionMappings[permission.name].restrict_products &&
               products) ||
               []
           )}
@@ -375,7 +375,7 @@ function ViewUser({ isNewUser, ...props }) {
           onChange={() => handleProductRestrictionSelection(permission)}
           selectedItem={null}
           getSuggestions={getSuggestions(
-            permissionRestrictionMappings[permission.name].restrict_actions &&
+            permissionRestrictionMappings.hasOwnProperty(permission.name) && permissionRestrictionMappings[permission.name].restrict_actions &&
               permissionRestrictionMappings[permission.name].supported_actions
           )}
           label="Action Restrictions"
