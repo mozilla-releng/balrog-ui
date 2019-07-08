@@ -25,6 +25,8 @@ import {
   getRule,
   getProducts,
   getChannels,
+  addScheduledChange,
+  updateScheduledChange,
 } from '../../../services/rules';
 import { getReleaseNames } from '../../../services/releases';
 import { EMPTY_MENU_ITEM_CHAR } from '../../../utils/constants';
@@ -77,21 +79,22 @@ export default function Rule({ isNewRule, ...props }) {
       ? props.location.state.rule
       : initialRule
   );
+  const [scheduledChange, setScheduledChange] = useState(null);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
   const [releaseNames, fetchReleaseNames] = useAction(getReleaseNames);
   // 30 seconds - to make sure the helper text "Scheduled for ASAP" shows up
   const [scheduleDate, setScheduleDate] = useState(new Date());
   const [dateTimePickerError, setDateTimePickerError] = useState(null);
-  const [{ loading, error }, fetchRule] = useAction(getRule);
-  // eslint-disable-next-line no-unused-vars
-  const [scheduleChange, fetchScheduledChange] = useAction(getScheduledChange);
+  const [fetchRuleAction, fetchRule] = useAction(getRule);
+  const [scheduledChangeAction, fetchScheduledChange] = useAction(getScheduledChange);
+  const [addSCAction, addSC] = useAction(addScheduledChange);
+  const [updateSCAction, updateSC] = useAction(updateScheduledChange);
   const isLoading =
-    loading || scheduleChange.loading || products.loading || channels.loading;
+    fetchRuleAction.loading || scheduledChangeAction.loading || products.loading || channels.loading;
+  const error = fetchRuleAction.error || scheduledChangeAction.error || addSCAction.error || updateSCAction.error;
   const { ruleId } = props.match.params;
   const defaultToEmptyString = defaultTo('');
-  const hasScheduledChange =
-    scheduleChange.data && scheduleChange.data.data.count > 0;
   const handleInputChange = ({ target: { name, value } }) => {
     setRule(assocPath([name], value, rule));
   };
@@ -120,7 +123,70 @@ export default function Rule({ isNewRule, ...props }) {
   // TODO: Add logic for actions
   const handleScheduleChangeDelete = () => {};
   const handleCreateRule = () => {};
-  const handleUpdateRule = () => {};
+
+  const handleUpdateRule = async () => {
+    const now = new Date();
+    const when = scheduleDate >= now ? scheduleDate.getTime() : now.getTime() + 5000;
+    if (scheduledChange) {
+      await updateSC({
+        scId: scheduledChange.sc_id,
+        scDataVersion: scheduledChange.sc_data_version,
+        when,
+        alias: scheduledChange.alias,
+        backgroundRate: scheduledChange.backgroundRate,
+        buildID: scheduledChange.buildID,
+        buildTarget: scheduledChange.buildTarget,
+        channel: scheduledChange.channel,
+        comment: scheduledChange.comment,
+        data_version: scheduledChange.data_version,
+        distVersion: scheduledChange.distVersion,
+        distribution: scheduledChange.distribution,
+        fallbackMapping: scheduledChange.fallbackMapping,
+        headerArchitecture: scheduledChange.headerArchitecture,
+        instructionSet: scheduledChange.instructionSet,
+        jaws: scheduledChange.jaws,
+        locale: scheduledChange.locale,
+        mapping: scheduledChange.mapping,
+        memory: scheduledChange.memory,
+        mig64: scheduledChange.mi64,
+        osVersion: scheduledChange.osVersion,
+        priority: scheduledChange.priority,
+        product: scheduledChange.product,
+        update_type: scheduledChange.update_type,
+        version: scheduledChange.version,
+      });
+    } else {
+      await addSC({
+        ruleId: rule.rule_id,
+        dataVersion: rule.data_version,
+        change_type: 'update',
+        when,
+        alias: rule.alias,
+        backgroundRate: rule.backgroundRate,
+        buildID: rule.buildID,
+        buildTarget: rule.buildTarget,
+        channel: rule.channel,
+        comment: rule.comment,
+        distVersion: rule.distVersion,
+        distribution: rule.distribution,
+        fallbackMapping: rule.fallbackMapping,
+        headerArchitecture: rule.headerArchitecture,
+        instructionSet: rule.instructionSet,
+        jaws: rule.jaws,
+        locale: rule.locale,
+        mapping: rule.mapping,
+        memory: rule.memory,
+        mig64: rule.mi64,
+        osVersion: rule.osVersion,
+        priority: rule.priority,
+        product: rule.product,
+        update_type: rule.update_type,
+        version: rule.version,
+      });
+    }
+    // no error, redirect back to rules
+    props.history.push('/rules');
+  };
 
   useEffect(() => {
     if (!isNewRule) {
@@ -137,6 +203,9 @@ export default function Rule({ isNewRule, ...props }) {
             ...rule,
             ...fetchedRuleResponse.data.data,
           });
+          if (fetchedScheduledChangeResponse.data.data.count > 0) {
+            setScheduledChange(fetchedScheduledChangeResponse.data.data.scheduled_changes[0]);
+          }
         }
       );
     } else {
@@ -419,16 +488,16 @@ export default function Rule({ isNewRule, ...props }) {
               onClick={isNewRule ? handleCreateRule : handleUpdateRule}
               color="primary"
               className={classNames({
-                [classes.secondFab]: hasScheduledChange,
-                [classes.fab]: !hasScheduledChange,
+                [classes.secondFab]: scheduledChange,
+                [classes.fab]: !scheduledChange,
               })}>
               <ContentSaveIcon />
             </Fab>
           </Tooltip>
-          {scheduleChange.data && scheduleChange.data.data.count > 0 && (
+          {scheduledChange && (
             <SpeedDial ariaLabel="Secondary Actions">
               <SpeedDialAction
-                disabled={scheduleChange.loading}
+                disabled={scheduledChangeAction.loading}
                 icon={<DeleteIcon />}
                 tooltipOpen
                 tooltipTitle="Cancel Pending Change"

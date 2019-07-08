@@ -27,14 +27,23 @@ const addScheduledChange = ({
   ruleId,
   dataVersion,
   changeType,
-  when,
   ...data
 }) =>
   axios.post(`/scheduled_changes/rules`, {
     rule_id: ruleId,
     data_version: dataVersion,
     change_type: changeType,
-    when,
+    ...data,
+  });
+
+const updateScheduledChange = ({
+  scId,
+  scDataVersion,
+  ...data,
+}) =>
+  axios.post(`/scheduled_changes/rules/${scId}`, {
+    sc_id: scId,
+    sc_data_version: scDataVersion,
     ...data,
   });
 
@@ -56,4 +65,5 @@ export {
   getScheduledChanges,
   getScheduledChange,
   addScheduledChange,
+  updateScheduledChange,
 };
