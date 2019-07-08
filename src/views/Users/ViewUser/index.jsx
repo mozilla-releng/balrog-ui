@@ -12,6 +12,7 @@ import ContentSaveIcon from 'mdi-react/ContentSaveIcon';
 import Button from '@material-ui/core/Button';
 import DeleteIcon from 'mdi-react/DeleteIcon';
 import PlusIcon from 'mdi-react/PlusIcon';
+import Downshift from 'downshift';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import AutoCompleteText from '../../../components/AutoCompleteText';
@@ -334,13 +335,63 @@ function ViewUser({ isNewUser, ...props }) {
         });
   };
 
-  const handleProductRestrictionSelection = permission => selectedItem => {
-    if (permission.metadata.isAdditional) {
+  const getStateAndHelpers = (permission, downshift) => {
+    const selectedItems = permission.metadata.isAdditional ?
+      permissions[permission.name].options.products :
+      additionalPermissions[permission.name].options.proudcts;
+    return {
+      selectedItems,
+      ...downshift,
+    }
+  };
+
+  const handleProductRestrictionSelection = permission => (selectedItem, downshift) => {
+    const callOnChange = () => {
+      const {onSelect, onChange} = this.props;
+      const selectedItems = permission.metadata.isAdditional ? permissions[permission.name].options.product : additionalPermissions[permission.name].options.product;
+      if (onSelect) {
+        onSelect(selectedItems, getStateAndHelpers(downshift));
+      }
+      if (onChange) {
+        onChange(selectedItems, getStateAndHelpers(downshift));
+      }
+    }
+    // if product exists in list of selected products
+    if (true) {
+      permission.metadata.isAdditional ?
+        setPermissions(permissions.filter(i => i !== selectedItem)) :
+        setAdditionalPermissions(additionalPermissions.filter(i => i !== selectedItem));
     } else {
+      const addSelection = p => {
+        if (p.name === permission.name) {
+          p.options.products.push(selectedItem);
+        }
+        
+        return p;
+      };
+      permission.metadata.isAdditional ?
+        setPermissions(permissions.map(addSelection)) :
+        setAdditionalPermissions(additionalPermissions.map(addSelection));
     }
   };
 
   const handleProductRestrictionChange = () => {};
+
+  const handleProductRestrictionStateChange = (state, changes) => {
+    switch (changes.type) {
+      case Downshift.stateChangeTypes.keyDownEnter:
+      case Downshift.stateChangeTypes.clickItem:
+        return {
+          ...changes,
+          highlightedIndex: state.highlightedIndex,
+          isOpen: true,
+          inputValue: '',
+        };
+      default:
+        return changes;
+    }
+  };
+
   const renderPermission = permission => (
     <Grid container spacing={2} key={permission}>
       <Grid item xs>
@@ -356,9 +407,10 @@ function ViewUser({ isNewUser, ...props }) {
       </Grid>
       <Grid item xs>
         <AutoCompleteText
-          value="fixme to make it multiselect"
-          onValueChange={handleProductRestrictionChange}
+          value={permission.metadata.isAdditional ? permissions[permission.name].options.product : additionalPermissions[permission.name].options.product}
+          onValueChange={() => handleProductRestrictionSelection(permission)}
           onChange={() => handleProductRestrictionSelection(permission)}
+          stateReducer={handleProductRestrictionStateChange}
           selectedItem={null}
           getSuggestions={getSuggestions(
             (permissionRestrictionMappings.hasOwnProperty(permission.name) && permissionRestrictionMappings[permission.name].restrict_products &&
@@ -366,7 +418,8 @@ function ViewUser({ isNewUser, ...props }) {
               []
           )}
           label="Product Restrictions"
-        />
+        >
+        </AutoCompleteText>
       </Grid>
       <Grid item xs>
         <AutoCompleteText
