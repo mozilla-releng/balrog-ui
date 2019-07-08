@@ -27,12 +27,14 @@ import {
   getScheduledChange,
 } from '../../../services/rules';
 import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
+import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
 import {
   RULE_DIFF_PROPERTIES,
   DIALOG_ACTION_INITIAL_STATE,
   OBJECT_NAMES,
+  SNACKBAR_INITIAL_STATE,
 } from '../../../utils/constants';
-import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
+import Snackbar from '../../../components/Snackbar';
 
 const ALL = 'all';
 const useStyles = makeStyles(theme => ({
@@ -68,6 +70,7 @@ function ListRules(props) {
   const listRef = useRef(null);
   const query = parse(props.location.search.slice(1));
   const productChannelSeparator = ' : ';
+  const [snackbarState, setSnackbarState] = useState(SNACKBAR_INITIAL_STATE);
   const [rulesWithScheduledChanges, setRulesWithScheduledChanges] = useState(
     []
   );
@@ -104,6 +107,18 @@ function ListRules(props) {
     props.history.push(`/rules${query}`);
 
     setProductChannelFilter(value);
+  };
+
+  const handleSnackbarOpen = ({ message, variant = 'success' }) => {
+    setSnackbarState({ message, variant, open: true });
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarState(SNACKBAR_INITIAL_STATE);
   };
 
   const pairExists = (product, channel) =>
@@ -286,6 +301,9 @@ function ListRules(props) {
       setRulesWithScheduledChanges(
         rulesWithScheduledChanges.filter(i => i.rule_id !== result)
       );
+      handleSnackbarOpen({
+        message: `Rule ${result} deleted`,
+      });
     } else {
       // A change was scheduled, we need to update the card
       // to reflect that.
@@ -302,6 +320,9 @@ function ListRules(props) {
           return newRule;
         })
       );
+      handleSnackbarOpen({
+        message: `Rule ${result.rule_id} successfully scheduled`,
+      });
     }
 
     handleDialogClose();
@@ -485,6 +506,7 @@ function ListRules(props) {
         onComplete={handleDialogComplete}
         onClose={handleDialogClose}
       />
+      <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
     </Dashboard>
   );
 }

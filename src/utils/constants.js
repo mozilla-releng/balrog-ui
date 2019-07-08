@@ -33,6 +33,12 @@ export const RULE_DIFF_PROPERTIES = [
   'version',
 ];
 export const CONTENT_MAX_WIDTH = 980;
+export const SNACKBAR_AUTO_HIDE_DURATION = 5000;
+export const SNACKBAR_INITIAL_STATE = {
+  message: '',
+  variant: 'success',
+  open: false,
+};
 export const DIALOG_ACTION_INITIAL_STATE = {
   error: null,
   title: '',
