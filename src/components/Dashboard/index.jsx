@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
   },
   main: {
     maxWidth: CONTENT_MAX_WIDTH,
-    height: window.innerHeight - theme.spacing(8),
+    height: '100%',
     margin: '0 auto',
     padding: `${theme.spacing(12)}px ${theme.spacing(8)}px`,
   },
