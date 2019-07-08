@@ -276,9 +276,11 @@ function ListRules(props) {
     });
   };
 
-  const handleDialogClose = result => {
+  const handleDialogClose = () => {
     setDialogState(DIALOG_ACTION_INITIAL_STATE);
+  };
 
+  const handleDialogComplete = result => {
     if (typeof result === 'number') {
       // The rule was directly deleted, just remove it.
       setRulesWithScheduledChanges(
@@ -301,6 +303,8 @@ function ListRules(props) {
         })
       );
     }
+
+    handleDialogClose();
   };
 
   const handleDialogSubmit = async () => {
@@ -478,7 +482,7 @@ function ListRules(props) {
         onSubmit={handleDialogSubmit}
         onError={handleDialogError}
         error={dialogState.error}
-        onComplete={handleDialogClose}
+        onComplete={handleDialogComplete}
         onClose={handleDialogClose}
       />
     </Dashboard>
