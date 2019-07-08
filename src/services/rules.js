@@ -2,6 +2,7 @@ import { stringify } from 'qs';
 import axios from 'axios';
 
 const getRules = () => axios.get('/rules');
+const getRule = id => axios.get(`/rules/${id}`);
 const getChannels = () => axios.get('/rules/columns/channel');
 const getProducts = () => axios.get('/rules/columns/product');
 const getHistory = (id, limit, page) =>
@@ -36,6 +37,7 @@ const addScheduledChange = ({
     when,
     ...data,
   });
+
 // const getScheduledChangeHistory = () => axios.get();
 // const updateScheduledChange = () => axios.get();
 // const deleteScheduledChange = () => axios.get();
@@ -47,6 +49,7 @@ const addScheduledChange = ({
 export {
   getRules,
   deleteRule,
+  getRule,
   getChannels,
   getProducts,
   getHistory,

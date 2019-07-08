@@ -28,6 +28,8 @@ const useStyles = makeStyles(theme => ({
  * with auto complete capabilities.
  */
 function AutoCompleteText({
+  onValueChange,
+  value,
   label,
   required,
   getSuggestions,
@@ -35,6 +37,13 @@ function AutoCompleteText({
   ...props
 }) {
   const classes = useStyles();
+  const handleStateChange = changes => {
+    if ('selectedItem' in changes) {
+      onValueChange(changes.selectedItem);
+    } else if ('inputValue' in changes) {
+      onValueChange(changes.inputValue);
+    }
+  };
 
   function renderSuggestion({
     suggestion,
@@ -59,7 +68,10 @@ function AutoCompleteText({
   }
 
   return (
-    <Downshift {...props}>
+    <Downshift
+      {...props}
+      selectedItem={value || ''}
+      onStateChange={handleStateChange}>
       {({
         getInputProps,
         getItemProps,
@@ -100,6 +112,8 @@ function AutoCompleteText({
 }
 
 AutoCompleteText.propTypes = {
+  onValueChange: func.isRequired,
+  value: string.isRequired,
   getSuggestions: func,
   inputProps: object,
   label: string,

@@ -1,14 +1,14 @@
-import React, { Fragment, useEffect, useState, useMemo } from 'react';
+import React, { Fragment, useRef, useEffect, useState, useMemo } from 'react';
 import { stringify, parse } from 'qs';
 import { addSeconds } from 'date-fns';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
-import { makeStyles } from '@material-ui/styles';
+import { makeStyles, useTheme } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
-import TablePagination from '@material-ui/core/TablePagination';
 import TextField from '@material-ui/core/TextField';
-import Grid from '@material-ui/core/Grid';
 import MenuItem from '@material-ui/core/MenuItem';
+import { VariableSizeList } from 'react-window';
+import { WindowScroller } from 'react-virtualized';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
@@ -16,6 +16,7 @@ import RuleCard from '../../../components/RuleCard';
 import DialogAction from '../../../components/DialogAction';
 import DateTimePicker from '../../../components/DateTimePicker';
 import Link from '../../../utils/Link';
+import getDiffedProperties from '../../../utils/getDiffedProperties';
 import useAction from '../../../hooks/useAction';
 import deleteRule from '../utils/deleteRule';
 import {
@@ -27,8 +28,8 @@ import {
 } from '../../../services/rules';
 import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
 import {
+  RULE_DIFF_PROPERTIES,
   DIALOG_ACTION_INITIAL_STATE,
-  RULES_ROWS_PER_PAGE,
   OBJECT_NAMES,
 } from '../../../utils/constants';
 import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
@@ -40,7 +41,7 @@ const useStyles = makeStyles(theme => ({
   },
   options: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
   },
   dropdown: {
     minWidth: 200,
@@ -52,16 +53,24 @@ const useStyles = makeStyles(theme => ({
   tablePaginationSpacer: {
     flex: 'unset',
   },
+  ruleCard: {
+    margin: theme.spacing.unit,
+  },
+  windowScrollerOverride: {
+    height: '100% !important',
+    overflow: 'inherit !important',
+  },
 }));
 
 function ListRules(props) {
   const classes = useStyles();
+  const theme = useTheme();
+  const listRef = useRef(null);
   const query = parse(props.location.search.slice(1));
   const productChannelSeparator = ' : ';
   const [rulesWithScheduledChanges, setRulesWithScheduledChanges] = useState(
     []
   );
-  const [tablePage, setTablePage] = useState(0);
   const [productChannelOptions, setProductChannelOptions] = useState([]);
   const searchQueries = query.product ? [query.product, query.channel] : null;
   const [productChannelFilter, setProductChannelFilter] = useState(
@@ -95,7 +104,6 @@ function ListRules(props) {
     props.history.push(`/rules${query}`);
 
     setProductChannelFilter(value);
-    setTablePage(0);
   };
 
   const pairExists = (product, channel) =>
@@ -225,24 +233,6 @@ function ListRules(props) {
           }),
     [productChannelFilter, rulesWithScheduledChanges]
   );
-  const paginatedRules = filteredRulesWithScheduledChanges.slice(
-    tablePage * RULES_ROWS_PER_PAGE,
-    tablePage * RULES_ROWS_PER_PAGE + RULES_ROWS_PER_PAGE
-  );
-  const pagination = (
-    <TablePagination
-      classes={{
-        toolbar: classes.tablePaginationToolbar,
-        spacer: classes.tablePaginationSpacer,
-      }}
-      component="div"
-      rowsPerPageOptions={[]}
-      count={filteredRulesWithScheduledChanges.length}
-      onChangePage={(e, page) => setTablePage(page)}
-      page={tablePage}
-      rowsPerPage={RULES_ROWS_PER_PAGE}
-    />
-  );
   const handleDateTimePickerError = error => {
     setDateTimePickerError(error);
   };
@@ -275,6 +265,7 @@ function ListRules(props) {
     ) : (
       `This will delete rule ${dialogState.item.rule_id}.`
     ));
+  const filteredRulesCount = filteredRulesWithScheduledChanges.length;
   const handleRuleDelete = rule => {
     setDialogState({
       ...dialogState,
@@ -328,6 +319,109 @@ function ListRules(props) {
     return dialogRule.rule_id;
   };
 
+  const getItemSize = index => {
+    const rule = filteredRulesWithScheduledChanges[index];
+    const hasScheduledChanges = Boolean(rule.scheduledChange);
+    // actions row
+    let height = 7 * theme.spacing(1);
+
+    if (hasScheduledChanges && rule.scheduledChange.change_type === 'insert') {
+      const diffedProperties = getDiffedProperties(
+        RULE_DIFF_PROPERTIES,
+        rule,
+        rule.scheduledChange
+      );
+
+      // diff viewer
+      height += diffedProperties.length * 21 + theme.spacing(8);
+    } else {
+      // card title
+      height += theme.spacing(7);
+
+      // != checks for both null and undefined
+      const keys = Object.keys(rule).filter(key => rule[key] != null);
+      const firstColumn = ['mapping', 'fallbackMapping', 'backgroundRate'];
+      const secondColumn = ['data_version', 'rule_id'];
+      const thirdColumn = [
+        'version',
+        'buildID',
+        'buildTarget',
+        'locale',
+        'distribution',
+        'distVersion',
+        'osVersion',
+        'instructionSet',
+        'memory',
+        'headerArchitecture',
+        'mig64',
+        'jaws',
+      ];
+      // card rows
+      const rows = Math.max(
+        keys.filter(key => firstColumn.includes(key)).length,
+        keys.filter(key => secondColumn.includes(key)).length,
+        keys.filter(key => thirdColumn.includes(key)).length
+      );
+
+      height += rows * theme.spacing(8);
+
+      // row with comment
+      // (max 2 lines of comments otherwise we display a scroller)
+      if (rule.comment) {
+        height += theme.spacing(10);
+      }
+
+      if (hasScheduledChanges) {
+        // divider + row with the chip label
+        height += theme.spacing(6);
+
+        if (rule.scheduledChange.change_type === 'delete') {
+          // row with "all properties will be deleted"
+          height += theme.spacing(5);
+        } else if (rule.scheduledChange.change_type === 'update') {
+          const diffedProperties = getDiffedProperties(
+            RULE_DIFF_PROPERTIES,
+            rule,
+            rule.scheduledChange
+          );
+
+          // diff viewer
+          height += diffedProperties.length * 21 + theme.spacing(5);
+        }
+      }
+    }
+
+    // space below the card (margin)
+    height += theme.spacing(6);
+
+    return height;
+  };
+
+  const Row = ({ index, style }) => {
+    const rule = filteredRulesWithScheduledChanges[index];
+
+    return (
+      <div style={style}>
+        <RuleCard
+          className={classes.ruleCard}
+          key={rule.rule_id}
+          rule={rule}
+          onRuleDelete={handleRuleDelete}
+        />
+      </div>
+    );
+  };
+
+  const handleScroll = ({ scrollTop }) => {
+    if (listRef.current) {
+      listRef.current.scrollTo(scrollTop);
+    }
+  };
+
+  const handleListRef = component => {
+    listRef.current = component;
+  };
+
   return (
     <Dashboard title="Rules">
       {isLoading && <Spinner loading />}
@@ -335,7 +429,6 @@ function ListRules(props) {
       {!isLoading && productChannelOptions && (
         <Fragment>
           <div className={classes.options}>
-            {pagination}
             <TextField
               className={classes.dropdown}
               select
@@ -350,23 +443,24 @@ function ListRules(props) {
               ))}
             </TextField>
           </div>
-          {paginatedRules && (
-            <Grid container spacing={4}>
-              {paginatedRules.map(rule => (
-                <Grid
-                  key={`${rule.product}-${rule.channel}-${rule.rule_id}`}
-                  item
-                  xs={12}>
-                  <RuleCard
-                    key={rule.rule_id}
-                    rule={rule}
-                    onRuleDelete={handleRuleDelete}
-                  />
-                </Grid>
-              ))}
-            </Grid>
+          {filteredRulesWithScheduledChanges && (
+            <Fragment>
+              <WindowScroller onScroll={handleScroll}>
+                {() => null}
+              </WindowScroller>
+              <VariableSizeList
+                className={classes.windowScrollerOverride}
+                ref={handleListRef}
+                key={filteredRulesCount}
+                height={window.innerHeight}
+                estimatedItemSize={400}
+                overscanCount={5}
+                itemSize={getItemSize}
+                itemCount={filteredRulesCount}>
+                {Row}
+              </VariableSizeList>
+            </Fragment>
           )}
-          {pagination}
           <Link to="/rules/create">
             <Tooltip title="Add Rule">
               <Fab color="primary" className={classes.fab}>

@@ -36,6 +36,8 @@
     "react-hot-loader": "^4",
     "react-number-format": "^4.0.8",
     "react-router-dom": "^5.0.0",
+    "react-virtualized": "^9.21.1",
+    "react-window": "^1.8.4",
     "unidiff": "^1.0.2"
   },
   "devDependencies": {
