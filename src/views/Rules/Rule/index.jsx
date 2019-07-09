@@ -87,13 +87,23 @@ export default function Rule({ isNewRule, ...props }) {
   const [scheduleDate, setScheduleDate] = useState(new Date());
   const [dateTimePickerError, setDateTimePickerError] = useState(null);
   const [fetchRuleAction, fetchRule] = useAction(getRule);
-  const [scheduledChangeAction, fetchScheduledChange] = useAction(getScheduledChange);
+  const [scheduledChangeAction, fetchScheduledChange] = useAction(
+    getScheduledChange
+  );
   const [addSCAction, addSC] = useAction(addScheduledChange);
   const [updateSCAction, updateSC] = useAction(updateScheduledChange);
   const [deleteSCAction, deleteSC] = useAction(deleteScheduledChange);
   const isLoading =
-    fetchRuleAction.loading || scheduledChangeAction.loading || products.loading || channels.loading;
-  const error = fetchRuleAction.error || scheduledChangeAction.error || addSCAction.error || updateSCAction.error || deleteSCAction.error;
+    fetchRuleAction.loading ||
+    scheduledChangeAction.loading ||
+    products.loading ||
+    channels.loading;
+  const error =
+    fetchRuleAction.error ||
+    scheduledChangeAction.error ||
+    addSCAction.error ||
+    updateSCAction.error ||
+    deleteSCAction.error;
   const { ruleId } = props.match.params;
   const hasScheduledChange = !!rule.sc_id;
   const defaultToEmptyString = defaultTo('');
@@ -127,15 +137,17 @@ export default function Rule({ isNewRule, ...props }) {
       scId: rule.sc_id,
       scDataVersion: rule.sc_data_version,
     });
+
     if (!error) {
       props.history.push('/rules');
     }
-  }
-  const handleCreateRule = () => {};
+  };
 
+  const handleCreateRule = () => {};
   const handleUpdateRule = async () => {
     const now = new Date();
-    const when = scheduleDate >= now ? scheduleDate.getTime() : now.getTime() + 5000;
+    const when =
+      scheduleDate >= now ? scheduleDate.getTime() : now.getTime() + 5000;
     const data = {
       alias: rule.alias,
       backgroundRate: rule.backgroundRate,
@@ -159,6 +171,7 @@ export default function Rule({ isNewRule, ...props }) {
       update_type: rule.update_type,
       version: rule.version,
     };
+
     if (hasScheduledChange) {
       const { error } = await updateSC({
         scId: rule.sc_id,
@@ -167,6 +180,7 @@ export default function Rule({ isNewRule, ...props }) {
         when,
         ...data,
       });
+
       if (!error) {
         props.history.push('/rules');
       }
@@ -178,6 +192,7 @@ export default function Rule({ isNewRule, ...props }) {
         when,
         ...data,
       });
+
       if (!error) {
         props.history.push('/rules');
       }
@@ -197,6 +212,7 @@ export default function Rule({ isNewRule, ...props }) {
         ([fetchedRuleResponse, fetchedSCResponse]) => {
           if (fetchedSCResponse.data.data.count > 0) {
             const sc = fetchedSCResponse.data.data.scheduled_changes[0];
+
             setRule({
               ...rule,
               ...sc,
