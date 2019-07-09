@@ -5,7 +5,7 @@ import {
 
 // A utlity to holds all of the Required Signoffs - product, permissions,
 // and scheduled changes
-export default async params => {
+export default params => {
   // For an entirely new Required Signoff (eg: a product/channel or
   // product/permissions that has no required roles yet,
   // we do not need to schedule the initial required role, we can
@@ -27,7 +27,7 @@ export default async params => {
   );
   let useScheduledChange = !isNewSignoff;
 
-  await Promise.all(
+  return Promise.all(
     [].concat(
       roles.map(async role => {
         const extraData = role.sc
