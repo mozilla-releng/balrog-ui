@@ -143,7 +143,44 @@ export default function Rule({ isNewRule, ...props }) {
     }
   };
 
-  const handleCreateRule = () => {};
+  const handleCreateRule = async () => {
+    const now = new Date();
+    const when =
+      scheduleDate >= now ? scheduleDate.getTime() : now.getTime() + 5000;
+    const data = {
+      alias: rule.alias,
+      backgroundRate: rule.backgroundRate,
+      buildID: rule.buildID,
+      buildTarget: rule.buildTarget,
+      channel: rule.channel,
+      comment: rule.comment,
+      distVersion: rule.distVersion,
+      distribution: rule.distribution,
+      fallbackMapping: rule.fallbackMapping,
+      headerArchitecture: rule.headerArchitecture,
+      instructionSet: rule.instructionSet,
+      jaws: rule.jaws,
+      locale: rule.locale,
+      mapping: rule.mapping,
+      memory: rule.memory,
+      mig64: rule.mi64,
+      osVersion: rule.osVersion,
+      priority: rule.priority,
+      product: rule.product,
+      update_type: rule.update_type,
+      version: rule.version,
+    };
+    const { error } = await addSC({
+      change_type: 'insert',
+      when,
+      ...data,
+    });
+
+    if (!error) {
+      props.history.push('/rules');
+    }
+  };
+
   const handleUpdateRule = async () => {
     const now = new Date();
     const when =
