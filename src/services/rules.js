@@ -24,26 +24,17 @@ const getScheduledChanges = all => {
 const getScheduledChange = ruleId =>
   axios.get(`/scheduled_changes/rules?rule_id=${ruleId}`);
 const addScheduledChange = ({
-  ruleId,
-  dataVersion,
-  changeType,
   ...data
 }) =>
   axios.post(`/scheduled_changes/rules`, {
-    rule_id: ruleId,
-    data_version: dataVersion,
-    change_type: changeType,
     ...data,
   });
 
 const updateScheduledChange = ({
   scId,
-  scDataVersion,
   ...data,
 }) =>
   axios.post(`/scheduled_changes/rules/${scId}`, {
-    sc_id: scId,
-    sc_data_version: scDataVersion,
     ...data,
   });
 

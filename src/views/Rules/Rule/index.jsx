@@ -79,7 +79,6 @@ export default function Rule({ isNewRule, ...props }) {
       ? props.location.state.rule
       : initialRule
   );
-  const [scheduledChange, setScheduledChange] = useState(null);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
   const [releaseNames, fetchReleaseNames] = useAction(getReleaseNames);
@@ -94,6 +93,9 @@ export default function Rule({ isNewRule, ...props }) {
     fetchRuleAction.loading || scheduledChangeAction.loading || products.loading || channels.loading;
   const error = fetchRuleAction.error || scheduledChangeAction.error || addSCAction.error || updateSCAction.error;
   const { ruleId } = props.match.params;
+  const hasScheduledChange = !!rule.sc_id;
+  console.log(rule);
+  console.log(hasScheduledChange);
   const defaultToEmptyString = defaultTo('');
   const handleInputChange = ({ target: { name, value } }) => {
     setRule(assocPath([name], value, rule));
@@ -127,61 +129,44 @@ export default function Rule({ isNewRule, ...props }) {
   const handleUpdateRule = async () => {
     const now = new Date();
     const when = scheduleDate >= now ? scheduleDate.getTime() : now.getTime() + 5000;
-    if (scheduledChange) {
+    const data = {
+      alias: rule.alias,
+      backgroundRate: rule.backgroundRate,
+      buildID: rule.buildID,
+      buildTarget: rule.buildTarget,
+      channel: rule.channel,
+      comment: rule.comment,
+      distVersion: rule.distVersion,
+      distribution: rule.distribution,
+      fallbackMapping: rule.fallbackMapping,
+      headerArchitecture: rule.headerArchitecture,
+      instructionSet: rule.instructionSet,
+      jaws: rule.jaws,
+      locale: rule.locale,
+      mapping: rule.mapping,
+      memory: rule.memory,
+      mig64: rule.mi64,
+      osVersion: rule.osVersion,
+      priority: rule.priority,
+      product: rule.product,
+      update_type: rule.update_type,
+      version: rule.version,
+    };
+    if (hasScheduledChange) {
       await updateSC({
-        scId: scheduledChange.sc_id,
-        scDataVersion: scheduledChange.sc_data_version,
+        scId: rule.sc_id,
+        sc_data_version: rule.sc_data_version,
+        data_version: rule.data_version,
         when,
-        alias: scheduledChange.alias,
-        backgroundRate: scheduledChange.backgroundRate,
-        buildID: scheduledChange.buildID,
-        buildTarget: scheduledChange.buildTarget,
-        channel: scheduledChange.channel,
-        comment: scheduledChange.comment,
-        data_version: scheduledChange.data_version,
-        distVersion: scheduledChange.distVersion,
-        distribution: scheduledChange.distribution,
-        fallbackMapping: scheduledChange.fallbackMapping,
-        headerArchitecture: scheduledChange.headerArchitecture,
-        instructionSet: scheduledChange.instructionSet,
-        jaws: scheduledChange.jaws,
-        locale: scheduledChange.locale,
-        mapping: scheduledChange.mapping,
-        memory: scheduledChange.memory,
-        mig64: scheduledChange.mi64,
-        osVersion: scheduledChange.osVersion,
-        priority: scheduledChange.priority,
-        product: scheduledChange.product,
-        update_type: scheduledChange.update_type,
-        version: scheduledChange.version,
+        ...data,
       });
     } else {
       await addSC({
-        ruleId: rule.rule_id,
-        dataVersion: rule.data_version,
+        rule_id: rule.rule_id,
+        data_version: rule.data_version,
         change_type: 'update',
         when,
-        alias: rule.alias,
-        backgroundRate: rule.backgroundRate,
-        buildID: rule.buildID,
-        buildTarget: rule.buildTarget,
-        channel: rule.channel,
-        comment: rule.comment,
-        distVersion: rule.distVersion,
-        distribution: rule.distribution,
-        fallbackMapping: rule.fallbackMapping,
-        headerArchitecture: rule.headerArchitecture,
-        instructionSet: rule.instructionSet,
-        jaws: rule.jaws,
-        locale: rule.locale,
-        mapping: rule.mapping,
-        memory: rule.memory,
-        mig64: rule.mi64,
-        osVersion: rule.osVersion,
-        priority: rule.priority,
-        product: rule.product,
-        update_type: rule.update_type,
-        version: rule.version,
+        ...data,
       });
     }
     // no error, redirect back to rules
@@ -199,12 +184,16 @@ export default function Rule({ isNewRule, ...props }) {
       ]).then(
         // eslint-disable-next-line no-unused-vars
         ([fetchedRuleResponse, fetchedScheduledChangeResponse]) => {
-          setRule({
-            ...rule,
-            ...fetchedRuleResponse.data.data,
-          });
           if (fetchedScheduledChangeResponse.data.data.count > 0) {
-            setScheduledChange(fetchedScheduledChangeResponse.data.data.scheduled_changes[0]);
+            setRule({
+              ...rule,
+              ...fetchedScheduledChangeResponse.data.data.scheduled_changes[0],
+            });
+          } else {
+            setRule({
+              ...rule,
+              ...fetchedRuleResponse.data.data,
+            });
           }
         }
       );
@@ -488,13 +477,13 @@ export default function Rule({ isNewRule, ...props }) {
               onClick={isNewRule ? handleCreateRule : handleUpdateRule}
               color="primary"
               className={classNames({
-                [classes.secondFab]: scheduledChange,
-                [classes.fab]: !scheduledChange,
+                [classes.secondFab]: hasScheduledChange,
+                [classes.fab]: !hasScheduledChange,
               })}>
               <ContentSaveIcon />
             </Fab>
           </Tooltip>
-          {scheduledChange && (
+          {hasScheduledChange && (
             <SpeedDial ariaLabel="Secondary Actions">
               <SpeedDialAction
                 disabled={scheduledChangeAction.loading}
