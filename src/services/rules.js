@@ -23,15 +23,17 @@ const getScheduledChanges = all => {
 
 const getScheduledChange = ruleId =>
   axios.get(`/scheduled_changes/rules?rule_id=${ruleId}`);
-const addScheduledChange = data => 
+const addScheduledChange = data =>
   axios.post(`/scheduled_changes/rules`, data);
 
 const updateScheduledChange = ({scId, ...data}) =>
   axios.post(`/scheduled_changes/rules/${scId}`, data);
 
+const deleteScheduledChange = ({ scId, scDataVersion }) =>
+  // The backend wants sc_data_version, but calls it data_version.
+  axios.delete(`/scheduled_changes/rules/${scId}`, { params: { data_version: scDataVersion } });
+
 // const getScheduledChangeHistory = () => axios.get();
-// const updateScheduledChange = () => axios.get();
-// const deleteScheduledChange = () => axios.get();
 // const signoffOnScheduledChange = () => axios.get();
 // const revokeSignoffOnScheduledChange = () => axios.get();
 // const ruleSignoffsRequired = () => axios.get();
@@ -48,4 +50,5 @@ export {
   getScheduledChange,
   addScheduledChange,
   updateScheduledChange,
+  deleteScheduledChange,
 };

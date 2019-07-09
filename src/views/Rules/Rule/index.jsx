@@ -27,6 +27,7 @@ import {
   getChannels,
   addScheduledChange,
   updateScheduledChange,
+  deleteScheduledChange,
 } from '../../../services/rules';
 import { getReleaseNames } from '../../../services/releases';
 import { EMPTY_MENU_ITEM_CHAR } from '../../../utils/constants';
@@ -89,13 +90,12 @@ export default function Rule({ isNewRule, ...props }) {
   const [scheduledChangeAction, fetchScheduledChange] = useAction(getScheduledChange);
   const [addSCAction, addSC] = useAction(addScheduledChange);
   const [updateSCAction, updateSC] = useAction(updateScheduledChange);
+  const [deleteSCAction, deleteSC] = useAction(deleteScheduledChange);
   const isLoading =
     fetchRuleAction.loading || scheduledChangeAction.loading || products.loading || channels.loading;
-  const error = fetchRuleAction.error || scheduledChangeAction.error || addSCAction.error || updateSCAction.error;
+  const error = fetchRuleAction.error || scheduledChangeAction.error || addSCAction.error || updateSCAction.error || deleteSCAction.error;
   const { ruleId } = props.match.params;
   const hasScheduledChange = !!rule.sc_id;
-  console.log(rule);
-  console.log(hasScheduledChange);
   const defaultToEmptyString = defaultTo('');
   const handleInputChange = ({ target: { name, value } }) => {
     setRule(assocPath([name], value, rule));
@@ -122,8 +122,15 @@ export default function Rule({ isNewRule, ...props }) {
     setDateTimePickerError(error);
   };
 
-  // TODO: Add logic for actions
-  const handleScheduleChangeDelete = () => {};
+  const handleScheduleChangeDelete = async () => {
+    const { error } = await deleteSC({
+      scId: rule.sc_id,
+      scDataVersion: rule.sc_data_version,
+    });
+    if (!error) {
+      props.history.push('/rules');
+    }
+  }
   const handleCreateRule = () => {};
 
   const handleUpdateRule = async () => {
@@ -153,24 +160,28 @@ export default function Rule({ isNewRule, ...props }) {
       version: rule.version,
     };
     if (hasScheduledChange) {
-      await updateSC({
+      const { error } = await updateSC({
         scId: rule.sc_id,
         sc_data_version: rule.sc_data_version,
         data_version: rule.data_version,
         when,
         ...data,
       });
+      if (!error) {
+        props.history.push('/rules');
+      }
     } else {
-      await addSC({
+      const { error } = await addSC({
         rule_id: rule.rule_id,
         data_version: rule.data_version,
         change_type: 'update',
         when,
         ...data,
       });
+      if (!error) {
+        props.history.push('/rules');
+      }
     }
-    // no error, redirect back to rules
-    props.history.push('/rules');
   };
 
   useEffect(() => {
