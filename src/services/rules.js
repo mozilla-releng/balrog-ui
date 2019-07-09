@@ -14,7 +14,7 @@ const deleteRule = ({ ruleId, dataVersion }) =>
 // const addRule = () => axios.post();
 // const revertRule = () => axios.post();
 const getScheduledChanges = all => {
-  if (!all || all === true) {
+  if (all === true) {
     return axios.get(`/scheduled_changes/rules?${stringify({ all: 1 })}`);
   }
 
