@@ -1,5 +1,6 @@
 import React, { Fragment, useRef, useEffect, useState, useMemo } from 'react';
 import { stringify, parse } from 'qs';
+import { addSeconds } from 'date-fns';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { makeStyles, useTheme } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
@@ -13,6 +14,7 @@ import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
 import RuleCard from '../../../components/RuleCard';
 import DialogAction from '../../../components/DialogAction';
+import DateTimePicker from '../../../components/DateTimePicker';
 import Link from '../../../utils/Link';
 import getDiffedProperties from '../../../utils/getDiffedProperties';
 import useAction from '../../../hooks/useAction';
@@ -21,12 +23,18 @@ import {
   getChannels,
   getRules,
   getScheduledChanges,
+  getScheduledChange,
   deleteRule,
 } from '../../../services/rules';
+import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
+import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
 import {
   RULE_DIFF_PROPERTIES,
   DIALOG_ACTION_INITIAL_STATE,
+  OBJECT_NAMES,
+  SNACKBAR_INITIAL_STATE,
 } from '../../../utils/constants';
+import Snackbar from '../../../components/Snackbar';
 
 const ALL = 'all';
 const useStyles = makeStyles(theme => ({
@@ -62,6 +70,7 @@ function ListRules(props) {
   const listRef = useRef(null);
   const query = parse(props.location.search.slice(1));
   const productChannelSeparator = ' : ';
+  const [snackbarState, setSnackbarState] = useState(SNACKBAR_INITIAL_STATE);
   const [rulesWithScheduledChanges, setRulesWithScheduledChanges] = useState(
     []
   );
@@ -73,12 +82,17 @@ function ListRules(props) {
       : ALL
   );
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
+  const [scheduleDeleteDate, setScheduleDeleteDate] = useState(
+    addSeconds(new Date(), -30)
+  );
+  const [dateTimePickerError, setDateTimePickerError] = useState(null);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
   const [rules, fetchRules] = useAction(getRules);
   const [scheduledChanges, fetchScheduledChanges] = useAction(
     getScheduledChanges
   );
+  const fetchRequiredSignoffs = useAction(getRequiredSignoffs)[1];
   const delRule = useAction(deleteRule)[1];
   const isLoading = products.loading || channels.loading || rules.loading;
   const error =
@@ -93,6 +107,18 @@ function ListRules(props) {
     props.history.push(`/rules${query}`);
 
     setProductChannelFilter(value);
+  };
+
+  const handleSnackbarOpen = ({ message, variant = 'success' }) => {
+    setSnackbarState({ message, variant, open: true });
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarState(SNACKBAR_INITIAL_STATE);
   };
 
   const pairExists = (product, channel) =>
@@ -127,26 +153,36 @@ function ListRules(props) {
     Promise.all([
       fetchScheduledChanges(),
       fetchRules(),
+      fetchRequiredSignoffs(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
       fetchProducts(),
       fetchChannels(),
-    ]).then(([sc, r]) => {
-      if (!sc.data || !r.data) {
+    ]).then(([sc, r, rs]) => {
+      if (!sc.data || !r.data || !rs.data) {
         return;
       }
 
       const scheduledChanges = sc.data.data.scheduled_changes;
+      const requiredSignoffs = rs.data.data.required_signoffs;
       const { rules } = r.data.data;
       const rulesWithScheduledChanges = rules.map(rule => {
         const sc = scheduledChanges.find(sc => rule.rule_id === sc.rule_id);
+        const returnedRule = Object.assign({}, rule);
 
         if (sc) {
-          Object.assign(rule, { scheduledChange: sc });
-          Object.assign(rule.scheduledChange, {
-            when: new Date(rule.scheduledChange.when),
-          });
+          returnedRule.scheduledChange = sc;
+          returnedRule.scheduledChange.when = new Date(
+            returnedRule.scheduledChange.when
+          );
         }
 
-        return rule;
+        returnedRule.requiredSignoffs = {};
+        requiredSignoffs.forEach(rs => {
+          if (ruleMatchesRequiredSignoff(rule, rs)) {
+            returnedRule.requiredSignoffs[rs.role] = rs.signoffs_required;
+          }
+        });
+
+        return returnedRule;
       });
 
       scheduledChanges.forEach(sc => {
@@ -212,24 +248,84 @@ function ListRules(props) {
           }),
     [productChannelFilter, rulesWithScheduledChanges]
   );
-  const filteredRulesCount = filteredRulesWithScheduledChanges.length;
-  const handleRuleDelete = rule => {
-    setDialogState({
-      ...dialogState,
-      open: true,
-      title: 'Delete Rule?',
-      body: `This will delete rule ${rule.rule_id}.`,
-      confirmText: 'Delete',
-      item: rule,
-    });
+  const handleDateTimePickerError = error => {
+    setDateTimePickerError(error);
+  };
+
+  const handleDateTimeChange = date => {
+    setScheduleDeleteDate(date);
+    setDateTimePickerError(null);
   };
 
   const handleDialogError = error => {
     setDialogState({ ...dialogState, error });
   };
 
+  const dialogBody =
+    dialogState.item &&
+    (Object.keys(dialogState.item.requiredSignoffs).length > 0 ? (
+      <DateTimePicker
+        disablePast
+        inputVariant="outlined"
+        fullWidth
+        label="When"
+        onError={handleDateTimePickerError}
+        helperText={
+          dateTimePickerError ||
+          (scheduleDeleteDate < new Date() ? 'Scheduled for ASAP' : undefined)
+        }
+        onDateTimeChange={handleDateTimeChange}
+        value={scheduleDeleteDate}
+      />
+    ) : (
+      `This will delete rule ${dialogState.item.rule_id}.`
+    ));
+  const filteredRulesCount = filteredRulesWithScheduledChanges.length;
+  const handleRuleDelete = rule => {
+    setDialogState({
+      ...dialogState,
+      open: true,
+      title: 'Delete Rule?',
+      confirmText: 'Delete',
+      item: rule,
+    });
+  };
+
   const handleDialogClose = () => {
     setDialogState(DIALOG_ACTION_INITIAL_STATE);
+  };
+
+  const handleDialogComplete = result => {
+    if (typeof result === 'number') {
+      // The rule was directly deleted, just remove it.
+      setRulesWithScheduledChanges(
+        rulesWithScheduledChanges.filter(i => i.rule_id !== result)
+      );
+      handleSnackbarOpen({
+        message: `Rule ${result} deleted`,
+      });
+    } else {
+      // A change was scheduled, we need to update the card
+      // to reflect that.
+      setRulesWithScheduledChanges(
+        rulesWithScheduledChanges.map(r => {
+          if (r.rule_id !== result.rule_id) {
+            return r;
+          }
+
+          const newRule = { ...r };
+
+          newRule.scheduledChange = result;
+
+          return newRule;
+        })
+      );
+      handleSnackbarOpen({
+        message: `Rule ${result.rule_id} successfully scheduled`,
+      });
+    }
+
+    handleDialogClose();
   };
 
   const handleDialogSubmit = async () => {
@@ -243,9 +339,12 @@ function ListRules(props) {
       throw error;
     }
 
-    setRulesWithScheduledChanges(
-      rulesWithScheduledChanges.filter(i => i.rule_id !== dialogRule.rule_id)
-    );
+    if (Object.keys(dialogRule.requiredSignoffs).length > 0) {
+      return (await getScheduledChange(dialogRule.rule_id)).data
+        .scheduled_changes[0];
+    }
+
+    return dialogRule.rule_id;
   };
 
   const getItemSize = index => {
@@ -402,14 +501,15 @@ function ListRules(props) {
       <DialogAction
         open={dialogState.open}
         title={dialogState.title}
-        body={dialogState.body}
+        body={dialogBody}
         confirmText={dialogState.confirmText}
         onSubmit={handleDialogSubmit}
         onError={handleDialogError}
         error={dialogState.error}
-        onComplete={handleDialogClose}
+        onComplete={handleDialogComplete}
         onClose={handleDialogClose}
       />
+      <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
     </Dashboard>
   );
 }

@@ -181,8 +181,8 @@ export default function Rule({ isNewRule, ...props }) {
           <Grid container spacing={4}>
             <Grid item xs={12} sm={6}>
               <AutoCompleteText
-                inputValue={defaultToEmptyString(rule.product)}
-                onInputValueChange={handleProductChange}
+                value={defaultToEmptyString(rule.product)}
+                onValueChange={handleProductChange}
                 getSuggestions={
                   products.data && getSuggestions(products.data.data.product)
                 }
@@ -196,8 +196,8 @@ export default function Rule({ isNewRule, ...props }) {
             </Grid>
             <Grid item xs={12} sm={6}>
               <AutoCompleteText
-                inputValue={defaultToEmptyString(rule.channel)}
-                onInputValueChange={handleChannelChange}
+                value={defaultToEmptyString(rule.channel)}
+                onValueChange={handleChannelChange}
                 getSuggestions={
                   channels.data && getSuggestions(channels.data.data.channel)
                 }
@@ -210,8 +210,8 @@ export default function Rule({ isNewRule, ...props }) {
             </Grid>
             <Grid item xs={12} sm={6}>
               <AutoCompleteText
-                inputValue={defaultToEmptyString(rule.mapping)}
-                onInputValueChange={handleMappingChange}
+                value={defaultToEmptyString(rule.mapping)}
+                onValueChange={handleMappingChange}
                 getSuggestions={
                   releaseNames.data &&
                   getSuggestions(releaseNames.data.data.names)
@@ -225,8 +225,8 @@ export default function Rule({ isNewRule, ...props }) {
             </Grid>
             <Grid item xs={12} sm={6}>
               <AutoCompleteText
-                inputValue={defaultToEmptyString(rule.fallbackMapping)}
-                onInputValueChange={handleFallbackMappingChange}
+                value={defaultToEmptyString(rule.fallbackMapping)}
+                onValueChange={handleFallbackMappingChange}
                 getSuggestions={
                   releaseNames.data &&
                   getSuggestions(releaseNames.data.data.names)

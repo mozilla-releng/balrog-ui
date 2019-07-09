@@ -70,7 +70,7 @@ function DialogAction(props) {
             <ErrorPanel error={error} />
           </DialogContentText>
         )}
-        {body && <DialogContentText>{body}</DialogContentText>}
+        {body && <DialogContentText component="div">{body}</DialogContentText>}
       </DialogContent>
       <DialogActions>
         <Button disabled={actionExecuting} onClick={onClose}>
