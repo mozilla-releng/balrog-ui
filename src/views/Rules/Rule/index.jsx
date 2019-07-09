@@ -183,12 +183,15 @@ export default function Rule({ isNewRule, ...props }) {
         fetchReleaseNames(),
       ]).then(
         // eslint-disable-next-line no-unused-vars
-        ([fetchedRuleResponse, fetchedScheduledChangeResponse]) => {
-          if (fetchedScheduledChangeResponse.data.data.count > 0) {
+        ([fetchedRuleResponse, fetchedSCResponse]) => {
+          if (fetchedSCResponse.data.data.count > 0) {
+            const sc = fetchedSCResponse.data.data.scheduled_changes[0];
             setRule({
               ...rule,
-              ...fetchedScheduledChangeResponse.data.data.scheduled_changes[0],
+              ...sc,
             });
+            setScheduleDate(new Date(sc.when));
+            // todo: set schedule date
           } else {
             setRule({
               ...rule,
