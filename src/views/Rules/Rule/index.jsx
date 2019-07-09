@@ -255,7 +255,6 @@ export default function Rule({ isNewRule, ...props }) {
               ...sc,
             });
             setScheduleDate(new Date(sc.when));
-            // todo: set schedule date
           } else {
             setRule({
               ...rule,
