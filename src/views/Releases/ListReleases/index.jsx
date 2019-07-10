@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
 import PlusIcon from 'mdi-react/PlusIcon';
-import { makeStyles } from '@material-ui/styles';
+import { makeStyles, useTheme } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
-import Grid from '@material-ui/core/Grid';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import Dashboard from '../../../components/Dashboard';
 import ReleaseCard from '../../../components/ReleaseCard';
 import useAction from '../../../hooks/useAction';
 import Link from '../../../utils/Link';
 import { getReleases } from '../../../services/releases';
+import VariableSizeList from '../../../components/VariableSizeList';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -19,6 +19,7 @@ const useStyles = makeStyles(theme => ({
 
 function ListPermissions() {
   const classes = useStyles();
+  const theme = useTheme();
   const [releases, fetchReleases] = useAction(getReleases);
   const isLoading = releases.loading;
 
@@ -26,17 +27,53 @@ function ListPermissions() {
     fetchReleases();
   }, []);
 
+  const Row = ({ index, style }) => {
+    const release = releases.data.data.releases[index];
+
+    return (
+      <div style={style}>
+        <ReleaseCard release={release} />
+      </div>
+    );
+  };
+
+  // We need to handle item keys since the list
+  // can be modified (e.g., deleting a release)
+  const itemKey = index => {
+    const item = releases.data.data.releases[index];
+
+    return item.name;
+  };
+
+  const getItemSize = index => {
+    const release = releases.data.data.releases[index];
+    // An approximation
+    const ruleIdsLineCount = Math.ceil(release.rule_ids.length / 10) || 1;
+    // card header
+    let height = theme.spacing(9);
+
+    // first row
+    height += theme.spacing(7);
+    // rule ids row
+    height += theme.spacing(3) + ruleIdsLineCount * theme.spacing(3);
+    // actions row
+    height += 7 * theme.spacing(1);
+    // space below the card (margin)
+    height += theme.spacing(6);
+
+    return height;
+  };
+
   return (
     <Dashboard title="Releases">
       {isLoading && <Spinner loading />}
       {!isLoading && releases.data && (
-        <Grid container spacing={4}>
-          {releases.data.data.releases.map(release => (
-            <Grid key={release.name} item xs={12}>
-              <ReleaseCard release={release} />
-            </Grid>
-          ))}
-        </Grid>
+        <VariableSizeList
+          itemKey={itemKey}
+          itemSize={getItemSize}
+          itemCount={releases.data.data.releases.length}>
+          {Row}
+        </VariableSizeList>
       )}
       {!isLoading && (
         <Link to="/releases/create">

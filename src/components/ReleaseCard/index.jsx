@@ -137,7 +137,7 @@ function ReleaseCard(props) {
 }
 
 ReleaseCard.propTypes = {
-  release,
+  release: release.isRequired,
 };
 
 export default ReleaseCard;
