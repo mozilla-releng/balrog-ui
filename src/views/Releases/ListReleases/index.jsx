@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import PlusIcon from 'mdi-react/PlusIcon';
 import { makeStyles, useTheme } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
@@ -17,15 +17,33 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function ListPermissions() {
+function ListPermissions(props) {
   const classes = useStyles();
   const theme = useTheme();
+  const { hash } = props.location;
+  const [releaseNameHash, setReleaseNameHash] = useState(null);
+  const [scrollToItem, setScrollToItem] = useState(null);
   const [releases, fetchReleases] = useAction(getReleases);
   const isLoading = releases.loading;
 
   useEffect(() => {
     fetchReleases();
   }, []);
+
+  useEffect(() => {
+    if (hash !== releaseNameHash && releases.data) {
+      const name = hash.replace('#', '') || null;
+
+      if (name) {
+        const itemNumber = releases.data.data.releases
+          .map(release => release.name)
+          .indexOf(name);
+
+        setScrollToItem(itemNumber);
+        setReleaseNameHash(hash);
+      }
+    }
+  }, [hash, releases.data]);
 
   const Row = ({ index, style }) => {
     const release = releases.data.data.releases[index];
@@ -71,6 +89,7 @@ function ListPermissions() {
         <VariableSizeList
           itemKey={itemKey}
           itemSize={getItemSize}
+          scrollToItem={scrollToItem}
           itemCount={releases.data.data.releases.length}>
           {Row}
         </VariableSizeList>

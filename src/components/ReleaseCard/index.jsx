@@ -5,6 +5,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import CardHeader from '@material-ui/core/CardHeader';
+import Typography from '@material-ui/core/Typography';
 import Chip from '@material-ui/core/Chip';
 import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
@@ -18,6 +19,24 @@ import Link from '../../utils/Link';
 import { release } from '../../utils/prop-types';
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    '& h2': {
+      '& .anchor-link-style': {
+        textDecoration: 'none',
+        opacity: 0,
+        // To prevent the link to get the focus.
+        display: 'none',
+      },
+      '&:hover .anchor-link-style': {
+        display: 'inline-block',
+        opacity: 1,
+        color: theme.palette.text.hint,
+        '&:hover': {
+          color: theme.palette.text.secondary,
+        },
+      },
+    },
+  },
   cardHeader: {
     paddingBottom: 0,
   },
@@ -59,15 +78,21 @@ function ReleaseCard(props) {
   const onReleaseDelete = release => {};
 
   return (
-    <Card {...rest}>
+    <Card classes={{ root: classes.root }} {...rest}>
       <CardHeader
         className={classes.cardHeader}
         classes={{ content: classes.cardHeaderContent }}
-        title={release.name}
-        titleTypographyProps={{
-          className: classes.ruleName,
-          title: release.name,
-        }}
+        title={
+          <Typography component="h2" variant="h6">
+            {release.name}{' '}
+            <a
+              href={`#${release.name}`}
+              aria-label="Anchor"
+              className="anchor-link-style">
+              #
+            </a>
+          </Typography>
+        }
         subheader={release.product}
         action={
           <Tooltip title="History">
