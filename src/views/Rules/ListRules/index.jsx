@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useEffect, useState, useMemo } from 'react';
+import React, { Fragment, useEffect, useState, useMemo } from 'react';
 import { stringify, parse } from 'qs';
 import { addSeconds } from 'date-fns';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
@@ -7,14 +7,13 @@ import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
-import { VariableSizeList } from 'react-window';
-import { WindowScroller } from 'react-virtualized';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
 import RuleCard from '../../../components/RuleCard';
 import DialogAction from '../../../components/DialogAction';
 import DateTimePicker from '../../../components/DateTimePicker';
+import VariableSizeList from '../../../components/VariableSizeList';
 import Link from '../../../utils/Link';
 import getDiffedProperties from '../../../utils/getDiffedProperties';
 import useAction from '../../../hooks/useAction';
@@ -58,16 +57,11 @@ const useStyles = makeStyles(theme => ({
   ruleCard: {
     margin: theme.spacing.unit,
   },
-  windowScrollerOverride: {
-    height: '100% !important',
-    overflow: 'inherit !important',
-  },
 }));
 
 function ListRules(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const listRef = useRef(null);
   const { search, hash } = props.location;
   const query = parse(search.slice(1));
   const productChannelSeparator = ' : ';
@@ -88,6 +82,7 @@ function ListRules(props) {
     addSeconds(new Date(), -30)
   );
   const [dateTimePickerError, setDateTimePickerError] = useState(null);
+  const [scrollToRow, setScrollToRow] = useState(null);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
   const [rules, fetchRules] = useAction(getRules);
@@ -349,7 +344,7 @@ function ListRules(props) {
     return dialogRule.rule_id;
   };
 
-  const getItemSize = index => {
+  const getRowHeight = ({ index }) => {
     const rule = filteredRulesWithScheduledChanges[index];
     const hasScheduledChanges = Boolean(rule.scheduledChange);
     // actions row
@@ -431,7 +426,13 @@ function ListRules(props) {
     const rule = filteredRulesWithScheduledChanges[index];
 
     return (
-      <div style={style}>
+      <div
+        key={
+          rule.rule_id
+            ? rule.rule_id
+            : Object.values(rule.scheduledChange).join('-')
+        }
+        style={style}>
         <RuleCard
           className={classes.ruleCard}
           key={rule.rule_id}
@@ -440,19 +441,6 @@ function ListRules(props) {
         />
       </div>
     );
-  };
-
-  const handleScroll = ({ scrollTop }) => {
-    listRef.current.scrollTo(scrollTop);
-  };
-
-  const handleListScroll = ({ scrollOffset, scrollUpdateWasRequested }) => {
-    // scrollUpdateWasRequested is a boolean.
-    // This value is true if the scroll was caused by scrollToItem(),
-    // and false if it was the result of a user interaction in the browser.
-    if (scrollUpdateWasRequested) {
-      window.scrollTo(0, scrollOffset);
-    }
   };
 
   useEffect(() => {
@@ -464,21 +452,11 @@ function ListRules(props) {
           .map(rule => rule.rule_id)
           .indexOf(ruleId);
 
-        listRef.current.scrollToItem(itemNumber, 'start');
+        setScrollToRow(itemNumber);
         setRuleIdHash(hash);
       }
     }
   }, [hash, filteredRulesCount]);
-
-  // We need to handle item keys since the list
-  // can be modified (e.g., deleting a rule)
-  const itemKey = index => {
-    const item = filteredRulesWithScheduledChanges[index];
-
-    return item.rule_id
-      ? item.rule_id
-      : Object.values(item.scheduledChange).join('-');
-  };
 
   return (
     <Dashboard title="Rules">
@@ -503,21 +481,12 @@ function ListRules(props) {
           </div>
           {filteredRulesWithScheduledChanges && (
             <Fragment>
-              <WindowScroller onScroll={handleScroll}>
-                {() => null}
-              </WindowScroller>
               <VariableSizeList
-                className={classes.windowScrollerOverride}
-                ref={listRef}
-                itemKey={itemKey}
-                height={window.innerHeight}
-                estimatedItemSize={400}
-                overscanCount={5}
-                itemSize={getItemSize}
-                onScroll={handleListScroll}
-                itemCount={filteredRulesCount}>
-                {Row}
-              </VariableSizeList>
+                rowRenderer={Row}
+                scrollToRow={scrollToRow}
+                rowHeight={getRowHeight}
+                rowCount={filteredRulesCount}
+              />
             </Fragment>
           )}
           <Link to="/rules/create">
