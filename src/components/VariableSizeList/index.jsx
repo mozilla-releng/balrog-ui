@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, Fragment } from 'react';
-import { number, node } from 'prop-types';
+import { number, func } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import { WindowScroller } from 'react-virtualized';
 import { VariableSizeList as List } from 'react-window';
@@ -52,10 +52,10 @@ function VariableSizeList(props) {
 }
 
 VariableSizeList.propTypes = {
-  // React component responsible for rendering the individual item specified
-  // by an index prop. This component also receives a style
-  // prop (used for positioning).
-  children: node.isRequired,
+  // A function that returns a React component responsible for rendering
+  // the individual item specified by an index prop.
+  // This component also receives a style prop (used for positioning).
+  children: func.isRequired,
   // Scroll to the specified item.
   scrollToItem: number,
 };
