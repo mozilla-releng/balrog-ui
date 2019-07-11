@@ -160,10 +160,15 @@ function ReleaseCard(props) {
       </CardContent>
       <CardActions className={classes.cardActions}>
         <Link to={`/releases/${release.name}`}>
-          <Button color="secondary">Update</Button>
+          <Button disabled={release.read_only} color="secondary">
+            Update
+          </Button>
         </Link>
         {!hasRulesPointingAtRevision && (
-          <Button color="secondary" onClick={() => onReleaseDelete(release)}>
+          <Button
+            disabled={release.read_only}
+            color="secondary"
+            onClick={() => onReleaseDelete(release)}>
             Delete
           </Button>
         )}
