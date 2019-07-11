@@ -52,7 +52,7 @@ const initialRule = {
   osVersion: '',
   priority: 0,
   product: '',
-  update_type: '',
+  update_type: 'minor',
   version: '',
 };
 const useStyles = makeStyles(theme => ({
@@ -160,11 +160,11 @@ export default function Rule({ isNewRule, ...props }) {
       fallbackMapping: rule.fallbackMapping,
       headerArchitecture: rule.headerArchitecture,
       instructionSet: rule.instructionSet,
-      jaws: rule.jaws,
+      jaws: rule.jaws === '-' ? null : rule.jaws === 'true',
       locale: rule.locale,
       mapping: rule.mapping,
       memory: rule.memory,
-      mig64: rule.mi64,
+      mig64: rule.mig64 === '-' ? null : rule.mig64 === 'true',
       osVersion: rule.osVersion,
       priority: rule.priority,
       product: rule.product,
@@ -200,11 +200,11 @@ export default function Rule({ isNewRule, ...props }) {
       fallbackMapping: rule.fallbackMapping,
       headerArchitecture: rule.headerArchitecture,
       instructionSet: rule.instructionSet,
-      jaws: rule.jaws,
+      jaws: rule.jaws === '-' ? null : rule.jaws === 'true',
       locale: rule.locale,
       mapping: rule.mapping,
       memory: rule.memory,
-      mig64: rule.mi64,
+      mig64: rule.mig64 === '-' ? null : rule.mig64 === 'true',
       osVersion: rule.osVersion,
       priority: rule.priority,
       product: rule.product,
@@ -519,11 +519,14 @@ export default function Rule({ isNewRule, ...props }) {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
+                select
                 label="Update Type"
-                value={defaultToEmptyString(rule.update_type)}
+                value={rule.update_type || 'minor'}
                 name="update_type"
-                onChange={handleInputChange}
-              />
+                onChange={handleInputChange}>
+                <MenuItem value="minor">minor</MenuItem>
+                <MenuItem value="major">major</MenuItem>
+              </TextField>
             </Grid>
             <Grid item xs={12}>
               <TextField
