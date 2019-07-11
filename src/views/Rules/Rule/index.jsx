@@ -98,7 +98,8 @@ export default function Rule({ isNewRule, ...props }) {
     scheduledChangeAction.loading ||
     products.loading ||
     channels.loading;
-  const actionLoading = addSCAction.loading || updateSCAction.loading || deleteSCAction.loading;
+  const actionLoading =
+    addSCAction.loading || updateSCAction.loading || deleteSCAction.loading;
   const error =
     fetchRuleAction.error ||
     scheduledChangeAction.error ||
