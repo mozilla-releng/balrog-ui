@@ -94,12 +94,12 @@ export default function Rule({ isNewRule, ...props }) {
   const [updateSCAction, updateSC] = useAction(updateScheduledChange);
   const [deleteSCAction, deleteSC] = useAction(deleteScheduledChange);
   const isLoading =
-    fetchRuleAction.loading ||
-    scheduledChangeAction.loading ||
-    products.loading ||
-    channels.loading;
+    fetchRuleAction.loading || products.loading || channels.loading;
   const actionLoading =
-    addSCAction.loading || updateSCAction.loading || deleteSCAction.loading;
+    addSCAction.loading ||
+    updateSCAction.loading ||
+    deleteSCAction.loading ||
+    scheduledChangeAction.loading;
   const error =
     fetchRuleAction.error ||
     scheduledChangeAction.error ||
@@ -162,11 +162,11 @@ export default function Rule({ isNewRule, ...props }) {
       fallbackMapping: rule.fallbackMapping,
       headerArchitecture: rule.headerArchitecture,
       instructionSet: rule.instructionSet,
-      jaws: rule.jaws === '-' ? null : rule.jaws === 'true',
+      jaws: rule.jaws === EMPTY_MENU_ITEM_CHAR ? null : rule.jaws === 'true',
       locale: rule.locale,
       mapping: rule.mapping,
       memory: rule.memory,
-      mig64: rule.mig64 === '-' ? null : rule.mig64 === 'true',
+      mig64: rule.mig64 === EMPTY_MENU_ITEM_CHAR ? null : rule.mig64 === 'true',
       osVersion: rule.osVersion,
       priority: rule.priority,
       product: rule.product,
@@ -202,11 +202,11 @@ export default function Rule({ isNewRule, ...props }) {
       fallbackMapping: rule.fallbackMapping,
       headerArchitecture: rule.headerArchitecture,
       instructionSet: rule.instructionSet,
-      jaws: rule.jaws === '-' ? null : rule.jaws === 'true',
+      jaws: rule.jaws === EMPTY_MENU_ITEM_CHAR ? null : rule.jaws === 'true',
       locale: rule.locale,
       mapping: rule.mapping,
       memory: rule.memory,
-      mig64: rule.mig64 === '-' ? null : rule.mig64 === 'true',
+      mig64: rule.mig64 === EMPTY_MENU_ITEM_CHAR ? null : rule.mig64 === 'true',
       osVersion: rule.osVersion,
       priority: rule.priority,
       product: rule.product,
@@ -521,6 +521,7 @@ export default function Rule({ isNewRule, ...props }) {
               <TextField
                 fullWidth
                 select
+                required
                 label="Update Type"
                 value={rule.update_type || 'minor'}
                 name="update_type"
@@ -543,10 +544,11 @@ export default function Rule({ isNewRule, ...props }) {
           </Grid>
         </Fragment>
       )}
-      {!isLoading && !actionLoading && (
+      {!isLoading && (
         <Fragment>
           <Tooltip title={isNewRule ? 'Create Rule' : 'Update Rule'}>
             <Fab
+              disabled={actionLoading}
               onClick={isNewRule ? handleCreateRule : handleUpdateRule}
               color="primary"
               className={classNames({
@@ -559,7 +561,7 @@ export default function Rule({ isNewRule, ...props }) {
           {hasScheduledChange && (
             <SpeedDial ariaLabel="Secondary Actions">
               <SpeedDialAction
-                disabled={scheduledChangeAction.loading}
+                disabled={actionLoading}
                 icon={<DeleteIcon />}
                 tooltipOpen
                 tooltipTitle="Cancel Pending Change"
