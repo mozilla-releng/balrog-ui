@@ -359,7 +359,6 @@ export default function Rule({ isNewRule, ...props }) {
                   getSuggestions(releaseNames.data.data.names)
                 }
                 label="Fallback Mapping"
-                required
                 inputProps={{
                   fullWidth: true,
                 }}
