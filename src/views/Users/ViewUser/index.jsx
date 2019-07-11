@@ -25,7 +25,6 @@ import {
   allPermissions,
   permissionRestrictionMappings,
 } from '../../../utils/Users';
-import zip from '../../../utils/zip';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -158,142 +157,10 @@ function ViewUser({ isNewUser, ...props }) {
     }
   };
 
-  const handleProductAdd = permission => {
-    const addProduct = entry => {
-      if (entry.name !== permission.name) {
-        return entry;
-      }
-
-      const result = entry;
-
-      if (!result.options.products) {
-        result.options.products = [];
-      }
-
-      result.options.products.push('');
-
-      return result;
-    };
-
-    return permission.metadata.isAdditional
-      ? setAdditionalPermissions(additionalPermissions.map(addProduct))
-      : setPermissions(permissions.map(addProduct));
-  };
-
-  const handleProductNameChange = (permission, index, value) => {
-    const setProduct = entry => {
-      if (entry.name !== permission.name) {
-        return entry;
-      }
-
-      const result = entry;
-
-      result.options.products[index] = value;
-
-      return result;
-    };
-
-    return permission.metadata.isAdditional
-      ? setAdditionalPermissions(additionalPermissions.map(setProduct))
-      : setPermissions(permissions.map(setProduct));
-  };
-
-  const handleProductDelete = (permission, index) => {
-    const removeProduct = entry => {
-      if (entry.name !== permission.name) {
-        return entry;
-      }
-
-      const result = entry;
-
-      result.options.products.splice(index, 1);
-
-      return result;
-    };
-
-    return permission.metadata.isAdditional
-      ? setAdditionalPermissions(additionalPermissions.map(removeProduct))
-      : setPermissions(permissions.map(removeProduct));
-  };
-
-  const handleActionAdd = permission => {
-    const addAction = entry => {
-      if (entry.name !== permission.name) {
-        return entry;
-      }
-
-      const result = entry;
-
-      if (!result.options.actions) {
-        result.options.actions = [];
-      }
-
-      result.options.actions.push('');
-
-      return result;
-    };
-
-    return permission.metadata.isAdditional
-      ? setAdditionalPermissions(additionalPermissions.map(addAction))
-      : setPermissions(permissions.map(addAction));
-  };
-
-  const handleActionNameChange = (permission, index, value) => {
-    const setAction = entry => {
-      if (entry.name !== permission.name) {
-        return entry;
-      }
-
-      const result = entry;
-
-      result.options.actions[index] = value;
-
-      return result;
-    };
-
-    return permission.metadata.isAdditional
-      ? setAdditionalPermissions(additionalPermissions.map(setAction))
-      : setPermissions(permissions.map(setAction));
-  };
-
-  const handleActionDelete = (permission, index) => {
-    const removeAction = entry => {
-      if (entry.name !== permission.name) {
-        return entry;
-      }
-
-      const result = entry;
-
-      result.options.actions.splice(index, 1);
-
-      return result;
-    };
-
-    return permission.metadata.isAdditional
-      ? setAdditionalPermissions(additionalPermissions.map(removeAction))
-      : setPermissions(permissions.map(removeAction));
-  };
-
   const handlePermissionAdd = () => {
     setAdditionalPermissions(
       additionalPermissions.concat([getEmptyPermission()])
     );
-  };
-
-  const handlePermissionNameChange = permission => value => {
-    const setName = additionalPermissions.map(entry => {
-      if (entry.name !== permission.name) {
-        return entry;
-      }
-
-      const result = entry;
-
-      result.name = value;
-
-      return result;
-    });
-
-    setAdditionalPermissions(setName);
   };
 
   const handleUserSave = () => {};
@@ -315,124 +182,16 @@ function ViewUser({ isNewUser, ...props }) {
       </Grid>
     </Grid>
   );
-  const getSuggestions = suggestions => value => {
-    const inputValue = value.trim().toLowerCase();
-    const inputLength = inputValue.length;
-    let count = 0;
-
-    return inputLength === 0
-      ? []
-      : suggestions.filter(suggestion => {
-          const keep =
-            count < 5 &&
-            suggestion.slice(0, inputLength).toLowerCase() === inputValue;
-
-          if (keep) {
-            count += 1;
-          }
-
-          return keep;
-        });
-  };
-
-  const getStateAndHelpers = (permission, downshift) => {
-    const selectedItems = permission.metadata.isAdditional ?
-      permissions[permission.name].options.products :
-      additionalPermissions[permission.name].options.proudcts;
-    return {
-      selectedItems,
-      ...downshift,
-    }
-  };
-
-  const handleProductRestrictionSelection = permission => (selectedItem, downshift) => {
-    const callOnChange = () => {
-      const {onSelect, onChange} = this.props;
-      const selectedItems = permission.metadata.isAdditional ? permissions[permission.name].options.product : additionalPermissions[permission.name].options.product;
-      if (onSelect) {
-        onSelect(selectedItems, getStateAndHelpers(downshift));
-      }
-      if (onChange) {
-        onChange(selectedItems, getStateAndHelpers(downshift));
-      }
-    }
-    // if product exists in list of selected products
-    if (true) {
-      permission.metadata.isAdditional ?
-        setPermissions(permissions.filter(i => i !== selectedItem)) :
-        setAdditionalPermissions(additionalPermissions.filter(i => i !== selectedItem));
-    } else {
-      const addSelection = p => {
-        if (p.name === permission.name) {
-          p.options.products.push(selectedItem);
-        }
-        
-        return p;
-      };
-      permission.metadata.isAdditional ?
-        setPermissions(permissions.map(addSelection)) :
-        setAdditionalPermissions(additionalPermissions.map(addSelection));
-    }
-  };
-
-  const handleProductRestrictionChange = () => {};
-
-  const handleProductRestrictionStateChange = (state, changes) => {
-    switch (changes.type) {
-      case Downshift.stateChangeTypes.keyDownEnter:
-      case Downshift.stateChangeTypes.clickItem:
-        return {
-          ...changes,
-          highlightedIndex: state.highlightedIndex,
-          isOpen: true,
-          inputValue: '',
-        };
-      default:
-        return changes;
-    }
-  };
-
   const renderPermission = permission => (
     <Grid container spacing={2} key={permission}>
       <Grid item xs>
-        <AutoCompleteText
-          value={permission.name}
-          onValueChange={handlePermissionNameChange(permission)}
-          getSuggestions={getSuggestions(allPermissions)}
-          label="Name"
-          inputProps={{
-            disabled: !permission.metadata.isAdditional,
-          }}
-        />
+        name
       </Grid>
       <Grid item xs>
-        <AutoCompleteText
-          value={permission.metadata.isAdditional ? permissions[permission.name].options.product : additionalPermissions[permission.name].options.product}
-          onValueChange={() => handleProductRestrictionSelection(permission)}
-          onChange={() => handleProductRestrictionSelection(permission)}
-          stateReducer={handleProductRestrictionStateChange}
-          selectedItem={null}
-          getSuggestions={getSuggestions(
-            (permissionRestrictionMappings.hasOwnProperty(permission.name) && permissionRestrictionMappings[permission.name].restrict_products &&
-              products) ||
-              []
-          )}
-          label="Product Restrictions"
-        >
-        </AutoCompleteText>
+        product
       </Grid>
       <Grid item xs>
-        <AutoCompleteText
-          value="fixme to make it multiselect"
-          onValueChange={handleProductRestrictionChange}
-          onChange={() => handleProductRestrictionSelection(permission)}
-          selectedItem={null}
-          getSuggestions={getSuggestions(
-            permissionRestrictionMappings.hasOwnProperty(permission.name) && permissionRestrictionMappings[permission.name].restrict_actions &&
-              permissionRestrictionMappings[permission.name].supported_actions
-          )}
-          label="Action Restrictions"
-        />
+        action
       </Grid>
     </Grid>
   );
