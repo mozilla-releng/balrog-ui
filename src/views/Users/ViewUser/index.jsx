@@ -73,6 +73,10 @@ function ViewUser({ isNewUser, ...props }) {
   } = props;
   const classes = useStyles();
   const [username, setUsername] = useState('');
+  // This only gets used to reset the AutoCompleteText fields for product
+  // and action restrictions. The values of those fields are stored within
+  // permissions/additionalPermissions
+  const [restrictionText, setRestrictionText] = useState('');
   const [roles, setRoles] = useState([]);
   const [originalRoles, setOriginalRoles] = useState([]);
   const [additionalRoles, setAdditionalRoles] = useState([]);
@@ -185,6 +189,24 @@ function ViewUser({ isNewUser, ...props }) {
     setAdditionalPermissions(additionalPermissions.map(setName));
   };
 
+  const handleRestrictionChange = (permission, restriction) => chips => {
+    const doit = entry => {
+      if (entry.name !== permission.name) {
+        return entry;
+      }
+
+      const result = entry;
+
+      result.options[restriction] = chips;
+
+      return result;
+    };
+
+    setPermissions(permissions.map(doit));
+  };
+
+  const handleRestrictionTextChange = value => setRestrictionText(value);
+
   const handleUserSave = () => {};
   const handleUserDelete = () => {};
   const renderRole = (role, index) => (
@@ -220,7 +242,18 @@ function ViewUser({ isNewUser, ...props }) {
         />
       </Grid>
       <Grid item xs>
-        product
+        <AutoCompleteText
+          multi
+          selectedItems={permission.options.products}
+          onSelectedItemsChange={handleRestrictionChange(permission, 'products')}
+          onValueChange={handleRestrictionTextChange}
+          value={restrictionText}
+          getSuggestions={getSuggestions(products)}
+          label="Product Restrictions"
+          inputProps={{
+            autoFocus: true,
+          }}
+        />
       </Grid>
       <Grid item xs>
         action
