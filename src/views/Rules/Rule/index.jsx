@@ -139,7 +139,8 @@ export default function Rule({ isNewRule, ...props }) {
     });
 
     if (!error) {
-      props.history.push('/rules');
+      // todo: handle the case where it was a scheduled addition
+      props.history.push(`/rules#${rule.rule_id}`);
     }
   };
 
@@ -177,6 +178,8 @@ export default function Rule({ isNewRule, ...props }) {
     });
 
     if (!error) {
+      // todo: add scheduled change id to hash when those anchors
+      // are available on the rules page
       props.history.push('/rules');
     }
   };
@@ -219,7 +222,7 @@ export default function Rule({ isNewRule, ...props }) {
       });
 
       if (!error) {
-        props.history.push('/rules');
+        props.history.push(`/rules#${rule.rule_id}`);
       }
     } else {
       const { error } = await addSC({
