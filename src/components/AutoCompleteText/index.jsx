@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { string, bool, object, func } from 'prop-types';
 import classNames from 'classnames';
 import Downshift from 'downshift';
@@ -34,7 +34,6 @@ function AutoCompleteText({
   required,
   getSuggestions,
   inputProps,
-  children,
   ...props
 }) {
   const classes = useStyles();
