@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import PlusIcon from 'mdi-react/PlusIcon';
 import { makeStyles, useTheme } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
@@ -10,6 +10,7 @@ import useAction from '../../../hooks/useAction';
 import Link from '../../../utils/Link';
 import { getReleases } from '../../../services/releases';
 import VariableSizeList from '../../../components/VariableSizeList';
+import SearchBar from '../../../components/SearchBar';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -26,19 +27,34 @@ function ListPermissions(props) {
   const { hash } = props.location;
   const [releaseNameHash, setReleaseNameHash] = useState(null);
   const [scrollToRow, setScrollToRow] = useState(null);
+  const [searchValue, setSearchValue] = useState('');
   const [releases, fetchReleases] = useAction(getReleases);
   const isLoading = releases.loading;
+  const filteredReleases = useMemo(() => {
+    if (!releases.data) {
+      return [];
+    }
+
+    if (!searchValue) {
+      return releases.data.data.releases;
+    }
+
+    return releases.data.data.releases.filter(release =>
+      release.name.toLowerCase().includes(searchValue.toLowerCase())
+    );
+  }, [releases.data, searchValue]);
+  const filteredReleasesCount = filteredReleases.length;
 
   useEffect(() => {
     fetchReleases();
   }, []);
 
   useEffect(() => {
-    if (hash !== releaseNameHash && releases.data) {
+    if (hash !== releaseNameHash && filteredReleasesCount) {
       const name = hash.replace('#', '') || null;
 
       if (name) {
-        const itemNumber = releases.data.data.releases
+        const itemNumber = filteredReleases
           .map(release => release.name)
           .indexOf(name);
 
@@ -46,10 +62,10 @@ function ListPermissions(props) {
         setReleaseNameHash(hash);
       }
     }
-  }, [hash, releases.data]);
+  }, [hash, filteredReleases]);
 
   const Row = ({ index, style }) => {
-    const release = releases.data.data.releases[index];
+    const release = filteredReleases[index];
 
     return (
       <div key={release.name} style={style}>
@@ -59,7 +75,7 @@ function ListPermissions(props) {
   };
 
   const getRowHeight = ({ index }) => {
-    const release = releases.data.data.releases[index];
+    const release = filteredReleases[index];
     // An approximation
     const ruleIdsLineCount = Math.ceil(release.rule_ids.length / 10) || 1;
     // card header
@@ -77,15 +93,24 @@ function ListPermissions(props) {
     return height;
   };
 
+  const handleSearchChange = ({ target: { value } }) => {
+    setSearchValue(value);
+  };
+
   return (
     <Dashboard title="Releases">
+      <SearchBar
+        placeholder="Search a release..."
+        onChange={handleSearchChange}
+        value={searchValue}
+      />
       {isLoading && <Spinner loading />}
-      {!isLoading && releases.data && (
+      {!isLoading && filteredReleases && (
         <VariableSizeList
           rowRenderer={Row}
           scrollToRow={scrollToRow}
           rowHeight={getRowHeight}
-          rowCount={releases.data.data.releases.length}
+          rowCount={filteredReleasesCount}
         />
       )}
       {!isLoading && (
