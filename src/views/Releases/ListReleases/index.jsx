@@ -58,6 +58,8 @@ function ListPermissions(props) {
           .map(release => release.name)
           .indexOf(name);
 
+        console.log('item: ', itemNumber);
+
         setScrollToRow(itemNumber);
         setReleaseNameHash(hash);
       }
