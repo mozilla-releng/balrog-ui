@@ -153,9 +153,11 @@ function ReleaseCard(props) {
         <Link to={`/releases/${release.name}`}>
           <Button color="secondary">Update</Button>
         </Link>
-        <Button color="secondary" onClick={() => onReleaseDelete(release)}>
-          Delete
-        </Button>
+        {!hasRulesPointingAtRevision && (
+          <Button color="secondary" onClick={() => onReleaseDelete(release)}>
+            Delete
+          </Button>
+        )}
       </CardActions>
     </Card>
   );
