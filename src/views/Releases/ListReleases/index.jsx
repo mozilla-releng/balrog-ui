@@ -11,6 +11,8 @@ import Link from '../../../utils/Link';
 import { getReleases } from '../../../services/releases';
 import VariableSizeList from '../../../components/VariableSizeList';
 import SearchBar from '../../../components/SearchBar';
+import DialogAction from '../../../components/DialogAction';
+import { DIALOG_ACTION_INITIAL_STATE } from '../../../utils/constants';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -28,6 +30,7 @@ function ListPermissions(props) {
   const [releaseNameHash, setReleaseNameHash] = useState(null);
   const [scrollToRow, setScrollToRow] = useState(null);
   const [searchValue, setSearchValue] = useState('');
+  const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [releases, fetchReleases] = useAction(getReleases);
   const isLoading = releases.loading;
   const filteredReleases = useMemo(() => {
@@ -58,20 +61,34 @@ function ListPermissions(props) {
           .map(release => release.name)
           .indexOf(name);
 
-        console.log('item: ', itemNumber);
-
         setScrollToRow(itemNumber);
         setReleaseNameHash(hash);
       }
     }
   }, [hash, filteredReleases]);
 
+  const handleAccessChange = ({ release, checked }) => {
+    setDialogState({
+      open: true,
+      title: checked ? 'Read/Write?' : 'Read Only?',
+      confirmText: 'Yes',
+      body: `This would make the permissions of release ${release.name} ${
+        checked ? 'read/write' : 'read only'
+      }.`,
+      item: release,
+    });
+  };
+
   const Row = ({ index, style }) => {
     const release = filteredReleases[index];
 
     return (
       <div key={release.name} style={style}>
-        <ReleaseCard className={classes.releaseCard} release={release} />
+        <ReleaseCard
+          className={classes.releaseCard}
+          release={release}
+          onAccessChange={handleAccessChange}
+        />
       </div>
     );
   };
@@ -99,6 +116,22 @@ function ListPermissions(props) {
     setSearchValue(value);
   };
 
+  // TODO Add mutation
+  const handleDialogSubmit = () => {};
+  const handleDialogClose = () => {
+    setDialogState({
+      ...dialogState,
+      open: false,
+    });
+  };
+
+  const handleDialogError = error => {
+    setDialogState({
+      ...dialogState,
+      error,
+    });
+  };
+
   return (
     <Dashboard title="Releases">
       <SearchBar
@@ -115,6 +148,17 @@ function ListPermissions(props) {
           rowCount={filteredReleasesCount}
         />
       )}
+      <DialogAction
+        title={dialogState.title}
+        body={dialogState.body}
+        open={dialogState.open}
+        error={dialogState.error}
+        confirmText={dialogState.confirmText}
+        onSubmit={handleDialogSubmit}
+        onClose={handleDialogClose}
+        onError={handleDialogError}
+        onComplete={handleDialogClose}
+      />
       {!isLoading && (
         <Link to="/releases/create">
           <Tooltip title="Add Release">

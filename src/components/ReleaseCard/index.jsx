@@ -1,7 +1,10 @@
 import React from 'react';
+import { func } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -71,11 +74,14 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ReleaseCard(props) {
-  const { release, ...rest } = props;
+  const { release, onAccessChange, ...rest } = props;
   const classes = useStyles();
   const hasRulesPointingAtRevision = release.rule_ids.length > 0;
   // eslint-disable-next-line no-unused-vars
   const onReleaseDelete = release => {};
+  const handleAccessChange = ({ target: { checked } }) => {
+    onAccessChange({ release, checked });
+  };
 
   return (
     <Card classes={{ root: classes.root }} {...rest}>
@@ -95,29 +101,32 @@ function ReleaseCard(props) {
         }
         subheader={release.product}
         action={
-          <Tooltip title="History">
-            <IconButton>
-              <HistoryIcon />
-            </IconButton>
-          </Tooltip>
+          <div>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={release.read_only}
+                  onChange={handleAccessChange}
+                />
+              }
+              label="Read only"
+            />
+            <Tooltip title="History">
+              <IconButton>
+                <HistoryIcon />
+              </IconButton>
+            </Tooltip>
+          </div>
         }
       />
       <CardContent classes={{ root: classes.cardContentRoot }}>
         <List>
           <Grid container>
-            <Grid item xs={6}>
+            <Grid item xs={12}>
               <ListItem className={classes.listItem}>
                 <ListItemText
                   primary="Data Version"
                   secondary={release.data_version}
-                />
-              </ListItem>
-            </Grid>
-            <Grid item xs={6}>
-              <ListItem className={classes.listItem}>
-                <ListItemText
-                  primary="Read Only"
-                  secondary={String(release.read_only)}
                 />
               </ListItem>
             </Grid>
@@ -165,6 +174,7 @@ function ReleaseCard(props) {
 
 ReleaseCard.propTypes = {
   release: release.isRequired,
+  onAccessChange: func.isRequired,
 };
 
 export default ReleaseCard;
