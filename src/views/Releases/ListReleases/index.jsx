@@ -15,6 +15,9 @@ const useStyles = makeStyles(theme => ({
   fab: {
     ...theme.mixins.fab,
   },
+  releaseCard: {
+    margin: 2,
+  },
 }));
 
 function ListPermissions(props) {
@@ -22,7 +25,7 @@ function ListPermissions(props) {
   const theme = useTheme();
   const { hash } = props.location;
   const [releaseNameHash, setReleaseNameHash] = useState(null);
-  const [scrollToItem, setScrollToItem] = useState(null);
+  const [scrollToRow, setScrollToRow] = useState(null);
   const [releases, fetchReleases] = useAction(getReleases);
   const isLoading = releases.loading;
 
@@ -39,7 +42,7 @@ function ListPermissions(props) {
           .map(release => release.name)
           .indexOf(name);
 
-        setScrollToItem(itemNumber);
+        setScrollToRow(itemNumber);
         setReleaseNameHash(hash);
       }
     }
@@ -49,21 +52,13 @@ function ListPermissions(props) {
     const release = releases.data.data.releases[index];
 
     return (
-      <div style={style}>
-        <ReleaseCard release={release} />
+      <div key={release.name} style={style}>
+        <ReleaseCard className={classes.releaseCard} release={release} />
       </div>
     );
   };
 
-  // We need to handle item keys since the list
-  // can be modified (e.g., deleting a release)
-  const itemKey = index => {
-    const item = releases.data.data.releases[index];
-
-    return item.name;
-  };
-
-  const getItemSize = index => {
+  const getRowHeight = ({ index }) => {
     const release = releases.data.data.releases[index];
     // An approximation
     const ruleIdsLineCount = Math.ceil(release.rule_ids.length / 10) || 1;
@@ -87,12 +82,11 @@ function ListPermissions(props) {
       {isLoading && <Spinner loading />}
       {!isLoading && releases.data && (
         <VariableSizeList
-          itemKey={itemKey}
-          itemSize={getItemSize}
-          scrollToItem={scrollToItem}
-          itemCount={releases.data.data.releases.length}>
-          {Row}
-        </VariableSizeList>
+          rowRenderer={Row}
+          scrollToRow={scrollToRow}
+          rowHeight={getRowHeight}
+          rowCount={releases.data.data.releases.length}
+        />
       )}
       {!isLoading && (
         <Link to="/releases/create">

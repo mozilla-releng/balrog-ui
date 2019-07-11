@@ -9,11 +9,11 @@ import menuItems from './menuItems';
 import Link from '../../utils/Link';
 import UserMenu from './UserMenu';
 import SettingsMenu from './SettingsMenu';
-import { CONTENT_MAX_WIDTH } from '../../utils/constants';
+import { CONTENT_MAX_WIDTH, APP_BAR_HEIGHT } from '../../utils/constants';
 
 const useStyles = makeStyles(theme => ({
   appbar: {
-    height: theme.spacing(8),
+    height: APP_BAR_HEIGHT,
   },
   title: {
     textDecoration: 'none',
@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
     maxWidth: CONTENT_MAX_WIDTH,
     height: '100%',
     margin: '0 auto',
-    padding: `${theme.spacing(12)}px ${theme.spacing(8)}px`,
+    padding: `${theme.spacing(12)}px ${APP_BAR_HEIGHT}px`,
   },
   nav: {
     display: 'flex',

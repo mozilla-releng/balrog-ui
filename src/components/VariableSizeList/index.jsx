@@ -1,67 +1,49 @@
-import React, { useEffect, useRef, Fragment } from 'react';
-import { number, func } from 'prop-types';
-import { makeStyles } from '@material-ui/styles';
-import { WindowScroller } from 'react-virtualized';
-import { VariableSizeList as List } from 'react-window';
-
-const useStyles = makeStyles({
-  windowScrollerOverride: {
-    height: '100% !important',
-    overflow: 'inherit !important',
-  },
-});
+import React, { useEffect, useRef } from 'react';
+import { number } from 'prop-types';
+import { AutoSizer, WindowScroller, List } from 'react-virtualized';
+import { APP_BAR_HEIGHT } from '../../utils/constants';
 
 function VariableSizeList(props) {
-  const { children, scrollToItem, ...rest } = props;
-  const classes = useStyles();
+  const { scrollToRow, ...rest } = props;
   const listRef = useRef(null);
-  const handleScroll = ({ scrollTop }) => {
-    listRef.current.scrollTo(scrollTop);
-  };
-
-  const handleListScroll = ({ scrollOffset, scrollUpdateWasRequested }) => {
-    // scrollUpdateWasRequested is a boolean.
-    // This value is true if the scroll was caused by scrollToItem(),
-    // and false if it was the result of a user interaction in the browser.
-    if (scrollUpdateWasRequested) {
-      window.scrollTo(0, scrollOffset);
-    }
-  };
 
   useEffect(() => {
-    if (scrollToItem) {
-      listRef.current.scrollToItem(scrollToItem, 'start');
-    }
-  }, [scrollToItem]);
+    const rowOffset = listRef.current.getOffsetForRow({ index: scrollToRow });
+
+    listRef.current.scrollToPosition(rowOffset - APP_BAR_HEIGHT);
+  }, [scrollToRow]);
 
   return (
-    <Fragment>
-      <WindowScroller onScroll={handleScroll}>{() => null}</WindowScroller>
-      <List
-        className={classes.windowScrollerOverride}
-        ref={listRef}
-        height={window.innerHeight}
-        estimatedItemSize={400}
-        overscanCount={5}
-        onScroll={handleListScroll}
-        {...rest}>
-        {children}
-      </List>
-    </Fragment>
+    <WindowScroller>
+      {({ height, onChildScroll, isScrolling, scrollTop }) => (
+        <AutoSizer disableHeight>
+          {({ width }) => (
+            <List
+              autoHeight
+              ref={listRef}
+              isScrolling={isScrolling}
+              onScroll={onChildScroll}
+              scrollToAlignment="start"
+              height={height}
+              width={width}
+              estimatedRowSize={400}
+              overscanRowCount={5}
+              scrollTop={scrollTop}
+              {...rest}
+            />
+          )}
+        </AutoSizer>
+      )}
+    </WindowScroller>
   );
 }
 
 VariableSizeList.propTypes = {
-  // A function that returns a React component responsible for rendering
-  // the individual item specified by an index prop.
-  // This component also receives a style prop (used for positioning).
-  children: func.isRequired,
-  // Scroll to the specified item.
-  scrollToItem: number,
+  scrollToRow: number,
 };
 
 VariableSizeList.defaultProps = {
-  scrollToItem: null,
+  scrollToRow: null,
 };
 
 export default VariableSizeList;

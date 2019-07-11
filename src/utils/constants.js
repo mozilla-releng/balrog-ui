@@ -33,6 +33,7 @@ export const RULE_DIFF_PROPERTIES = [
   'version',
 ];
 export const CONTENT_MAX_WIDTH = 980;
+export const APP_BAR_HEIGHT = 64;
 export const SNACKBAR_AUTO_HIDE_DURATION = 5000;
 export const SNACKBAR_INITIAL_STATE = {
   message: '',
