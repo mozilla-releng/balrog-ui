@@ -1,5 +1,6 @@
 import React, { useEffect, useState, Fragment } from 'react';
 import { bool } from 'prop-types';
+import { defaultTo } from 'ramda';
 import { makeStyles } from '@material-ui/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
@@ -16,6 +17,7 @@ import Downshift from 'downshift';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import AutoCompleteText from '../../../components/AutoCompleteText';
+import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 import Dashboard from '../../../components/Dashboard';
 import SpeedDial from '../../../components/SpeedDial';
 import useAction from '../../../hooks/useAction';
@@ -85,6 +87,7 @@ function ViewUser({ isNewUser, ...props }) {
   const [saveAction, saveUser] = useAction(() => {});
   const isLoading = userAction.loading || productsAction.loading;
   const error = userAction.error || productsAction.error || saveAction.error;
+  const defaultToEmptyString = defaultTo('');
 
   useEffect(() => {
     if (!isNewUser) {
@@ -163,6 +166,25 @@ function ViewUser({ isNewUser, ...props }) {
     );
   };
 
+  const handlePermissionNameChange = permission => value => {
+    const setName = entry => {
+      if (entry.name !== permission.name) {
+        return entry;
+      }
+
+      const result = entry;
+
+      result.name = value;
+
+      return result;
+    };
+
+    // Only additional permissions can have their names changed
+    // so there's no need to check if the modified permission is
+    // additional or not.
+    setAdditionalPermissions(additionalPermissions.map(setName));
+  };
+
   const handleUserSave = () => {};
   const handleUserDelete = () => {};
   const renderRole = (role, index) => (
@@ -185,7 +207,17 @@ function ViewUser({ isNewUser, ...props }) {
   const renderPermission = permission => (
     <Grid container spacing={2} key={permission}>
       <Grid item xs>
-        name
+        <AutoCompleteText
+          value={defaultToEmptyString(permission.name)}
+          onValueChange={handlePermissionNameChange}
+          getSuggestions={getSuggestions(allPermissions)}
+          label="Name"
+          required
+          disabled={!permission.metadata.isAdditional}
+          inputProps={{
+            autoFocus: true,
+          }}
+        />
       </Grid>
       <Grid item xs>
         product
