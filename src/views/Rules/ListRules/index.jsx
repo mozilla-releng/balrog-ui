@@ -68,9 +68,11 @@ function ListRules(props) {
   const classes = useStyles();
   const theme = useTheme();
   const listRef = useRef(null);
-  const query = parse(props.location.search.slice(1));
+  const { search, hash } = props.location;
+  const query = parse(search.slice(1));
   const productChannelSeparator = ' : ';
   const [snackbarState, setSnackbarState] = useState(SNACKBAR_INITIAL_STATE);
+  const [ruleIdHash, setRuleIdHash] = useState(null);
   const [rulesWithScheduledChanges, setRulesWithScheduledChanges] = useState(
     []
   );
@@ -441,13 +443,41 @@ function ListRules(props) {
   };
 
   const handleScroll = ({ scrollTop }) => {
-    if (listRef.current) {
-      listRef.current.scrollTo(scrollTop);
+    listRef.current.scrollTo(scrollTop);
+  };
+
+  const handleListScroll = ({ scrollOffset, scrollUpdateWasRequested }) => {
+    // scrollUpdateWasRequested is a boolean.
+    // This value is true if the scroll was caused by scrollToItem(),
+    // and false if it was the result of a user interaction in the browser.
+    if (scrollUpdateWasRequested) {
+      window.scrollTo(0, scrollOffset);
     }
   };
 
-  const handleListRef = component => {
-    listRef.current = component;
+  useEffect(() => {
+    if (hash !== ruleIdHash && filteredRulesCount) {
+      const ruleId = Number(hash.replace('#', '')) || null;
+
+      if (ruleId) {
+        const itemNumber = filteredRulesWithScheduledChanges
+          .map(rule => rule.rule_id)
+          .indexOf(ruleId);
+
+        listRef.current.scrollToItem(itemNumber, 'start');
+        setRuleIdHash(hash);
+      }
+    }
+  }, [hash, filteredRulesCount]);
+
+  // We need to handle item keys since the list
+  // can be modified (e.g., deleting a rule)
+  const itemKey = index => {
+    const item = filteredRulesWithScheduledChanges[index];
+
+    return item.rule_id
+      ? item.rule_id
+      : Object.values(item.scheduledChange).join('-');
   };
 
   return (
@@ -478,12 +508,13 @@ function ListRules(props) {
               </WindowScroller>
               <VariableSizeList
                 className={classes.windowScrollerOverride}
-                ref={handleListRef}
-                key={filteredRulesCount}
+                ref={listRef}
+                itemKey={itemKey}
                 height={window.innerHeight}
                 estimatedItemSize={400}
                 overscanCount={5}
                 itemSize={getItemSize}
+                onScroll={handleListScroll}
                 itemCount={filteredRulesCount}>
                 {Row}
               </VariableSizeList>

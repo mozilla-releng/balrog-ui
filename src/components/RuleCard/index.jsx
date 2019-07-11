@@ -32,6 +32,24 @@ import getDiff from '../../utils/diff';
 import getDiffedProperties from '../../utils/getDiffedProperties';
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    '& h2': {
+      '& .anchor-link-style': {
+        textDecoration: 'none',
+        opacity: 0,
+        // To prevent the link to get the focus.
+        display: 'none',
+      },
+      '&:hover .anchor-link-style': {
+        display: 'inline-block',
+        opacity: 1,
+        color: theme.palette.text.hint,
+        '&:hover': {
+          color: theme.palette.text.secondary,
+        },
+      },
+    },
+  },
   cardHeader: {
     paddingBottom: 0,
   },
@@ -161,7 +179,7 @@ function RuleCard({ rule, onRuleDelete, ...props }) {
   }, [rule]);
 
   return (
-    <Card spacing={4} {...props}>
+    <Card classes={{ root: classes.root }} spacing={4} {...props}>
       {rule.product && (
         <CardHeader
           classes={{ avatar: classes.cardHeaderAvatar }}
@@ -189,12 +207,18 @@ function RuleCard({ rule, onRuleDelete, ...props }) {
               </Fragment>
             )
           }
-          titleTypographyProps={{
-            component: 'h2',
-            variant: 'h6',
-          }}
           title={
-            rule.channel ? `${rule.product} : ${rule.channel}` : rule.product
+            <Typography component="h2" variant="h6">
+              {rule.channel
+                ? `${rule.product} : ${rule.channel}`
+                : rule.product}{' '}
+              <a
+                href={`#${rule.rule_id}`}
+                aria-label="Anchor"
+                className="anchor-link-style">
+                #
+              </a>
+            </Typography>
           }
           action={
             <Tooltip title="History">
