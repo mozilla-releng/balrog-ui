@@ -108,7 +108,7 @@ function ViewUser({ isNewUser, ...props }) {
 
               return {
                 name,
-                options: details.options,
+                options: details.options || {products: [], actions: []},
                 data_version: details.data_version,
                 metadata: {
                   isAdditional: false,
@@ -157,10 +157,10 @@ function ViewUser({ isNewUser, ...props }) {
   const handleRoleDelete = (role, index) => {
     const excludeRole = (entry, i) => !(i === index);
 
-    if (roles.filter(entry => entry.name === role.name).length > 0) {
-      setRoles(roles.filter(excludeRole));
-    } else {
+    if (role.metadata.isAdditional) {
       setAdditionalRoles(additionalRoles.filter(excludeRole));
+    } else {
+      setRoles(roles.filter(excludeRole));
     }
   };
 
