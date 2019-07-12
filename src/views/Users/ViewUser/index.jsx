@@ -131,10 +131,9 @@ function ViewUser({ isNewUser, ...props }) {
   }, []);
 
   const handleUsernameChange = ({ target: { value } }) => setUsername(value);
-  // this currently throws an error about controlled components
-  // (https://reactjs.org/docs/forms.html#controlled-components)
-  // not sure how to fix it yet
   const handleRoleNameChange = (role, index, value) => {
+    // Only additional roles' names can be changed, so we don't need to
+    // handle existing roles here.
     setAdditionalRoles(
       additionalRoles.map((entry, i) => {
         if (i !== index) {
@@ -197,7 +196,7 @@ function ViewUser({ isNewUser, ...props }) {
   };
 
   const handleRestrictionChange = (permission, restriction) => chips => {
-    const doit = entry => {
+    const updateRestrictions = entry => {
       if (entry.name !== permission.name) {
         return entry;
       }
@@ -209,11 +208,11 @@ function ViewUser({ isNewUser, ...props }) {
       return result;
     };
 
-    permission.metadata.isAdditional ? setAdditionalPermissions(additionalPermissions.map(doit)) : setPermissions(permissions.map(doit));
+    permission.metadata.isAdditional ? setAdditionalPermissions(additionalPermissions.map(updateRestrictions)) : setPermissions(permissions.map(updateRestrictions));
   };
 
   const handleRestrictionTextChange = (permission, key) => value => {
-    const doit = entry => {
+    const updateText = entry => {
       if (entry.name !== permission.name) {
         return entry;
       }
@@ -225,7 +224,7 @@ function ViewUser({ isNewUser, ...props }) {
       return result;
     };
 
-    permission.metadata.isAdditional ? setAdditionalPermissions(additionalPermissions.map(doit)) : setPermissions(permissions.map(doit));
+    permission.metadata.isAdditional ? setAdditionalPermissions(additionalPermissions.map(updateText)) : setPermissions(permissions.map(updateText));
   }
 
   const handleUserSave = () => {};
