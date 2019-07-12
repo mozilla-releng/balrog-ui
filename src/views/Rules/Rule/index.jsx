@@ -25,6 +25,9 @@ import {
   getRule,
   getProducts,
   getChannels,
+  addScheduledChange,
+  updateScheduledChange,
+  deleteScheduledChange,
 } from '../../../services/rules';
 import { getReleaseNames } from '../../../services/releases';
 import { EMPTY_MENU_ITEM_CHAR } from '../../../utils/constants';
@@ -49,7 +52,7 @@ const initialRule = {
   osVersion: '',
   priority: 0,
   product: '',
-  update_type: '',
+  update_type: 'minor',
   version: '',
 };
 const useStyles = makeStyles(theme => ({
@@ -83,15 +86,29 @@ export default function Rule({ isNewRule, ...props }) {
   // 30 seconds - to make sure the helper text "Scheduled for ASAP" shows up
   const [scheduleDate, setScheduleDate] = useState(new Date());
   const [dateTimePickerError, setDateTimePickerError] = useState(null);
-  const [{ loading, error }, fetchRule] = useAction(getRule);
-  // eslint-disable-next-line no-unused-vars
-  const [scheduleChange, fetchScheduledChange] = useAction(getScheduledChange);
+  const [fetchRuleAction, fetchRule] = useAction(getRule);
+  const [scheduledChangeAction, fetchScheduledChange] = useAction(
+    getScheduledChange
+  );
+  const [addSCAction, addSC] = useAction(addScheduledChange);
+  const [updateSCAction, updateSC] = useAction(updateScheduledChange);
+  const [deleteSCAction, deleteSC] = useAction(deleteScheduledChange);
   const isLoading =
-    loading || scheduleChange.loading || products.loading || channels.loading;
+    fetchRuleAction.loading || products.loading || channels.loading;
+  const actionLoading =
+    addSCAction.loading ||
+    updateSCAction.loading ||
+    deleteSCAction.loading ||
+    scheduledChangeAction.loading;
+  const error =
+    fetchRuleAction.error ||
+    scheduledChangeAction.error ||
+    addSCAction.error ||
+    updateSCAction.error ||
+    deleteSCAction.error;
   const { ruleId } = props.match.params;
+  const hasScheduledChange = !!rule.sc_id;
   const defaultToEmptyString = defaultTo('');
-  const hasScheduledChange =
-    scheduleChange.data && scheduleChange.data.data.count > 0;
   const handleInputChange = ({ target: { name, value } }) => {
     setRule(assocPath([name], value, rule));
   };
@@ -117,10 +134,112 @@ export default function Rule({ isNewRule, ...props }) {
     setDateTimePickerError(error);
   };
 
-  // TODO: Add logic for actions
-  const handleScheduleChangeDelete = () => {};
-  const handleCreateRule = () => {};
-  const handleUpdateRule = () => {};
+  const handleScheduleChangeDelete = async () => {
+    const { error } = await deleteSC({
+      scId: rule.sc_id,
+      scDataVersion: rule.sc_data_version,
+    });
+
+    if (!error) {
+      // todo: handle the case where it was a scheduled addition
+      props.history.push(`/rules#${rule.rule_id}`);
+    }
+  };
+
+  const handleCreateRule = async () => {
+    const now = new Date();
+    const when =
+      scheduleDate >= now ? scheduleDate.getTime() : now.getTime() + 5000;
+    const data = {
+      alias: rule.alias,
+      backgroundRate: rule.backgroundRate,
+      buildID: rule.buildID,
+      buildTarget: rule.buildTarget,
+      channel: rule.channel,
+      comment: rule.comment,
+      distVersion: rule.distVersion,
+      distribution: rule.distribution,
+      fallbackMapping: rule.fallbackMapping,
+      headerArchitecture: rule.headerArchitecture,
+      instructionSet: rule.instructionSet,
+      jaws: rule.jaws === EMPTY_MENU_ITEM_CHAR ? null : rule.jaws === 'true',
+      locale: rule.locale,
+      mapping: rule.mapping,
+      memory: rule.memory,
+      mig64: rule.mig64 === EMPTY_MENU_ITEM_CHAR ? null : rule.mig64 === 'true',
+      osVersion: rule.osVersion,
+      priority: rule.priority,
+      product: rule.product,
+      update_type: rule.update_type,
+      version: rule.version,
+    };
+    const { error } = await addSC({
+      change_type: 'insert',
+      when,
+      ...data,
+    });
+
+    if (!error) {
+      // todo: add scheduled change id to hash when those anchors
+      // are available on the rules page
+      props.history.push('/rules');
+    }
+  };
+
+  const handleUpdateRule = async () => {
+    const now = new Date();
+    const when =
+      scheduleDate >= now ? scheduleDate.getTime() : now.getTime() + 5000;
+    const data = {
+      alias: rule.alias,
+      backgroundRate: rule.backgroundRate,
+      buildID: rule.buildID,
+      buildTarget: rule.buildTarget,
+      channel: rule.channel,
+      comment: rule.comment,
+      distVersion: rule.distVersion,
+      distribution: rule.distribution,
+      fallbackMapping: rule.fallbackMapping,
+      headerArchitecture: rule.headerArchitecture,
+      instructionSet: rule.instructionSet,
+      jaws: rule.jaws === EMPTY_MENU_ITEM_CHAR ? null : rule.jaws === 'true',
+      locale: rule.locale,
+      mapping: rule.mapping,
+      memory: rule.memory,
+      mig64: rule.mig64 === EMPTY_MENU_ITEM_CHAR ? null : rule.mig64 === 'true',
+      osVersion: rule.osVersion,
+      priority: rule.priority,
+      product: rule.product,
+      update_type: rule.update_type,
+      version: rule.version,
+    };
+
+    if (hasScheduledChange) {
+      const { error } = await updateSC({
+        scId: rule.sc_id,
+        sc_data_version: rule.sc_data_version,
+        data_version: rule.data_version,
+        when,
+        ...data,
+      });
+
+      if (!error) {
+        props.history.push(`/rules#${rule.rule_id}`);
+      }
+    } else {
+      const { error } = await addSC({
+        rule_id: rule.rule_id,
+        data_version: rule.data_version,
+        change_type: 'update',
+        when,
+        ...data,
+      });
+
+      if (!error) {
+        props.history.push('/rules');
+      }
+    }
+  };
 
   useEffect(() => {
     if (!isNewRule) {
@@ -132,11 +251,21 @@ export default function Rule({ isNewRule, ...props }) {
         fetchReleaseNames(),
       ]).then(
         // eslint-disable-next-line no-unused-vars
-        ([fetchedRuleResponse, fetchedScheduledChangeResponse]) => {
-          setRule({
-            ...rule,
-            ...fetchedRuleResponse.data.data,
-          });
+        ([fetchedRuleResponse, fetchedSCResponse]) => {
+          if (fetchedSCResponse.data.data.count > 0) {
+            const sc = fetchedSCResponse.data.data.scheduled_changes[0];
+
+            setRule({
+              ...rule,
+              ...sc,
+            });
+            setScheduleDate(new Date(sc.when));
+          } else {
+            setRule({
+              ...rule,
+              ...fetchedRuleResponse.data.data,
+            });
+          }
         }
       );
     } else {
@@ -232,7 +361,6 @@ export default function Rule({ isNewRule, ...props }) {
                   getSuggestions(releaseNames.data.data.names)
                 }
                 label="Fallback Mapping"
-                required
                 inputProps={{
                   fullWidth: true,
                 }}
@@ -392,11 +520,15 @@ export default function Rule({ isNewRule, ...props }) {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
+                select
+                required
                 label="Update Type"
-                value={defaultToEmptyString(rule.update_type)}
+                value={rule.update_type || 'minor'}
                 name="update_type"
-                onChange={handleInputChange}
-              />
+                onChange={handleInputChange}>
+                <MenuItem value="minor">minor</MenuItem>
+                <MenuItem value="major">major</MenuItem>
+              </TextField>
             </Grid>
             <Grid item xs={12}>
               <TextField
@@ -416,6 +548,7 @@ export default function Rule({ isNewRule, ...props }) {
         <Fragment>
           <Tooltip title={isNewRule ? 'Create Rule' : 'Update Rule'}>
             <Fab
+              disabled={actionLoading}
               onClick={isNewRule ? handleCreateRule : handleUpdateRule}
               color="primary"
               className={classNames({
@@ -425,10 +558,10 @@ export default function Rule({ isNewRule, ...props }) {
               <ContentSaveIcon />
             </Fab>
           </Tooltip>
-          {scheduleChange.data && scheduleChange.data.data.count > 0 && (
+          {hasScheduledChange && (
             <SpeedDial ariaLabel="Secondary Actions">
               <SpeedDialAction
-                disabled={scheduleChange.loading}
+                disabled={actionLoading}
                 icon={<DeleteIcon />}
                 tooltipOpen
                 tooltipTitle="Cancel Pending Change"

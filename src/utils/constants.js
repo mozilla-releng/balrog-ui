@@ -13,7 +13,7 @@ export const RULE_DIFF_PROPERTIES = [
   'alias',
   'backgroundRate',
   'buildTarget',
-  'build_ID',
+  'buildID',
   'comment',
   'data_version',
   'distVersion',
