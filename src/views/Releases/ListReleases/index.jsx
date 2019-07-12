@@ -70,10 +70,10 @@ function ListPermissions(props) {
   const handleAccessChange = ({ release, checked }) => {
     setDialogState({
       open: true,
-      title: checked ? 'Read/Write?' : 'Read Only?',
+      title: checked ? 'Read Only?' : 'Read/Write?',
       confirmText: 'Yes',
-      body: `This would make the permissions of release ${release.name} ${
-        checked ? 'read/write' : 'read only'
+      body: `This would make ${release.name} ${
+        checked ? 'read only' : 'writable'
       }.`,
       item: release,
     });
