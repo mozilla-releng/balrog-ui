@@ -244,6 +244,7 @@ function ViewUser({ isNewUser, ...props }) {
       <Grid item xs>
         <AutoCompleteText
           multi
+          disabled={permission.name ? !permissionRestrictionMappings[permission.name].restrict_products : true}
           selectedItems={permission.options.products}
           onSelectedItemsChange={handleRestrictionChange(permission, 'products')}
           onValueChange={handleRestrictionTextChange}
@@ -256,7 +257,19 @@ function ViewUser({ isNewUser, ...props }) {
         />
       </Grid>
       <Grid item xs>
-        action
+        <AutoCompleteText
+          multi
+          disabled={permission.name ? !permissionRestrictionMappings[permission.name].restrict_actions : true}
+          selectedItems={permission.options.actions}
+          onSelectedItemsChange={handleRestrictionChange(permission, 'actions')}
+          onValueChange={handleRestrictionTextChange}
+          value={restrictionText}
+          getSuggestions={getSuggestions(products)}
+          label="Action Restrictions"
+          inputProps={{
+            autoFocus: true,
+          }}
+        />
       </Grid>
     </Grid>
   );
