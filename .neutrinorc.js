@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const DEFAULT_HOST = 'localhost';
 const DEFAULT_PORT = 9000;
 const port = process.env.PORT || DEFAULT_PORT;
@@ -26,13 +28,13 @@ module.exports = {
         env: {
           HOST: DEFAULT_HOST,
           PORT: DEFAULT_PORT,
-          BALROG_ROOT_URL: 'https://localhost:8010',
-          AUTH0_CLIENT_ID: 'GlZhJQfx52b7MLQ19AjuTJHieiB4oh1j',
-          AUTH0_DOMAIN: 'balrog-localdev.auth0.com',
-          AUTH0_AUDIENCE: 'balrog-localdev',
-          AUTH0_RESPONSE_TYPE: 'token id_token',
-          AUTH0_SCOPE: 'full-user-credentials openid profile email',
-          AUTH0_REDIRECT_URI: `http://localhost:${port}/login`,
+          BALROG_ROOT_URL: process.env.BALROG_ROOT_URL || 'https://localhost:8010',
+          AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID || 'GlZhJQfx52b7MLQ19AjuTJHieiB4oh1j',
+          AUTH0_DOMAIN: process.env.AUTH0_DOMAIN || 'balrog-localdev.auth0.com',
+          AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || 'balrog-localdev',
+          AUTH0_RESPONSE_TYPE: process.env.AUTH0_RESPONSE_TYPE || 'token id_token',
+          AUTH0_SCOPE: process.env.AUTH0_SCOPE || 'full-user-credentials openid profile email',
+          AUTH0_REDIRECT_URI: process.env.AUTH0_REDIRECT_URI || `http://localhost:${port}/login`,
         },
       }
     ],
