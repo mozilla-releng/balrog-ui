@@ -13,7 +13,6 @@ import ContentSaveIcon from 'mdi-react/ContentSaveIcon';
 import Button from '@material-ui/core/Button';
 import DeleteIcon from 'mdi-react/DeleteIcon';
 import PlusIcon from 'mdi-react/PlusIcon';
-import Downshift from 'downshift';
 import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import AutoCompleteText from '../../../components/AutoCompleteText';
@@ -210,7 +209,7 @@ function ViewUser({ isNewUser, ...props }) {
       return result;
     };
 
-    permission.metadata.isAdditional
+    return permission.metadata.isAdditional
       ? setAdditionalPermissions(additionalPermissions.map(updateRestrictions))
       : setPermissions(permissions.map(updateRestrictions));
   };
@@ -228,7 +227,7 @@ function ViewUser({ isNewUser, ...props }) {
       return result;
     };
 
-    permission.metadata.isAdditional
+    return permission.metadata.isAdditional
       ? setAdditionalPermissions(additionalPermissions.map(updateText))
       : setPermissions(permissions.map(updateText));
   };
