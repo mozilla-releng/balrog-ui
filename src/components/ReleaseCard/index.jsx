@@ -9,6 +9,7 @@ import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import CardHeader from '@material-ui/core/CardHeader';
 import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
 import Chip from '@material-ui/core/Chip';
 import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
@@ -71,6 +72,21 @@ const useStyles = makeStyles(theme => ({
   cardActions: {
     justifyContent: 'flex-end',
   },
+  switchLabel: {
+    marginLeft: theme.spacing(0.5),
+  },
+  formControlLabelSwitch: {
+    marginLeft: 0,
+  },
+  cardHeaderActions: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  switchPaper: {
+    display: 'flex',
+    height: theme.spacing(4),
+    marginRight: theme.spacing(1),
+  },
 }));
 
 function ReleaseCard(props) {
@@ -101,16 +117,23 @@ function ReleaseCard(props) {
         }
         subheader={release.product}
         action={
-          <div>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={release.read_only}
-                  onChange={handleAccessChange}
-                />
-              }
-              label="Read only"
-            />
+          <div className={classes.cardHeaderActions}>
+            <Paper className={classes.switchPaper}>
+              <FormControlLabel
+                className={classes.formControlLabelSwitch}
+                control={
+                  <Switch
+                    checked={release.read_only}
+                    onChange={handleAccessChange}
+                  />
+                }
+                label={
+                  <Typography className={classes.switchLabel} variant="body2">
+                    Read only
+                  </Typography>
+                }
+              />
+            </Paper>
             <Tooltip title="History">
               <IconButton>
                 <HistoryIcon />
