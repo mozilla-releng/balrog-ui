@@ -25,7 +25,9 @@ import { getProducts } from '../../../services/rules';
 import { getUserInfo } from '../../../services/users';
 import {
   allPermissions,
-  permissionRestrictionMappings,
+  supportsProductRestriction,
+  supportsActionRestriction,
+  getSupportedActions,
 } from '../../../utils/Users';
 
 const useStyles = makeStyles(theme => ({
@@ -108,7 +110,7 @@ function ViewUser({ isNewUser, ...props }) {
 
               return {
                 name,
-                options: details.options || {products: [], actions: []},
+                options: details.options || { products: [], actions: [] },
                 data_version: details.data_version,
                 metadata: {
                   isAdditional: false,
@@ -208,7 +210,9 @@ function ViewUser({ isNewUser, ...props }) {
       return result;
     };
 
-    permission.metadata.isAdditional ? setAdditionalPermissions(additionalPermissions.map(updateRestrictions)) : setPermissions(permissions.map(updateRestrictions));
+    permission.metadata.isAdditional
+      ? setAdditionalPermissions(additionalPermissions.map(updateRestrictions))
+      : setPermissions(permissions.map(updateRestrictions));
   };
 
   const handleRestrictionTextChange = (permission, key) => value => {
@@ -224,8 +228,10 @@ function ViewUser({ isNewUser, ...props }) {
       return result;
     };
 
-    permission.metadata.isAdditional ? setAdditionalPermissions(additionalPermissions.map(updateText)) : setPermissions(permissions.map(updateText));
-  }
+    permission.metadata.isAdditional
+      ? setAdditionalPermissions(additionalPermissions.map(updateText))
+      : setPermissions(permissions.map(updateText));
+  };
 
   const handleUserSave = () => {};
   const handleUserDelete = () => {};
@@ -264,9 +270,12 @@ function ViewUser({ isNewUser, ...props }) {
       <Grid item xs={4}>
         <AutoCompleteText
           multi
-          disabled={Object.keys(permissionRestrictionMappings).includes(permission.name) ? !permissionRestrictionMappings[permission.name].restrict_products : true}
+          disabled={!supportsProductRestriction(permission.name)}
           selectedItems={permission.options.products}
-          onSelectedItemsChange={handleRestrictionChange(permission, 'products')}
+          onSelectedItemsChange={handleRestrictionChange(
+            permission,
+            'products'
+          )}
           onValueChange={handleRestrictionTextChange(permission, 'productText')}
           value={permission.metadata.productText}
           getSuggestions={getSuggestions(products)}
@@ -279,12 +288,12 @@ function ViewUser({ isNewUser, ...props }) {
       <Grid item xs={4}>
         <AutoCompleteText
           multi
-          disabled={Object.keys(permissionRestrictionMappings).includes(permission.name) ? !permissionRestrictionMappings[permission.name].restrict_actions : true}
+          disabled={!supportsActionRestriction(permission.name)}
           selectedItems={permission.options.actions}
           onSelectedItemsChange={handleRestrictionChange(permission, 'actions')}
           onValueChange={handleRestrictionTextChange(permission, 'actionText')}
           value={permission.metadata.actionText}
-          getSuggestions={Object.keys(permissionRestrictionMappings).includes(permission.name) ? getSuggestions(permissionRestrictionMappings[permission.name].supported_actions) : () => []}
+          getSuggestions={getSuggestions(getSupportedActions(permission.name))}
           label="Action Restrictions"
           inputProps={{
             autoFocus: true,

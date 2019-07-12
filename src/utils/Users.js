@@ -97,6 +97,29 @@ const allPermissions = [
   'permission',
   'scheduled_change',
 ];
+const supportsProductRestriction = permission => {
+  if (!Object.keys(permissionRestrictionMappings).includes(permission)) {
+    return false;
+  }
+
+  return permissionRestrictionMappings[permission].restrict_products;
+};
+
+const supportsActionRestriction = permission => {
+  if (!Object.keys(permissionRestrictionMappings).includes(permission)) {
+    return false;
+  }
+
+  return permissionRestrictionMappings[permission].restrict_actions;
+};
+
+const getSupportedActions = permission => {
+  if (!Object.keys(permissionRestrictionMappings).includes(permission)) {
+    return [];
+  }
+
+  return permissionRestrictionMappings[permission].supported_actions;
+};
 
 // eslint-disable-next-line import/prefer-default-export
 export {
@@ -104,4 +127,7 @@ export {
   getRolesString,
   permissionRestrictionMappings,
   allPermissions,
+  supportsProductRestriction,
+  supportsActionRestriction,
+  getSupportedActions,
 };
