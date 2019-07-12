@@ -199,8 +199,7 @@ function ViewUser({ isNewUser, ...props }) {
       return result;
     };
 
-    // todo: support additional permissions
-    setPermissions(permissions.map(doit));
+    permission.metadata.isAdditional ? setAdditionalPermissions(additionalPermissions.map(doit)) : setPermissions(permissions.map(doit));
   };
 
   const handleRestrictionTextChange = (permission, key) => value => {
