@@ -106,7 +106,7 @@ export default function Rule({ isNewRule, ...props }) {
     addSCAction.error ||
     updateSCAction.error ||
     deleteSCAction.error;
-  const { ruleId } = props.match.params;
+  const { ruleId, scId } = props.match.params;
   const hasScheduledChange = !!rule.sc_id;
   const defaultToEmptyString = defaultTo('');
   const handleInputChange = ({ target: { name, value } }) => {
@@ -269,9 +269,15 @@ export default function Rule({ isNewRule, ...props }) {
         }
       );
     } else {
-      Promise.all([fetchProducts(), fetchChannels(), fetchReleaseNames()]);
+      Promise.all([
+        fetchScheduledChange(scId),
+        fetchProducts(),
+        fetchChannels(),
+        fetchReleaseNames()
+      ]).then(
+      );
     }
-  }, [ruleId]);
+  }, [ruleId, scId]);
   const today = new Date();
 
   // This will make sure the helperText
