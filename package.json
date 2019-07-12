@@ -4,8 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "webpack --mode production",
-    "start": "webpack-dev-server --mode development",
+    "build": "dotenv webpack -- --mode production",
+    "start": "dotenv webpack-dev-server -- --mode development",
     "test": "jest",
     "lint": "eslint --cache --format codeframe --ext mjs,jsx,js src test"
   },
@@ -43,6 +43,8 @@
     "@mozilla-frontend-infra/react-lint": "^1.2.2",
     "@neutrinojs/jest": "9.0.0-rc.0",
     "@neutrinojs/react": "9.0.0-rc.0",
+    "dotenv": "^8.0.0",
+    "dotenv-cli": "^2.0.0",
     "eslint": "^5",
     "jest": "^23",
     "neutrino": "9.0.0-rc.0",
