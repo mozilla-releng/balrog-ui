@@ -42,7 +42,7 @@ const useStyles = makeStyles(theme => ({
   gridWithIcon: {
     marginTop: theme.spacing(3),
   },
-  gridRoleDelete: {
+  gridDelete: {
     display: 'flex',
     justifyContent: 'flex-end',
   },
@@ -186,6 +186,16 @@ function ViewUser({ isNewUser, ...props }) {
     );
   };
 
+  const handlePermissionDelete = (permission, index) => {
+    const excludePermission = (entry, i) => !(i === index);
+
+    if (permission.metadata.isAdditional) {
+      setAdditionalPermissions(additionalPermissions.filter(excludePermission));
+    } else {
+      setPermissions(permissions.filter(excludePermission));
+    }
+  };
+
   const handleRestrictionChange = (permission, restriction) => chips => {
     const doit = entry => {
       if (entry.name !== permission.name) {
@@ -230,7 +240,7 @@ function ViewUser({ isNewUser, ...props }) {
           fullWidth
         />
       </Grid>
-      <Grid item xs={1} className={classes.gridRoleDelete}>
+      <Grid item xs={1} className={classes.gridDelete}>
         <IconButton onClick={() => handleRoleDelete(role, index)}>
           <DeleteIcon />
         </IconButton>
@@ -239,7 +249,7 @@ function ViewUser({ isNewUser, ...props }) {
   );
   const renderPermission = (permission, index) => (
     <Grid container spacing={2} key={index}>
-      <Grid item xs>
+      <Grid item xs={3}>
         <AutoCompleteText
           value={defaultToEmptyString(permission.name)}
           onValueChange={handlePermissionNameChange(permission, index)}
@@ -252,7 +262,7 @@ function ViewUser({ isNewUser, ...props }) {
           }}
         />
       </Grid>
-      <Grid item xs>
+      <Grid item xs={4}>
         <AutoCompleteText
           multi
           disabled={Object.keys(permissionRestrictionMappings).includes(permission.name) ? !permissionRestrictionMappings[permission.name].restrict_products : true}
@@ -267,7 +277,7 @@ function ViewUser({ isNewUser, ...props }) {
           }}
         />
       </Grid>
-      <Grid item xs>
+      <Grid item xs={4}>
         <AutoCompleteText
           multi
           disabled={Object.keys(permissionRestrictionMappings).includes(permission.name) ? !permissionRestrictionMappings[permission.name].restrict_actions : true}
@@ -281,6 +291,11 @@ function ViewUser({ isNewUser, ...props }) {
             autoFocus: true,
           }}
         />
+      </Grid>
+      <Grid item xs={1} className={classes.gridDelete}>
+        <IconButton onClick={() => handlePermissionDelete(permission, index)}>
+          <DeleteIcon />
+        </IconButton>
       </Grid>
     </Grid>
   );
@@ -325,7 +340,7 @@ function ViewUser({ isNewUser, ...props }) {
             {permissions.map(renderPermission)}
             {additionalPermissions.map(renderPermission)}
             <Grid item xs className={classes.addGrid}>
-              <Grid item xs={11}>
+              <Grid item xs>
                 <Button
                   onClick={handlePermissionAdd}
                   className={classes.fullWidth}
