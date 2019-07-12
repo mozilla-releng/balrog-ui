@@ -57,6 +57,8 @@ function ViewUser({ isNewUser, ...props }) {
     },
     metadata: {
       isAdditional: true,
+      productText: '',
+      actionText: '',
     },
   });
   const getEmptyRole = () => ({
@@ -73,10 +75,6 @@ function ViewUser({ isNewUser, ...props }) {
   } = props;
   const classes = useStyles();
   const [username, setUsername] = useState('');
-  // This only gets used to reset the AutoCompleteText fields for product
-  // and action restrictions. The values of those fields are stored within
-  // permissions/additionalPermissions
-  const [restrictionText, setRestrictionText] = useState('');
   const [roles, setRoles] = useState([]);
   const [originalRoles, setOriginalRoles] = useState([]);
   const [additionalRoles, setAdditionalRoles] = useState([]);
@@ -114,6 +112,8 @@ function ViewUser({ isNewUser, ...props }) {
                 data_version: details.data_version,
                 metadata: {
                   isAdditional: false,
+                  productText: '',
+                  actionText: '',
                 },
               };
             }
@@ -170,23 +170,20 @@ function ViewUser({ isNewUser, ...props }) {
     );
   };
 
-  const handlePermissionNameChange = permission => value => {
-    const setName = entry => {
-      if (entry.name !== permission.name) {
-        return entry;
-      }
+  const handlePermissionNameChange = (permission, index) => value => {
+    setAdditionalPermissions(
+      additionalPermissions.map((entry, i) => {
+        if (i !== index) {
+          return entry;
+        }
 
-      const result = entry;
+        const result = entry;
 
-      result.name = value;
+        result.name = value;
 
-      return result;
-    };
-
-    // Only additional permissions can have their names changed
-    // so there's no need to check if the modified permission is
-    // additional or not.
-    setAdditionalPermissions(additionalPermissions.map(setName));
+        return result;
+      })
+    );
   };
 
   const handleRestrictionChange = (permission, restriction) => chips => {
@@ -202,10 +199,25 @@ function ViewUser({ isNewUser, ...props }) {
       return result;
     };
 
+    // todo: support additional permissions
     setPermissions(permissions.map(doit));
   };
 
-  const handleRestrictionTextChange = value => setRestrictionText(value);
+  const handleRestrictionTextChange = (permission, key) => value => {
+    const doit = entry => {
+      if (entry.name !== permission.name) {
+        return entry;
+      }
+
+      const result = entry;
+
+      result.metadata[key] = value;
+
+      return result;
+    };
+
+    permission.metadata.isAdditional ? setAdditionalPermissions(additionalPermissions.map(doit)) : setPermissions(permissions.map(doit));
+  }
 
   const handleUserSave = () => {};
   const handleUserDelete = () => {};
@@ -226,12 +238,12 @@ function ViewUser({ isNewUser, ...props }) {
       </Grid>
     </Grid>
   );
-  const renderPermission = permission => (
-    <Grid container spacing={2} key={permission}>
+  const renderPermission = (permission, index) => (
+    <Grid container spacing={2} key={index}>
       <Grid item xs>
         <AutoCompleteText
           value={defaultToEmptyString(permission.name)}
-          onValueChange={handlePermissionNameChange}
+          onValueChange={handlePermissionNameChange(permission, index)}
           getSuggestions={getSuggestions(allPermissions)}
           label="Name"
           required
@@ -244,11 +256,11 @@ function ViewUser({ isNewUser, ...props }) {
       <Grid item xs>
         <AutoCompleteText
           multi
-          disabled={permission.name ? !permissionRestrictionMappings[permission.name].restrict_products : true}
+          disabled={Object.keys(permissionRestrictionMappings).includes(permission.name) ? !permissionRestrictionMappings[permission.name].restrict_products : true}
           selectedItems={permission.options.products}
           onSelectedItemsChange={handleRestrictionChange(permission, 'products')}
-          onValueChange={handleRestrictionTextChange}
-          value={restrictionText}
+          onValueChange={handleRestrictionTextChange(permission, 'productText')}
+          value={permission.metadata.productText}
           getSuggestions={getSuggestions(products)}
           label="Product Restrictions"
           inputProps={{
@@ -259,11 +271,10 @@ function ViewUser({ isNewUser, ...props }) {
       <Grid item xs>
         <AutoCompleteText
           multi
-          disabled={permission.name ? !permissionRestrictionMappings[permission.name].restrict_actions : true}
           selectedItems={permission.options.actions}
           onSelectedItemsChange={handleRestrictionChange(permission, 'actions')}
-          onValueChange={handleRestrictionTextChange}
-          value={restrictionText}
+          onValueChange={handleRestrictionTextChange(permission, 'actionText')}
+          value={permission.metadata.actionText}
           getSuggestions={getSuggestions(products)}
           label="Action Restrictions"
           inputProps={{
