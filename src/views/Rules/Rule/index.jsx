@@ -303,17 +303,23 @@ export default function Rule({ isNewRule, ...props }) {
   // will always be displayed for a "today" date
   today.setHours(0, 0, 0, 0);
 
+  // To avoid nested ternary
+  const getTitle = () => {
+    if (isNewRule) {
+      if (scId) {
+        return `Update Scheduled Rule ${scId}${
+          rule.alias ? ` (${rule.alias})` : ''
+        }`;
+      }
+
+      return 'Create Rule';
+    }
+
+    return `Update Rule ${ruleId}${rule.alias ? ` (${rule.alias})` : ''}`;
+  };
+
   return (
-    <Dashboard
-      title={
-        isNewRule
-          ? scId
-            ? `Update Scheduled Rule ${scId}${
-                rule.alias ? ` (${rule.alias})` : ''
-              }`
-            : 'Create Rule'
-          : `Update Rule ${ruleId}${rule.alias ? ` (${rule.alias})` : ''}`
-      }>
+    <Dashboard title={getTitle()}>
       {isLoading && <Spinner loading />}
       {error && <ErrorPanel fixed error={error} />}
       {!isLoading && (
