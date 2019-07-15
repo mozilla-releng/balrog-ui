@@ -1,4 +1,8 @@
-const niceJoin = array =>
+import { allPermissions, permissionRestrictionMappings } from './constants';
+
+// TODO: use https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat
+// when it's available in Firefox
+const formatListToLanguage = array =>
   array.concat(array.splice(-2, 2).join(' and ')).join(', ');
 const permissionStrings = (productStr, actionStr) => ({
   admin: `is a full fledged administrator ${productStr}`,
@@ -16,11 +20,11 @@ const getPermissionString = (permission, actions, products) => {
   let productStr = 'for all products';
 
   if (actions.length > 0) {
-    actionStr = niceJoin(actions);
+    actionStr = formatListToLanguage(actions);
   }
 
   if (products.length > 0) {
-    const tmp = niceJoin(products);
+    const tmp = formatListToLanguage(products);
 
     productStr = `for ${tmp}`;
   }
@@ -29,7 +33,7 @@ const getPermissionString = (permission, actions, products) => {
 };
 
 const getRolesString = roles => {
-  const joined = niceJoin(Array.from(roles));
+  const joined = formatListToLanguage(Array.from(roles));
   let roleStr = 'role';
 
   if (roles.length > 1) {
@@ -39,64 +43,6 @@ const getRolesString = roles => {
   return `${joined} ${roleStr}`;
 };
 
-const permissionRestrictionMappings = {
-  admin: {
-    restrict_products: true,
-    restrict_actions: false,
-    supported_actions: [],
-  },
-  emergency_shutoff: {
-    restrict_products: true,
-    restrict_actions: true,
-    supported_actions: ['create', 'modify'],
-  },
-  rule: {
-    restrict_products: true,
-    restrict_actions: true,
-    supported_actions: ['create', 'modify', 'delete'],
-  },
-  release: {
-    restrict_products: true,
-    restrict_actions: true,
-    supported_actions: ['create', 'modify', 'delete'],
-  },
-  release_read_only: {
-    restrict_products: true,
-    restrict_actions: true,
-    supported_actions: ['set', 'unset'],
-  },
-  release_locale: {
-    restrict_products: true,
-    restrict_actions: true,
-    supported_actions: ['modify'],
-  },
-  required_signoff: {
-    restrict_products: true,
-    restrict_actions: true,
-    supported_actions: ['create', 'modify', 'delete'],
-  },
-  permission: {
-    restrict_products: true,
-    restrict_actions: true,
-    supported_actions: ['create', 'modify', 'delete'],
-  },
-  scheduled_change: {
-    restrict_products: true,
-    restrict_actions: true,
-    supported_actions: ['enact'],
-  },
-};
-const allPermissions = [
-  'admin',
-  'emergency_shutoff',
-  'rule',
-  'release',
-  'release_read_only',
-  'release_locale',
-  'required_signoff',
-  'permission',
-  'scheduled_change',
-];
 const supportsProductRestriction = permission => {
   if (!Object.keys(permissionRestrictionMappings).includes(permission)) {
     return false;

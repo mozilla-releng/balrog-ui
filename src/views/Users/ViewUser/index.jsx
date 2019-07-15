@@ -13,11 +13,11 @@ import ContentSaveIcon from 'mdi-react/ContentSaveIcon';
 import Button from '@material-ui/core/Button';
 import DeleteIcon from 'mdi-react/DeleteIcon';
 import PlusIcon from 'mdi-react/PlusIcon';
-import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 import Dashboard from '../../../components/Dashboard';
+import ErrorPanel from '../../../components/ErrorPanel';
 import SpeedDial from '../../../components/SpeedDial';
 import useAction from '../../../hooks/useAction';
 import { getProducts } from '../../../services/rules';
@@ -27,7 +27,7 @@ import {
   supportsProductRestriction,
   supportsActionRestriction,
   getSupportedActions,
-} from '../../../utils/Users';
+} from '../../../utils/userUtils';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -46,6 +46,9 @@ const useStyles = makeStyles(theme => ({
   gridDelete: {
     display: 'flex',
     justifyContent: 'flex-end',
+  },
+  iconButton: {
+    marginTop: theme.spacing(1),
   },
 }));
 
@@ -77,9 +80,11 @@ function ViewUser({ isNewUser, ...props }) {
   const classes = useStyles();
   const [username, setUsername] = useState('');
   const [roles, setRoles] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [originalRoles, setOriginalRoles] = useState([]);
   const [additionalRoles, setAdditionalRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [originalPermissions, setOriginalPermissions] = useState([]);
   const [additionalPermissions, setAdditionalPermissions] = useState(
     isNewUser ? [getEmptyPermission()] : []
@@ -87,6 +92,7 @@ function ViewUser({ isNewUser, ...props }) {
   const [products, setProducts] = useState([]);
   const [productsAction, fetchProducts] = useAction(getProducts);
   const [userAction, fetchUser] = useAction(getUserInfo);
+  // eslint-disable-next-line no-unused-vars
   const [saveAction, saveUser] = useAction(() => {});
   const isLoading = userAction.loading || productsAction.loading;
   const error = userAction.error || productsAction.error || saveAction.error;
@@ -245,7 +251,9 @@ function ViewUser({ isNewUser, ...props }) {
         />
       </Grid>
       <Grid item xs={1} className={classes.gridDelete}>
-        <IconButton onClick={() => handleRoleDelete(role, index)}>
+        <IconButton
+          className={classes.iconButton}
+          onClick={() => handleRoleDelete(role, index)}>
           <DeleteIcon />
         </IconButton>
       </Grid>
@@ -261,9 +269,6 @@ function ViewUser({ isNewUser, ...props }) {
           label="Name"
           required
           disabled={!permission.metadata.isAdditional}
-          inputProps={{
-            autoFocus: true,
-          }}
         />
       </Grid>
       <Grid item xs={4}>
@@ -279,9 +284,6 @@ function ViewUser({ isNewUser, ...props }) {
           value={permission.metadata.productText}
           getSuggestions={getSuggestions(products)}
           label="Product Restrictions"
-          inputProps={{
-            autoFocus: true,
-          }}
         />
       </Grid>
       <Grid item xs={4}>
@@ -294,13 +296,12 @@ function ViewUser({ isNewUser, ...props }) {
           value={permission.metadata.actionText}
           getSuggestions={getSuggestions(getSupportedActions(permission.name))}
           label="Action Restrictions"
-          inputProps={{
-            autoFocus: true,
-          }}
         />
       </Grid>
       <Grid item xs={1} className={classes.gridDelete}>
-        <IconButton onClick={() => handlePermissionDelete(permission, index)}>
+        <IconButton
+          className={classes.iconButton}
+          onClick={() => handlePermissionDelete(permission, index)}>
           <DeleteIcon />
         </IconButton>
       </Grid>
@@ -309,7 +310,7 @@ function ViewUser({ isNewUser, ...props }) {
 
   return (
     <Dashboard title="Users">
-      {error && <ErrorPanel error={error} />}
+      {error && <ErrorPanel fixed error={error} />}
       {isLoading && <Spinner loading />}
       {!isLoading && (
         <Fragment>
@@ -323,6 +324,7 @@ function ViewUser({ isNewUser, ...props }) {
                   fullWidth
                   label="Username"
                   value={username}
+                  autoFocus
                 />
               </Grid>
             </Grid>
@@ -333,12 +335,14 @@ function ViewUser({ isNewUser, ...props }) {
             {roles.map(renderRole)}
             {additionalRoles.map(renderRole)}
             <Grid item xs className={classes.addGrid}>
-              <Button
-                onClick={handleRoleAdd}
-                className={classes.fullWidth}
-                variant="outlined">
-                <PlusIcon />
-              </Button>
+              <Grid item xs={11}>
+                <Button
+                  onClick={handleRoleAdd}
+                  className={classes.fullWidth}
+                  variant="outlined">
+                  <PlusIcon />
+                </Button>
+              </Grid>
             </Grid>
             <br />
             <br />
@@ -347,7 +351,7 @@ function ViewUser({ isNewUser, ...props }) {
             {permissions.map(renderPermission)}
             {additionalPermissions.map(renderPermission)}
             <Grid item xs className={classes.addGrid}>
-              <Grid item xs>
+              <Grid item xs={11}>
                 <Button
                   onClick={handlePermissionAdd}
                   className={classes.fullWidth}

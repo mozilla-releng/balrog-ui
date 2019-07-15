@@ -1,11 +1,11 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
-import ErrorPanel from '@mozilla-frontend-infra/components/ErrorPanel';
 import { makeStyles } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
+import ErrorPanel from '../../../components/ErrorPanel';
 import { getUsers } from '../../../services/users';
 import useAction from '../../../hooks/useAction';
 import UserCard from '../../../components/UserCard';
@@ -14,6 +14,9 @@ import getUsersInfo from '../utils/getUsersInfo';
 const useStyles = makeStyles(theme => ({
   fab: {
     ...theme.mixins.fab,
+  },
+  userCard: {
+    marginBottom: theme.spacing(2),
   },
 }));
 
@@ -37,25 +40,24 @@ function ListUsers() {
     });
   }, []);
 
-  function handleUserAdd() {
-    console.log('test');
-  }
+  const handleUserAdd = () => {};
 
   return (
     <Dashboard title="Users">
       {isLoading && <Spinner loading />}
-      {error && <ErrorPanel error={error} />}
+      {error && <ErrorPanel fixed error={error} />}
       {!isLoading && users && (
         <Fragment>
           {Object.keys(users).map(user => (
             <UserCard
+              className={classes.userCard}
               key={user}
               username={user}
               roles={users[user].roles}
               permissions={users[user].permissions}
             />
           ))}
-          <Tooltip title="Add Users">
+          <Tooltip title="Add User">
             <Fab
               color="primary"
               className={classes.fab}

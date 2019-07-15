@@ -1,18 +1,20 @@
 import React from 'react';
+import { string, object } from 'prop-types';
+import classNames from 'classnames';
 import Card from '@material-ui/core/Card';
 import { makeStyles } from '@material-ui/styles';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import AccountGroupIcon from 'mdi-react/AccountGroupIcon';
-import AccountSupervisorIcon from 'mdi-react/AccountSupervisorIcon';
+import KeyVariantIcon from 'mdi-react/KeyVariantIcon';
 import PencilIcon from 'mdi-react/PencilIcon';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Link from '../../utils/Link';
-import { getPermissionString, getRolesString } from '../../utils/Users';
+import { getPermissionString, getRolesString } from '../../utils/userUtils';
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -34,7 +36,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function User(props) {
   const classes = useStyles();
-  const { username, roles, permissions } = props;
+  const { className, username, roles, permissions } = props;
   const returnOptionIfExists = (options, key, defaultValue) => {
     if (options && options[key]) {
       return options[key];
@@ -46,7 +48,7 @@ export default function User(props) {
   // TODO: Add admin-or-not marker. Needs backend support.
   // should links like the ones below be in a component?
   return (
-    <Card className={classes.card}>
+    <Card className={classNames(classes.card, className)}>
       <Link className={classes.link} to={`/users/${username}`}>
         <CardActionArea>
           <CardHeader
@@ -62,7 +64,7 @@ export default function User(props) {
           {Object.entries(permissions).map(([permission, details]) => (
             <ListItem key={permission}>
               <ListItemIcon>
-                <AccountSupervisorIcon />
+                <KeyVariantIcon />
               </ListItemIcon>
               <ListItemText>
                 {getPermissionString(
@@ -88,3 +90,14 @@ export default function User(props) {
     </Card>
   );
 }
+
+User.propTypes = {
+  username: string.isRequired,
+  roles: object,
+  permissions: object,
+};
+
+User.defaultProps = {
+  roles: {},
+  permissions: {},
+};
