@@ -4,6 +4,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import SettingsOutlineIcon from 'mdi-react/SettingsOutlineIcon';
+import { upperCase } from 'change-case';
 import Link from '../../utils/Link';
 import { withUser } from '../../utils/AuthContext';
 import menuItems from './menuItems';
@@ -56,7 +57,7 @@ function SettingsMenu({ user }) {
         {menuItems.settings.map(navItem => (
           <MenuItem key={navItem.value} title={navItem.value}>
             <Link className={classes.link} to={navItem.path}>
-              {navItem.value}
+              {upperCase(navItem.value)}
             </Link>
           </MenuItem>
         ))}
