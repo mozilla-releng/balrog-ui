@@ -147,8 +147,11 @@ export default function Rule({ isNewRule, ...props }) {
     });
 
     if (!error) {
-      // todo: handle the case where it was a scheduled addition
-      props.history.push(`/rules#${rule.rule_id}`);
+      if (rule.sc_id) {
+        props.history.push(`/rules#scId=${rule.rule_id}`);
+      } else {
+        props.history.push(`/rules#ruleId=${rule.rule_id}`);
+      }
     }
   };
 
@@ -179,16 +182,14 @@ export default function Rule({ isNewRule, ...props }) {
       update_type: rule.update_type,
       version: rule.version,
     };
-    const { error } = await addSC({
+    const { data: response, error } = await addSC({
       change_type: 'insert',
       when,
       ...data,
     });
 
     if (!error) {
-      // todo: add scheduled change id to hash when those anchors
-      // are available on the rules page
-      props.history.push('/rules');
+      props.history.push(`/rules#scId=${response.data.sc_id}`);
     }
   };
 
@@ -230,13 +231,10 @@ export default function Rule({ isNewRule, ...props }) {
       });
 
       if (!error) {
-        // TODO: Handle linking to scheduled inserts (if scId !== null)
-        // when they gain anchors on the rules page
-        // https://github.com/mozilla-frontend-infra/balrog-ui/issues/71
-        props.history.push(`/rules#${rule.rule_id}`);
+        props.history.push(`/rules#scId=${rule.sc_id}`);
       }
     } else {
-      const { error } = await addSC({
+      const { data: response, error } = await addSC({
         rule_id: rule.rule_id,
         data_version: rule.data_version,
         change_type: 'update',
@@ -245,10 +243,11 @@ export default function Rule({ isNewRule, ...props }) {
       });
 
       if (!error) {
-        // TODO: Handle linking to scheduled inserts (if scId !== null)
-        // when they gain anchors on the rules page
-        // https://github.com/mozilla-frontend-infra/balrog-ui/issues/71
-        props.history.push(`/rules#${rule.rule_id}`);
+        if (response.data.sc_id) {
+          props.history.push(`/rules#scId=${response.data.sc_id}`);
+        } else {
+          props.history.push(`/rules#ruleId=${rule.rule_id}`);
+        }
       }
     }
   };
