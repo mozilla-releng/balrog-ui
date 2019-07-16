@@ -1,4 +1,4 @@
-import { allPermissions, permissionRestrictionMappings } from './constants';
+import { PERMISSION_RESTRICTION_MAPPINGS } from './constants';
 
 // TODO: use https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat
 // when it's available in Firefox
@@ -44,35 +44,33 @@ const getRolesString = roles => {
 };
 
 const supportsProductRestriction = permission => {
-  if (!Object.keys(permissionRestrictionMappings).includes(permission)) {
+  if (!Object.keys(PERMISSION_RESTRICTION_MAPPINGS).includes(permission)) {
     return false;
   }
 
-  return permissionRestrictionMappings[permission].restrict_products;
+  return PERMISSION_RESTRICTION_MAPPINGS[permission].restrict_products;
 };
 
 const supportsActionRestriction = permission => {
-  if (!Object.keys(permissionRestrictionMappings).includes(permission)) {
+  if (!Object.keys(PERMISSION_RESTRICTION_MAPPINGS).includes(permission)) {
     return false;
   }
 
-  return permissionRestrictionMappings[permission].restrict_actions;
+  return PERMISSION_RESTRICTION_MAPPINGS[permission].restrict_actions;
 };
 
 const getSupportedActions = permission => {
-  if (!Object.keys(permissionRestrictionMappings).includes(permission)) {
+  if (!Object.keys(PERMISSION_RESTRICTION_MAPPINGS).includes(permission)) {
     return [];
   }
 
-  return permissionRestrictionMappings[permission].supported_actions;
+  return PERMISSION_RESTRICTION_MAPPINGS[permission].supported_actions;
 };
 
 // eslint-disable-next-line import/prefer-default-export
 export {
   getPermissionString,
   getRolesString,
-  permissionRestrictionMappings,
-  allPermissions,
   supportsProductRestriction,
   supportsActionRestriction,
   getSupportedActions,

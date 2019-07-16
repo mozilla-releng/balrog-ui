@@ -1,6 +1,6 @@
 import React, { useEffect, useState, Fragment } from 'react';
 import { bool } from 'prop-types';
-import { defaultTo } from 'ramda';
+import { clone, defaultTo } from 'ramda';
 import { makeStyles } from '@material-ui/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
@@ -22,8 +22,8 @@ import SpeedDial from '../../../components/SpeedDial';
 import useAction from '../../../hooks/useAction';
 import { getProducts } from '../../../services/rules';
 import { getUserInfo } from '../../../services/users';
+import { ALL_PERMISSIONS } from '../../../utils/constants';
 import {
-  allPermissions,
   supportsProductRestriction,
   supportsActionRestriction,
   getSupportedActions,
@@ -128,9 +128,9 @@ function ViewUser({ isNewUser, ...props }) {
 
           setUsername(userdata.data.data.username);
           setRoles(roles);
-          setOriginalRoles(JSON.parse(JSON.stringify(roles)));
+          setOriginalRoles(clone(roles));
           setPermissions(permissions);
-          setOriginalPermissions(JSON.parse(JSON.stringify(permissions)));
+          setOriginalPermissions(clone(permissions));
           setProducts(productdata.data.data.product);
         }
       );
@@ -265,7 +265,7 @@ function ViewUser({ isNewUser, ...props }) {
         <AutoCompleteText
           value={defaultToEmptyString(permission.name)}
           onValueChange={handlePermissionNameChange(permission, index)}
-          getSuggestions={getSuggestions(allPermissions)}
+          getSuggestions={getSuggestions(ALL_PERMISSIONS)}
           label="Name"
           required
           disabled={!permission.metadata.isAdditional}

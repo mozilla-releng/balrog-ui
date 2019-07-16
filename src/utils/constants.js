@@ -48,7 +48,7 @@ export const DIALOG_ACTION_INITIAL_STATE = {
   open: false,
 };
 export const EMPTY_MENU_ITEM_CHAR = '-';
-export const permissionRestrictionMappings = {
+export const PERMISSION_RESTRICTION_MAPPINGS = {
   admin: {
     restrict_products: true,
     restrict_actions: false,
@@ -95,7 +95,7 @@ export const permissionRestrictionMappings = {
     supported_actions: ['enact'],
   },
 };
-export const allPermissions = [
+export const ALL_PERMISSIONS = [
   'admin',
   'emergency_shutoff',
   'rule',
