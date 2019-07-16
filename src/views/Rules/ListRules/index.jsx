@@ -22,7 +22,7 @@ import {
   getChannels,
   getRules,
   getScheduledChanges,
-  getScheduledChange,
+  getScheduledChangeByRuleId,
   deleteRule,
 } from '../../../services/rules';
 import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
@@ -337,7 +337,7 @@ function ListRules(props) {
     }
 
     if (Object.keys(dialogRule.requiredSignoffs).length > 0) {
-      return (await getScheduledChange(dialogRule.rule_id)).data
+      return (await getScheduledChangeByRuleId(dialogRule.rule_id)).data
         .scheduled_changes[0];
     }
 
