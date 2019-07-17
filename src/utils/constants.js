@@ -47,6 +47,10 @@ export const DIALOG_ACTION_INITIAL_STATE = {
   confirmText: '',
   item: null,
   open: false,
+  handleSubmit: Function.prototype,
+  handleClose: Function.prototype,
+  handleError: Function.prototype,
+  handleComplete: Function.prototype,
 };
 export const EMPTY_MENU_ITEM_CHAR = '-';
 export const PERMISSION_RESTRICTION_MAPPINGS = {

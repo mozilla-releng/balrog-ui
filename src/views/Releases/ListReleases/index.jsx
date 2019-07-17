@@ -35,12 +35,7 @@ function ListReleases(props) {
   const [releaseNameHash, setReleaseNameHash] = useState(null);
   const [scrollToRow, setScrollToRow] = useState(null);
   const [searchValue, setSearchValue] = useState('');
-  const [readOnlyDialogState, setReadOnlyDialogState] = useState(
-    DIALOG_ACTION_INITIAL_STATE
-  );
-  const [deleteDialogState, setDeleteDialogState] = useState(
-    DIALOG_ACTION_INITIAL_STATE
-  );
+  const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [snackbarState, setSnackbarState] = useState(SNACKBAR_INITIAL_STATE);
   const [releases, setReleases] = useState([]);
   const [releasesAction, fetchReleases] = useAction(getReleases);
@@ -96,8 +91,65 @@ function ListReleases(props) {
     setSnackbarState(SNACKBAR_INITIAL_STATE);
   };
 
+  const handleSearchChange = ({ target: { value } }) => {
+    setSearchValue(value);
+  };
+
+  // TODO Add mutation
+  const handleReadOnlySubmit = () => {};
+  const handleReadOnlyClose = () => {
+    setDialogState({
+      ...dialogState,
+      open: false,
+    });
+  };
+
+  const handleReadOnlyError = error => {
+    setDialogState({
+      ...dialogState,
+      error,
+    });
+  };
+
+  const handleDeleteSubmit = async state => {
+    const release = state.item;
+    const { error } = await delRelease({
+      name: release.name,
+      dataVersion: release.data_version,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return release.name;
+  };
+
+  const handleDeleteClose = () => {
+    setDialogState({
+      ...dialogState,
+      open: false,
+    });
+  };
+
+  const handleDeleteComplete = name => {
+    setReleases(releases.filter(r => r.name !== name));
+    handleSnackbarOpen({
+      message: `${name} deleted`,
+    });
+
+    handleDeleteClose();
+  };
+
+  const handleDeleteError = error => {
+    setDialogState({
+      ...dialogState,
+      error,
+    });
+  };
+
   const handleAccessChange = ({ release, checked }) => {
-    setReadOnlyDialogState({
+    setDialogState({
       open: true,
       title: checked ? 'Read Only?' : 'Read/Write?',
       confirmText: 'Yes',
@@ -105,16 +157,24 @@ function ListReleases(props) {
         checked ? 'read only' : 'writable'
       }.`,
       item: release,
+      handleSubmit: handleReadOnlySubmit,
+      handleClose: handleReadOnlyClose,
+      handleError: handleReadOnlyError,
+      handleComplete: handleReadOnlyClose,
     });
   };
 
   const handleDelete = release => {
-    setDeleteDialogState({
+    setDialogState({
       open: true,
       title: 'Delete Release?',
       confirmText: 'Delete',
       body: `This will delete ${release.name}`,
       item: release,
+      handleSubmit: handleDeleteSubmit,
+      handleClose: handleDeleteClose,
+      handleError: handleDeleteError,
+      handleComplete: handleDeleteComplete,
     });
   };
 
@@ -152,63 +212,6 @@ function ListReleases(props) {
     return height;
   };
 
-  const handleSearchChange = ({ target: { value } }) => {
-    setSearchValue(value);
-  };
-
-  // TODO Add mutation
-  const handleReadOnlySubmit = () => {};
-  const handleReadOnlyClose = () => {
-    setReadOnlyDialogState({
-      ...readOnlyDialogState,
-      open: false,
-    });
-  };
-
-  const handleReadOnlyError = error => {
-    setReadOnlyDialogState({
-      ...readOnlyDialogState,
-      error,
-    });
-  };
-
-  const handleDeleteSubmit = async () => {
-    const release = deleteDialogState.item;
-    const { error } = await delRelease({
-      name: release.name,
-      dataVersion: release.data_version,
-    });
-
-    if (error) {
-      throw error;
-    }
-
-    return release.name;
-  };
-
-  const handleDeleteClose = () => {
-    setDeleteDialogState({
-      ...deleteDialogState,
-      open: false,
-    });
-  };
-
-  const handleDeleteComplete = name => {
-    setReleases(releases.filter(r => r.name !== name));
-    handleSnackbarOpen({
-      message: `${name} deleted`,
-    });
-
-    handleDeleteClose();
-  };
-
-  const handleDeleteError = error => {
-    setDeleteDialogState({
-      ...deleteDialogState,
-      error,
-    });
-  };
-
   return (
     <Dashboard title="Releases">
       <SearchBar
@@ -227,26 +230,15 @@ function ListReleases(props) {
         />
       )}
       <DialogAction
-        title={readOnlyDialogState.title}
-        body={readOnlyDialogState.body}
-        open={readOnlyDialogState.open}
-        error={readOnlyDialogState.error}
-        confirmText={readOnlyDialogState.confirmText}
-        onSubmit={handleReadOnlySubmit}
-        onClose={handleReadOnlyClose}
-        onError={handleReadOnlyError}
-        onComplete={handleReadOnlyClose}
-      />
-      <DialogAction
-        title={deleteDialogState.title}
-        body={deleteDialogState.body}
-        open={deleteDialogState.open}
-        error={deleteDialogState.error}
-        confirmText={deleteDialogState.confirmText}
-        onSubmit={handleDeleteSubmit}
-        onClose={handleDeleteClose}
-        onError={handleDeleteError}
-        onComplete={handleDeleteComplete}
+        title={dialogState.title}
+        body={dialogState.body}
+        open={dialogState.open}
+        error={dialogState.error}
+        confirmText={dialogState.confirmText}
+        onSubmit={() => dialogState.handleSubmit(dialogState)}
+        onClose={dialogState.handleClose}
+        onError={dialogState.handleError}
+        onComplete={dialogState.handleComplete}
       />
       <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
       {!isLoading && (
