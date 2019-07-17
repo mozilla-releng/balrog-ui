@@ -28,6 +28,7 @@ import {
   supportsActionRestriction,
   getSupportedActions,
 } from '../../../utils/userUtils';
+import updateUser from '../utils/updateUser';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -93,7 +94,7 @@ function ViewUser({ isNewUser, ...props }) {
   const [productsAction, fetchProducts] = useAction(getProducts);
   const [userAction, fetchUser] = useAction(getUserInfo);
   // eslint-disable-next-line no-unused-vars
-  const [saveAction, saveUser] = useAction(() => {});
+  const [saveAction, saveUser] = useAction(updateUser);
   const isLoading = userAction.loading || productsAction.loading;
   const error = userAction.error || productsAction.error || saveAction.error;
   const defaultToEmptyString = defaultTo('');
@@ -238,7 +239,22 @@ function ViewUser({ isNewUser, ...props }) {
       : setPermissions(permissions.map(updateText));
   };
 
-  const handleUserSave = () => {};
+  const handleUserSave = async () => {
+    const { error } = await saveUser({
+      username,
+      roles,
+      originalRoles,
+      additionalRoles,
+      permissions,
+      originalPermissions,
+      additionalPermissions,
+    });
+
+    if (!error) {
+      props.history.push('/users');
+    }
+  };
+
   const handleUserDelete = () => {};
   const renderRole = (role, index) => (
     <Grid container spacing={2} key={index}>
