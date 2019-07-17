@@ -5,14 +5,19 @@ import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import Dashboard from '../../../components/Dashboard';
+import ErrorPanel from '../../../components/ErrorPanel';
 import ReleaseCard from '../../../components/ReleaseCard';
 import useAction from '../../../hooks/useAction';
 import Link from '../../../utils/Link';
-import { getReleases } from '../../../services/releases';
+import { getReleases, deleteRelease } from '../../../services/releases';
 import VariableSizeList from '../../../components/VariableSizeList';
 import SearchBar from '../../../components/SearchBar';
 import DialogAction from '../../../components/DialogAction';
-import { DIALOG_ACTION_INITIAL_STATE } from '../../../utils/constants';
+import Snackbar from '../../../components/Snackbar';
+import {
+  DIALOG_ACTION_INITIAL_STATE,
+  SNACKBAR_INITIAL_STATE,
+} from '../../../utils/constants';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -23,7 +28,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function ListPermissions(props) {
+function ListReleases(props) {
   const classes = useStyles();
   const theme = useTheme();
   const { hash } = props.location;
@@ -36,25 +41,32 @@ function ListPermissions(props) {
   const [deleteDialogState, setDeleteDialogState] = useState(
     DIALOG_ACTION_INITIAL_STATE
   );
-  const [releases, fetchReleases] = useAction(getReleases);
-  const isLoading = releases.loading;
+  const [snackbarState, setSnackbarState] = useState(SNACKBAR_INITIAL_STATE);
+  const [releases, setReleases] = useState([]);
+  const [releasesAction, fetchReleases] = useAction(getReleases);
+  const delRelease = useAction(deleteRelease)[1];
+  const isLoading = releasesAction.loading;
+  // eslint-disable-next-line prefer-destructuring
+  const error = releasesAction.error;
   const filteredReleases = useMemo(() => {
-    if (!releases.data) {
+    if (!releases) {
       return [];
     }
 
     if (!searchValue) {
-      return releases.data.data.releases;
+      return releases;
     }
 
-    return releases.data.data.releases.filter(release =>
+    return releases.filter(release =>
       release.name.toLowerCase().includes(searchValue.toLowerCase())
     );
-  }, [releases.data, searchValue]);
+  }, [releases, searchValue]);
   const filteredReleasesCount = filteredReleases.length;
 
   useEffect(() => {
-    fetchReleases();
+    fetchReleases().then(r => {
+      setReleases(r.data.data.releases);
+    });
   }, []);
 
   useEffect(() => {
@@ -72,6 +84,18 @@ function ListPermissions(props) {
     }
   }, [hash, filteredReleases]);
 
+  const handleSnackbarOpen = ({ message, variant = 'success' }) => {
+    setSnackbarState({ message, variant, open: true });
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbarState(SNACKBAR_INITIAL_STATE);
+  };
+
   const handleAccessChange = ({ release, checked }) => {
     setReadOnlyDialogState({
       open: true,
@@ -84,7 +108,15 @@ function ListPermissions(props) {
     });
   };
 
-  const handleDelete = () => {};
+  const handleDelete = release => {
+    setDeleteDialogState({
+      open: true,
+      title: 'Delete Release?',
+      confirmText: 'Delete',
+      body: `This will delete ${release.name}`,
+      item: release,
+    });
+  };
 
   const Row = ({ index, style }) => {
     const release = filteredReleases[index];
@@ -140,17 +172,39 @@ function ListPermissions(props) {
     });
   };
 
-  const handleDeleteSubmit = () => {};
+  const handleDeleteSubmit = async () => {
+    const release = deleteDialogState.item;
+    const { error } = await delRelease({
+      name: release.name,
+      dataVersion: release.data_version,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return release.name;
+  };
+
   const handleDeleteClose = () => {
     setDeleteDialogState({
-      ...readOnlyDialogState,
+      ...deleteDialogState,
       open: false,
     });
   };
 
+  const handleDeleteComplete = name => {
+    setReleases(releases.filter(r => r.name !== name));
+    handleSnackbarOpen({
+      message: `${name} deleted`,
+    });
+
+    handleDeleteClose();
+  };
+
   const handleDeleteError = error => {
     setDeleteDialogState({
-      ...readOnlyDialogState,
+      ...deleteDialogState,
       error,
     });
   };
@@ -163,6 +217,7 @@ function ListPermissions(props) {
         value={searchValue}
       />
       {isLoading && <Spinner loading />}
+      {error && <ErrorPanel fixed error={error} />}
       {!isLoading && filteredReleases && (
         <VariableSizeList
           rowRenderer={Row}
@@ -191,8 +246,9 @@ function ListPermissions(props) {
         onSubmit={handleDeleteSubmit}
         onClose={handleDeleteClose}
         onError={handleDeleteError}
-        onComplete={handleDeleteClose}
+        onComplete={handleDeleteComplete}
       />
+      <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
       {!isLoading && (
         <Link to="/releases/create">
           <Tooltip title="Add Release">
@@ -206,4 +262,4 @@ function ListPermissions(props) {
   );
 }
 
-export default ListPermissions;
+export default ListReleases;
