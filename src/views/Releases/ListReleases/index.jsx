@@ -97,16 +97,16 @@ function ListReleases(props) {
 
   // TODO Add mutation
   const handleReadOnlySubmit = () => {};
-  const handleReadOnlyClose = () => {
+  const handleReadOnlyClose = state => {
     setDialogState({
-      ...dialogState,
+      ...state,
       open: false,
     });
   };
 
-  const handleReadOnlyError = error => {
+  const handleReadOnlyError = (state, error) => {
     setDialogState({
-      ...dialogState,
+      ...state,
       error,
     });
   };
@@ -125,9 +125,12 @@ function ListReleases(props) {
     return release.name;
   };
 
-  const handleDeleteClose = () => {
+  // Setting state like this ends up with an error in the console:
+  // Failed prop type: The prop `confirmText` is marked as required
+  // in `DialogAction`, but its value is `undefined`
+  const handleDeleteClose = state => {
     setDialogState({
-      ...dialogState,
+      ...state,
       open: false,
     });
   };
@@ -141,9 +144,9 @@ function ListReleases(props) {
     handleDeleteClose();
   };
 
-  const handleDeleteError = error => {
+  const handleDeleteError = (state, error) => {
     setDialogState({
-      ...dialogState,
+      ...state,
       error,
     });
   };
@@ -236,8 +239,8 @@ function ListReleases(props) {
         error={dialogState.error}
         confirmText={dialogState.confirmText}
         onSubmit={() => dialogState.handleSubmit(dialogState)}
-        onClose={dialogState.handleClose}
-        onError={dialogState.handleError}
+        onClose={() => dialogState.handleClose(dialogState)}
+        onError={error => dialogState.handleError(dialogState, error)}
         onComplete={dialogState.handleComplete}
       />
       <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
