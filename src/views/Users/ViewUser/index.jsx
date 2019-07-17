@@ -20,9 +20,10 @@ import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
 import SpeedDial from '../../../components/SpeedDial';
 import useAction from '../../../hooks/useAction';
+import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
 import { getProducts } from '../../../services/rules';
 import { getUserInfo } from '../../../services/users';
-import { ALL_PERMISSIONS } from '../../../utils/constants';
+import { ALL_PERMISSIONS, OBJECT_NAMES } from '../../../utils/constants';
 import {
   supportsProductRestriction,
   supportsActionRestriction,
@@ -91,50 +92,60 @@ function ViewUser({ isNewUser, ...props }) {
     isNewUser ? [getEmptyPermission()] : []
   );
   const [products, setProducts] = useState([]);
+  const [requiredSignoffs, setRequiredSignoffs] = useState([]);
+  const [rsAction, fetchRS] = useAction(getRequiredSignoffs);
   const [productsAction, fetchProducts] = useAction(getProducts);
   const [userAction, fetchUser] = useAction(getUserInfo);
   // eslint-disable-next-line no-unused-vars
   const [saveAction, saveUser] = useAction(updateUser);
-  const isLoading = userAction.loading || productsAction.loading;
-  const error = userAction.error || productsAction.error || saveAction.error;
+  const isLoading =
+    userAction.loading || productsAction.loading || rsAction.loading;
+  const error =
+    userAction.error ||
+    productsAction.error ||
+    saveAction.error ||
+    rsAction.error;
   const defaultToEmptyString = defaultTo('');
 
   useEffect(() => {
     if (!isNewUser) {
-      Promise.all([fetchUser(existingUsername), fetchProducts()]).then(
-        ([userdata, productdata]) => {
-          const roles = Object.keys(userdata.data.data.roles).map(name => ({
-            name,
-            data_version: userdata.data.data.roles[name].data_version,
-            metadata: {
-              isAdditional: false,
-            },
-          }));
-          const permissions = Object.keys(userdata.data.data.permissions).map(
-            name => {
-              const details = userdata.data.data.permissions[name];
+      Promise.all([
+        fetchUser(existingUsername),
+        fetchProducts(),
+        fetchRS(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
+      ]).then(([userdata, productdata, rs]) => {
+        const roles = Object.keys(userdata.data.data.roles).map(name => ({
+          name,
+          data_version: userdata.data.data.roles[name].data_version,
+          metadata: {
+            isAdditional: false,
+          },
+        }));
+        const permissions = Object.keys(userdata.data.data.permissions).map(
+          name => {
+            const details = userdata.data.data.permissions[name];
 
-              return {
-                name,
-                options: details.options || { products: [], actions: [] },
-                data_version: details.data_version,
-                metadata: {
-                  isAdditional: false,
-                  productText: '',
-                  actionText: '',
-                },
-              };
-            }
-          );
+            return {
+              name,
+              options: details.options || { products: [], actions: [] },
+              data_version: details.data_version,
+              metadata: {
+                isAdditional: false,
+                productText: '',
+                actionText: '',
+              },
+            };
+          }
+        );
 
-          setUsername(userdata.data.data.username);
-          setRoles(roles);
-          setOriginalRoles(clone(roles));
-          setPermissions(permissions);
-          setOriginalPermissions(clone(permissions));
-          setProducts(productdata.data.data.product);
-        }
-      );
+        setUsername(userdata.data.data.username);
+        setRoles(roles);
+        setOriginalRoles(clone(roles));
+        setPermissions(permissions);
+        setOriginalPermissions(clone(permissions));
+        setProducts(productdata.data.data.product);
+        setRequiredSignoffs(rs.data.data.required_signoffs);
+      });
     }
   }, []);
 
@@ -248,6 +259,7 @@ function ViewUser({ isNewUser, ...props }) {
       permissions,
       originalPermissions,
       additionalPermissions,
+      requiredSignoffs,
     });
 
     if (!error) {

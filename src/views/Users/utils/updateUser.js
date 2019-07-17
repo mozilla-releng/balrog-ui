@@ -1,4 +1,10 @@
-import { addRole, removeRole } from '../../../services/users';
+import {
+  addRole,
+  removeRole,
+  addPermission,
+  updatePermission,
+  deletePermission,
+} from '../../../services/users';
 
 export default params => {
   const {
@@ -9,10 +15,15 @@ export default params => {
     permissions,
     originalPermissions,
     additionalPermissions,
+    requiredSignoffs,
   } = params;
   const currentRoles = roles.map(role => role.name);
   const removedRoles = originalRoles.filter(
     role => !currentRoles.includes(role.name)
+  );
+  const currentPermissions = permissions.map(p => p.name);
+  const removedPermissions = originalPermissions.filter(
+    p => !currentPermissions.includes(p.name)
   );
 
   return Promise.all(
@@ -20,7 +31,10 @@ export default params => {
       additionalRoles.map(role => addRole(username, role.name)),
       removedRoles.map(role =>
         removeRole(username, role.name, role.data_version)
-      )
+      ),
+      permissions.map(permission => {}),
+      additionalPermissions.map(permission => {}),
+      removedPermissions.map(permission => {})
     )
   );
 };
