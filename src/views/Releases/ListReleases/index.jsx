@@ -30,7 +30,12 @@ function ListPermissions(props) {
   const [releaseNameHash, setReleaseNameHash] = useState(null);
   const [scrollToRow, setScrollToRow] = useState(null);
   const [searchValue, setSearchValue] = useState('');
-  const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
+  const [readOnlyDialogState, setReadOnlyDialogState] = useState(
+    DIALOG_ACTION_INITIAL_STATE
+  );
+  const [deleteDialogState, setDeleteDialogState] = useState(
+    DIALOG_ACTION_INITIAL_STATE
+  );
   const [releases, fetchReleases] = useAction(getReleases);
   const isLoading = releases.loading;
   const filteredReleases = useMemo(() => {
@@ -68,7 +73,7 @@ function ListPermissions(props) {
   }, [hash, filteredReleases]);
 
   const handleAccessChange = ({ release, checked }) => {
-    setDialogState({
+    setReadOnlyDialogState({
       open: true,
       title: checked ? 'Read Only?' : 'Read/Write?',
       confirmText: 'Yes',
@@ -79,6 +84,8 @@ function ListPermissions(props) {
     });
   };
 
+  const handleDelete = () => {};
+
   const Row = ({ index, style }) => {
     const release = filteredReleases[index];
 
@@ -88,6 +95,7 @@ function ListPermissions(props) {
           className={classes.releaseCard}
           release={release}
           onAccessChange={handleAccessChange}
+          onReleaseDelete={handleDelete}
         />
       </div>
     );
@@ -117,17 +125,32 @@ function ListPermissions(props) {
   };
 
   // TODO Add mutation
-  const handleDialogSubmit = () => {};
-  const handleDialogClose = () => {
-    setDialogState({
-      ...dialogState,
+  const handleReadOnlySubmit = () => {};
+  const handleReadOnlyClose = () => {
+    setReadOnlyDialogState({
+      ...readOnlyDialogState,
       open: false,
     });
   };
 
-  const handleDialogError = error => {
-    setDialogState({
-      ...dialogState,
+  const handleReadOnlyError = error => {
+    setReadOnlyDialogState({
+      ...readOnlyDialogState,
+      error,
+    });
+  };
+
+  const handleDeleteSubmit = () => {};
+  const handleDeleteClose = () => {
+    setDeleteDialogState({
+      ...readOnlyDialogState,
+      open: false,
+    });
+  };
+
+  const handleDeleteError = error => {
+    setDeleteDialogState({
+      ...readOnlyDialogState,
       error,
     });
   };
@@ -149,15 +172,26 @@ function ListPermissions(props) {
         />
       )}
       <DialogAction
-        title={dialogState.title}
-        body={dialogState.body}
-        open={dialogState.open}
-        error={dialogState.error}
-        confirmText={dialogState.confirmText}
-        onSubmit={handleDialogSubmit}
-        onClose={handleDialogClose}
-        onError={handleDialogError}
-        onComplete={handleDialogClose}
+        title={readOnlyDialogState.title}
+        body={readOnlyDialogState.body}
+        open={readOnlyDialogState.open}
+        error={readOnlyDialogState.error}
+        confirmText={readOnlyDialogState.confirmText}
+        onSubmit={handleReadOnlySubmit}
+        onClose={handleReadOnlyClose}
+        onError={handleReadOnlyError}
+        onComplete={handleReadOnlyClose}
+      />
+      <DialogAction
+        title={deleteDialogState.title}
+        body={deleteDialogState.body}
+        open={deleteDialogState.open}
+        error={deleteDialogState.error}
+        confirmText={deleteDialogState.confirmText}
+        onSubmit={handleDeleteSubmit}
+        onClose={handleDeleteClose}
+        onError={handleDeleteError}
+        onComplete={handleDeleteClose}
       />
       {!isLoading && (
         <Link to="/releases/create">
