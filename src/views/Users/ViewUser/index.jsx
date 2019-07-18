@@ -22,7 +22,7 @@ import SpeedDial from '../../../components/SpeedDial';
 import useAction from '../../../hooks/useAction';
 import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
 import { getProducts } from '../../../services/rules';
-import { getUserInfo } from '../../../services/users';
+import { getUserInfo, getScheduledChanges } from '../../../services/users';
 import { ALL_PERMISSIONS, OBJECT_NAMES } from '../../../utils/constants';
 import {
   supportsProductRestriction,
@@ -61,6 +61,7 @@ function ViewUser({ isNewUser, ...props }) {
       products: [],
       actions: [],
     },
+    scheduledChange: {},
     metadata: {
       isAdditional: true,
       productText: '',
@@ -96,15 +97,17 @@ function ViewUser({ isNewUser, ...props }) {
   const [rsAction, fetchRS] = useAction(getRequiredSignoffs);
   const [productsAction, fetchProducts] = useAction(getProducts);
   const [userAction, fetchUser] = useAction(getUserInfo);
+  const [SCAction, fetchSC] = useAction(getScheduledChanges);
   // eslint-disable-next-line no-unused-vars
   const [saveAction, saveUser] = useAction(updateUser);
   const isLoading =
-    userAction.loading || productsAction.loading || rsAction.loading;
+    userAction.loading || productsAction.loading || rsAction.loading || SCAction.loading;
   const error =
     userAction.error ||
     productsAction.error ||
     saveAction.error ||
-    rsAction.error;
+    rsAction.error ||
+    SCAction.error;
   const defaultToEmptyString = defaultTo('');
 
   useEffect(() => {
@@ -113,7 +116,8 @@ function ViewUser({ isNewUser, ...props }) {
         fetchUser(existingUsername),
         fetchProducts(),
         fetchRS(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
-      ]).then(([userdata, productdata, rs]) => {
+        fetchSC(),
+      ]).then(([userdata, productdata, rs, scheduledChanges]) => {
         const roles = Object.keys(userdata.data.data.roles).map(name => ({
           name,
           data_version: userdata.data.data.roles[name].data_version,
@@ -124,17 +128,26 @@ function ViewUser({ isNewUser, ...props }) {
         const permissions = Object.keys(userdata.data.data.permissions).map(
           name => {
             const details = userdata.data.data.permissions[name];
-
-            return {
+            const sc = scheduledChanges.data.data.scheduled_changes.filter(sc => sc.permission === name);
+            const permission = {
               name,
               options: details.options || { products: [], actions: [] },
               data_version: details.data_version,
+              scheduledChange: {},
               metadata: {
                 isAdditional: false,
                 productText: '',
                 actionText: '',
               },
             };
+
+            if (sc) {
+              sc[0].name = sc[0].permission;
+              delete sc[0].permission;
+              permission.scheduledChange = sc[0];
+            }
+
+            return permission;
           }
         );
 
@@ -148,6 +161,7 @@ function ViewUser({ isNewUser, ...props }) {
       });
     }
   }, []);
+  console.log(permissions);
 
   const handleUsernameChange = ({ target: { value } }) => setUsername(value);
   const handleRoleNameChange = (role, index, value) => {

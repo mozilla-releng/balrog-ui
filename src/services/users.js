@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const getUsers = () => axios.get('/users');
 const getUserInfo = username => axios.get(`/users/${username}`);
+const getScheduledChanges = () => axios.get('/scheduled_changes/permissions');
 const addRole = (username, role) =>
   axios.put(`/users/${username}/roles/${role}`);
 const removeRole = (username, role, dataVersion) =>
@@ -47,6 +48,7 @@ const updateScheduledPermissionChange = ({ username, permission, options, dataVe
 export {
   getUsers,
   getUserInfo,
+  getScheduledChanges,
   addRole,
   removeRole,
   addPermission,
