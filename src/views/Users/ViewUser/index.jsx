@@ -55,7 +55,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ViewUser({ isNewUser, ...props }) {
-  const getEmptyPermission = () => ({
+  const getEmptyPermission = additional => ({
     name: '',
     options: {
       products: [],
@@ -63,7 +63,7 @@ function ViewUser({ isNewUser, ...props }) {
     },
     sc: null,
     metadata: {
-      isAdditional: true,
+      isAdditional: additional,
       productText: '',
       actionText: '',
     },
@@ -90,7 +90,7 @@ function ViewUser({ isNewUser, ...props }) {
   // eslint-disable-next-line no-unused-vars
   const [originalPermissions, setOriginalPermissions] = useState([]);
   const [additionalPermissions, setAdditionalPermissions] = useState(
-    isNewUser ? [getEmptyPermission()] : []
+    isNewUser ? [getEmptyPermission(true)] : []
   );
   const [products, setProducts] = useState([]);
   // TODO: show pending changes, signoffs, and allow them to be signed off
@@ -162,13 +162,14 @@ function ViewUser({ isNewUser, ...props }) {
           }
         );
 
-        scheduledChanges.data.data.scheduled_changes.map(sc => {
+        scheduledChanges.data.data.scheduled_changes.forEach(sc => {
           if (sc.change_type === 'insert') {
-            const p = getEmptyPermission();
+            const p = getEmptyPermission(false);
+
             p.name = sc.permission;
-            sc.name = sc.permission;
-            delete sc.permission;
-            p.sc = sc;
+            p.sc = clone(sc);
+            p.sc.name = sc.permission;
+            delete p.sc.permission;
             permissions.push(p);
           }
         });
@@ -219,7 +220,7 @@ function ViewUser({ isNewUser, ...props }) {
 
   const handlePermissionAdd = () => {
     setAdditionalPermissions(
-      additionalPermissions.concat([getEmptyPermission()])
+      additionalPermissions.concat([getEmptyPermission(true)])
     );
   };
 

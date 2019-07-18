@@ -83,7 +83,7 @@ export default params => {
             options,
             dataVersion: permission.data_version,
             scId: permission.sc.sc_id,
-            scDataVersion: permission.sc.data_version,
+            scDataVersion: permission.sc.sc_data_version,
             when: new Date().getTime() + 5000,
           });
         }
