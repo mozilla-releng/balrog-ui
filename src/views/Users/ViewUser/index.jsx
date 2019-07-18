@@ -162,6 +162,17 @@ function ViewUser({ isNewUser, ...props }) {
           }
         );
 
+        scheduledChanges.data.data.scheduled_changes.map(sc => {
+          if (sc.change_type === 'insert') {
+            const p = getEmptyPermission();
+            p.name = sc.permission;
+            sc.name = sc.permission;
+            delete sc.permission;
+            p.sc = sc;
+            permissions.push(p);
+          }
+        });
+
         setUsername(userdata.data.data.username);
         setRoles(roles);
         setOriginalRoles(clone(roles));
