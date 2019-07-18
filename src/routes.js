@@ -41,7 +41,7 @@ export default [
   },
   {
     component: History,
-    path: '/history',
+    path: '/history/:object?',
   },
   {
     component: Users,
