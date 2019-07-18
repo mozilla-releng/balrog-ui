@@ -30,20 +30,6 @@ export default params => {
     p => !currentPermissions.includes(p.name)
   );
 
-  const requiresSignoff = (permission, productRestrictions, originalRestrictions) => {
-    return requiredSignoffs.some(rs => {
-      if (!productRestrictions.length || productRestrictions.includes(rs.product)) {
-        return true;
-      }
-
-      if (!originalRestrictions.length || originalRestrictions.includes(rs.original)) {
-        return true;
-      }
-
-      return false;
-    });
-  };
-
   // TODO: need to add support for grabbing scheduled permission changes to ViewUser
   // and figure out where those will be in the data structure. maybe compare to the rules
   // edit page to figure it out?
@@ -56,9 +42,6 @@ export default params => {
       permissions.map(permission => {
         console.log(`Processing ${permission.name}`);
         console.log(permission);
-        const originalPermission = originalPermissions.filter(p => p.name === permission.name)[0];
-        const useScheduledChange = permission.scheduledChange || requiresSignoff(permission.name, permission.options.products, originalPermission.options.products);
-        // todo: can permission.options be null?
         const options = {products: permission.options.products}
         if (supportsActionRestriction(permission.name)) {
           options.actions = permission.options.actions;
@@ -77,33 +60,24 @@ export default params => {
           return;
         }
         
-        if (useScheduledChange) {
-          if (permission.scheduledChange) {
-            return updateScheduledPermissionChange({
-              username,
-              permission: permission.name,
-              options,
-              dataVersion: permission.data_version,
-              scId: permission.scheduledChange.sc_id,
-              scDataVersion: permission.scheduledChange.data_version,
-            });
-          }
-
-          return addScheduledPermissionChange({
+        if (permission.sc_id) {
+          return updateScheduledPermissionChange({
             username,
             permission: permission.name,
             options,
             dataVersion: permission.data_version,
-            changeType: 'update',
-            when: new Date().getTime() + 5000,
+            scId: permission.sc_id,
+            scDataVersion: permission.data_version,
           });
         }
 
-        return updatePermission({
+        return addScheduledPermissionChange({
           username,
           permission: permission.name,
           options,
           dataVersion: permission.data_version,
+          changeType: 'update',
+          when: new Date().getTime() + 5000,
         });
       }),
       additionalPermissions.map(permission => {}),
