@@ -1,9 +1,10 @@
 import { hot } from 'react-hot-loader/root';
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { Authorize } from 'react-auth0-components';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/styles';
 import axios from 'axios';
+import ErrorPanel from './components/ErrorPanel';
 import { AuthContext } from './utils/AuthContext';
 import { BASE_URL, USER_SESSION } from './utils/constants';
 import theme from './theme';
@@ -32,8 +33,9 @@ axios.interceptors.request.use(config => {
 axios.interceptors.response.use(
   response => response,
   error => {
-    const errorMsg =
-      error.response.data.exception || error.response.data.detail || null;
+    const errorMsg = error.response
+      ? error.response.data.exception || error.response.data.detail || null
+      : error.message;
 
     // If we found a more detailed error message
     // raise an Error with that instead.
@@ -64,6 +66,7 @@ const App = () => {
   // Wait until authorization is done before rendering
   // to make sure users who are logged in are able to access protected views
   const [ready, setReady] = useState(Boolean(!session));
+  const [backendError, setBackendError] = useState('');
   const handleAuthorize = user => {
     setAuthContext({
       ...authContext,
@@ -75,6 +78,17 @@ const App = () => {
   const handleError = () => {
     setReady(true);
   };
+
+  useEffect(() => {
+    axios.get('/__heartbeat__').then(
+      () => setBackendError(''),
+      error => {
+        setBackendError(
+          `Error contacting Balrog backend: ${error}. Are you connected to the VPN?`
+        );
+      }
+    );
+  }, []);
 
   const render = () => {
     if (session) {
@@ -95,6 +109,7 @@ const App = () => {
       <CssBaseline />
       <AuthContext.Provider value={authContext}>
         <ThemeProvider theme={theme}>
+          {backendError && <ErrorPanel fixed error={backendError} />}
           <Authorize
             authorize={authorize}
             onAuthorize={handleAuthorize}
