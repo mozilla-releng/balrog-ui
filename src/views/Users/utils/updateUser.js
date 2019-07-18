@@ -112,7 +112,22 @@ export default params => {
           when: new Date().getTime() + 5000,
         });
       }),
-      removedPermissions.map(permission => {})
+      removedPermissions.map(permission => {
+        if (permission.sc) {
+          return deleteScheduledPermissionChange({
+            scId: permission.sc.sc_id,
+            scDataVersion: permission.sc.sc_data_version,
+          });
+        }
+
+        return addScheduledPermissionChange({
+          username,
+          permission: permission.name,
+          dataVersion: permission.data_version,
+          changeType: 'delete',
+          when: new Date().getTime() + 5000,
+        });
+      })
     )
   );
 };
