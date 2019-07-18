@@ -1,6 +1,6 @@
 import React, { useEffect, useState, Fragment } from 'react';
 import { bool } from 'prop-types';
-import { clone, defaultTo } from 'ramda';
+import { clone, defaultTo, propOr } from 'ramda';
 import { makeStyles } from '@material-ui/styles';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
@@ -151,7 +151,10 @@ function ViewUser({ isNewUser, ...props }) {
               sc[0].name = sc[0].permission;
               delete sc[0].permission;
 
-              if (!Object.keys(sc[0].options).includes('actions')) {
+              if (
+                sc[0].options &&
+                !Object.keys(sc[0].options).includes('actions')
+              ) {
                 sc[0].options.actions = [];
               }
 
@@ -347,13 +350,14 @@ function ViewUser({ isNewUser, ...props }) {
         <AutoCompleteText
           multi
           disabled={
+            permission.sc.change_type === 'delete' ||
             !supportsProductRestriction(
               permission.sc ? permission.sc.name : permission.name
             )
           }
           selectedItems={
             permission.sc
-              ? permission.sc.options.products
+              ? propOr([], 'products')(permission.sc.options)
               : permission.options.products
           }
           onSelectedItemsChange={handleRestrictionChange(
@@ -370,13 +374,14 @@ function ViewUser({ isNewUser, ...props }) {
         <AutoCompleteText
           multi
           disabled={
+            permission.sc.change_type === 'delete' ||
             !supportsActionRestriction(
               permission.sc ? permission.sc.name : permission.name
             )
           }
           selectedItems={
             permission.sc
-              ? permission.sc.options.actions
+              ? propOr([], 'actions')(permission.sc.options)
               : permission.options.actions
           }
           onSelectedItemsChange={handleRestrictionChange(permission, 'actions')}
@@ -386,6 +391,9 @@ function ViewUser({ isNewUser, ...props }) {
           label="Action Restrictions"
         />
       </Grid>
+      {/* TODO: This delete button functions weirdly when a permission
+          is scheduled to be deleted. If used, it will _cancel_ the
+          deletion. Need to find a better way to handle this. */}
       <Grid item xs={1} className={classes.gridDelete}>
         <IconButton
           className={classes.iconButton}
