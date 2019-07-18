@@ -135,13 +135,13 @@ function ListReleases(props) {
     });
   };
 
-  const handleDeleteComplete = name => {
+  const handleDeleteComplete = (state, name) => {
     setReleases(releases.filter(r => r.name !== name));
     handleSnackbarOpen({
       message: `${name} deleted`,
     });
 
-    handleDeleteClose();
+    handleDeleteClose(state);
   };
 
   const handleDeleteError = (state, error) => {
@@ -241,7 +241,7 @@ function ListReleases(props) {
         onSubmit={() => dialogState.handleSubmit(dialogState)}
         onClose={() => dialogState.handleClose(dialogState)}
         onError={error => dialogState.handleError(dialogState, error)}
-        onComplete={dialogState.handleComplete}
+        onComplete={name => dialogState.handleComplete(dialogState, name)}
       />
       <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
       {!isLoading && (
