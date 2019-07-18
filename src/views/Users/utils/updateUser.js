@@ -52,7 +52,7 @@ export default params => {
           return;
         }
 
-        if (equals(permission.options, permission.sc.options)) {
+        if (permission.sc && equals(permission.options, permission.sc.options)) {
           return deleteScheduledPermissionChange({
             scId: permission.sc.sc_id,
             scDataVersion: permission.sc.sc_data_version,
@@ -70,8 +70,9 @@ export default params => {
             permission: permission.name,
             options,
             dataVersion: permission.data_version,
-            scId: permission.sc_id,
-            scDataVersion: permission.data_version,
+            scId: permission.sc.sc_id,
+            scDataVersion: permission.sc.data_version,
+            when: new Date().getTime() + 5000,
           });
         }
 

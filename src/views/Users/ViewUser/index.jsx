@@ -141,7 +141,7 @@ function ViewUser({ isNewUser, ...props }) {
               },
             };
 
-            if (sc) {
+            if (sc.length > 0) {
               sc[0].name = sc[0].permission;
               delete sc[0].permission;
               if (!Object.keys(sc[0].options).includes('actions')) {
