@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import DataTable from '../../components/DataTable';
-import HistoryForm from '../../components/HistoryForm';
+import HistoryFilter from '../../components/HistoryFilter';
 import Dashboard from '../../components/Dashboard';
 import ErrorPanel from '../../components/ErrorPanel';
 import { getHistory } from '../../utils/History';
@@ -24,7 +24,7 @@ function History() {
     <Dashboard title="History">
       <Fragment>
         {error && <ErrorPanel fixed error={error} />}
-        <HistoryForm onSubmit={handleFormSubmit} />
+        <HistoryFilter onSubmit={handleFormSubmit} />
         <DataTable
           headers={['sno', 'Object', 'Changed By', 'Date', 'Data Version']}
           items={[]}
