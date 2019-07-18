@@ -31,7 +31,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function HistoryForm(props) {
+export default function HistoryFilter(props) {
   const classes = useStyles();
   const { onSubmit } = props;
   const [object, setObject] = useState('');
@@ -133,6 +133,6 @@ export default function HistoryForm(props) {
   );
 }
 
-HistoryForm.propTypes = {
+HistoryFilter.propTypes = {
   onSubmit: func.isRequired,
 };
