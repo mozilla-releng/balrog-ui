@@ -27,6 +27,8 @@ export default function DataTable(props) {
     sortByHeader,
     sortDirection,
     noItemsMessage,
+    tableHeadCellProps,
+    ...rest
   } = props;
   const colSpan = columnsSize || (headers && headers.length) || 0;
   const handleHeaderClick = ({ target }) => {
@@ -38,12 +40,12 @@ export default function DataTable(props) {
   };
 
   return (
-    <Table>
+    <Table {...rest}>
       {headers && (
         <TableHead>
           <TableRow>
             {headers.map(header => (
-              <TableCell key={`table-header-${header}`}>
+              <TableCell key={`table-header-${header}`} {...tableHeadCellProps}>
                 <TableSortLabel
                   id={header}
                   active={header === sortByHeader}
@@ -109,6 +111,10 @@ DataTable.propTypes = {
    * A message to display when there is no items to display.
    */
   noItemsMessage: string,
+  /**
+   * Props given to each table head cell.
+   */
+  tableHeadCellProps: object,
 };
 
 DataTable.defaultProps = {
@@ -118,4 +124,5 @@ DataTable.defaultProps = {
   sortByHeader: null,
   sortDirection: 'desc',
   noItemsMessage: 'No items for this page.',
+  tableHeadCellProps: null,
 };
