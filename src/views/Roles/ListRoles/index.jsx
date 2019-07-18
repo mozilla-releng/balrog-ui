@@ -33,7 +33,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function ListRules() {
+function ListRoles() {
   const classes = useStyles();
   const [usersAction, fetchUsers] = useAction(getUsers);
   const [roleFilter, setRoleFilter] = useState(ALL);
@@ -124,4 +124,4 @@ function ListRules() {
   );
 }
 
-export default ListRules;
+export default ListRoles;
