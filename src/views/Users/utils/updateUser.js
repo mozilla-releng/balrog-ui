@@ -97,7 +97,21 @@ export default params => {
           when: new Date().getTime() + 5000,
         });
       }),
-      additionalPermissions.map(permission => {}),
+      additionalPermissions.map(permission => {
+        const options = { products: permission.options.products };
+
+        if (supportsActionRestriction(permission.name)) {
+          options.actions = permission.options.actions;
+        }
+
+        return addScheduledPermissionChange({
+          username,
+          permission: permission.name,
+          options,
+          changeType: 'insert',
+          when: new Date().getTime() + 5000,
+        });
+      }),
       removedPermissions.map(permission => {})
     )
   );
