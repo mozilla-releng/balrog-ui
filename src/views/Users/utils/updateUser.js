@@ -2,11 +2,9 @@ import { equals } from 'ramda';
 import {
   addRole,
   removeRole,
-  addPermission,
-  updatePermission,
-  deletePermission,
   addScheduledPermissionChange,
   updateScheduledPermissionChange,
+  deleteScheduledPermissionChange,
 } from '../../../services/users';
 import { supportsActionRestriction } from '../../../utils/userUtils';
 
@@ -40,18 +38,12 @@ export default params => {
         removeRole(username, role.name, role.data_version)
       ),
       permissions.map(permission => {
-        console.log(`Processing ${permission.name}`);
-        console.log(permission);
-        const options = {products: permission.options.products}
-        if (supportsActionRestriction(permission.name)) {
-          options.actions = permission.options.actions;
-        }
         let skip = false;
-
         originalPermissions.forEach(value => {
-          // if permissions are the same, set skip to true
-          // not sure if this condition will work
-          if (value.name === permission.name && equals(value.options, permission.options)) {
+          const newOptions = permission.sc ? permission.sc.options : permission.options;
+          const originalOptions = value.sc ? value.sc.options : value.options;
+
+          if (value.name === permission.name && equals(newOptions, originalOptions)) {
             skip = true;
           }
         });
@@ -59,8 +51,20 @@ export default params => {
         if (skip) {
           return;
         }
-        
-        if (permission.sc_id) {
+
+        if (equals(permission.options, permission.sc.options)) {
+          return deleteScheduledPermissionChange({
+            scId: permission.sc.sc_id,
+            scDataVersion: permission.sc.sc_data_version,
+          });
+        }
+
+        const options = {products: permission.sc ? permission.sc.options.products : permission.options.products}
+        if (supportsActionRestriction(permission.name)) {
+          options.actions = permission.sc ? permission.sc.options.actions : permission.options.actions;
+        }
+
+        if (permission.sc) {
           return updateScheduledPermissionChange({
             username,
             permission: permission.name,

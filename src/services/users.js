@@ -9,16 +9,6 @@ const removeRole = (username, role, dataVersion) =>
   axios.delete(`/users/${username}/roles/${role}`, {
     params: { data_version: dataVersion },
   });
-const addPermission = ({ username, permission, options }) => {};
-const updatePermission = ({ username, permission, options, dataVersion }) =>
-  axios.put(
-    `/users/${username}/permissions/${permission}`,
-    {
-      options: JSON.stringify(options),
-      data_version: dataVersion,
-    }
-  );
-const deletePermission = ({ username, permission, dataVersion }) => {};
 const addScheduledPermissionChange = ({ username, permission, options, dataVersion, changeType, when }) =>
   axios.post(
     '/scheduled_changes/permissions',
@@ -45,15 +35,23 @@ const updateScheduledPermissionChange = ({ username, permission, options, dataVe
     },
   );
 
+const deleteScheduledPermissionChange = ({ scId, scDataVersion }) =>
+  axios.delete(
+    `/scheduled_changes/permissions/${scId}`,
+    {
+      params: {
+        data_version: scDataVersion,
+      }
+    },
+  );
+
 export {
   getUsers,
   getUserInfo,
   getScheduledChanges,
   addRole,
   removeRole,
-  addPermission,
-  updatePermission,
-  deletePermission,
   addScheduledPermissionChange,
   updateScheduledPermissionChange,
+  deleteScheduledPermissionChange,
 };
