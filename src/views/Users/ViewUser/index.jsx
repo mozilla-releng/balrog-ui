@@ -93,15 +93,19 @@ function ViewUser({ isNewUser, ...props }) {
     isNewUser ? [getEmptyPermission()] : []
   );
   const [products, setProducts] = useState([]);
+  // TODO: show pending changes, signoffs, and allow them to be signed off
+  // eslint-disable-next-line no-unused-vars
   const [requiredSignoffs, setRequiredSignoffs] = useState([]);
   const [rsAction, fetchRS] = useAction(getRequiredSignoffs);
   const [productsAction, fetchProducts] = useAction(getProducts);
   const [userAction, fetchUser] = useAction(getUserInfo);
   const [SCAction, fetchSC] = useAction(getScheduledChanges);
-  // eslint-disable-next-line no-unused-vars
   const [saveAction, saveUser] = useAction(updateUser);
   const isLoading =
-    userAction.loading || productsAction.loading || rsAction.loading || SCAction.loading;
+    userAction.loading ||
+    productsAction.loading ||
+    rsAction.loading ||
+    SCAction.loading;
   const error =
     userAction.error ||
     productsAction.error ||
@@ -128,7 +132,9 @@ function ViewUser({ isNewUser, ...props }) {
         const permissions = Object.keys(userdata.data.data.permissions).map(
           name => {
             const details = userdata.data.data.permissions[name];
-            const sc = scheduledChanges.data.data.scheduled_changes.filter(sc => sc.permission === name);
+            const sc = scheduledChanges.data.data.scheduled_changes.filter(
+              sc => sc.permission === name
+            );
             const permission = {
               name,
               options: details.options || { products: [], actions: [] },
@@ -144,10 +150,12 @@ function ViewUser({ isNewUser, ...props }) {
             if (sc.length > 0) {
               sc[0].name = sc[0].permission;
               delete sc[0].permission;
+
               if (!Object.keys(sc[0].options).includes('actions')) {
                 sc[0].options.actions = [];
               }
-              permission.sc = sc[0];
+
+              [permission.sc] = sc;
             }
 
             return permission;
@@ -238,9 +246,11 @@ function ViewUser({ isNewUser, ...props }) {
 
       const result = entry;
 
-      result.sc
-        ? result.sc.options[restriction] = chips
-        : result.options[restriction] = chips;
+      if (result.sc) {
+        result.sc.options[restriction] = chips;
+      } else {
+        result.options[restriction] = chips;
+      }
 
       return result;
     };
@@ -277,7 +287,6 @@ function ViewUser({ isNewUser, ...props }) {
       permissions,
       originalPermissions,
       additionalPermissions,
-      requiredSignoffs,
     });
 
     if (!error) {
@@ -309,8 +318,13 @@ function ViewUser({ isNewUser, ...props }) {
     <Grid container spacing={2} key={index}>
       <Grid item xs={3}>
         <AutoCompleteText
-          value={defaultToEmptyString(permission.sc ? permission.sc.name : permission.name)}
-          onValueChange={handlePermissionNameChange(permission.sc || permission, index)}
+          value={defaultToEmptyString(
+            permission.sc ? permission.sc.name : permission.name
+          )}
+          onValueChange={handlePermissionNameChange(
+            permission.sc || permission,
+            index
+          )}
           getSuggestions={getSuggestions(ALL_PERMISSIONS)}
           label="Name"
           required
@@ -320,8 +334,16 @@ function ViewUser({ isNewUser, ...props }) {
       <Grid item xs={4}>
         <AutoCompleteText
           multi
-          disabled={!supportsProductRestriction(permission.sc ? permission.sc.name : permission.name)}
-          selectedItems={permission.sc ? permission.sc.options.products : permission.options.products}
+          disabled={
+            !supportsProductRestriction(
+              permission.sc ? permission.sc.name : permission.name
+            )
+          }
+          selectedItems={
+            permission.sc
+              ? permission.sc.options.products
+              : permission.options.products
+          }
           onSelectedItemsChange={handleRestrictionChange(
             permission,
             'products'
@@ -335,8 +357,16 @@ function ViewUser({ isNewUser, ...props }) {
       <Grid item xs={4}>
         <AutoCompleteText
           multi
-          disabled={!supportsActionRestriction(permission.sc ? permission.sc.name : permission.name)}
-          selectedItems={permission.sc ? permission.sc.options.actions : permission.options.actions}
+          disabled={
+            !supportsActionRestriction(
+              permission.sc ? permission.sc.name : permission.name
+            )
+          }
+          selectedItems={
+            permission.sc
+              ? permission.sc.options.actions
+              : permission.options.actions
+          }
           onSelectedItemsChange={handleRestrictionChange(permission, 'actions')}
           onValueChange={handleRestrictionTextChange(permission, 'actionText')}
           value={permission.metadata.actionText}

@@ -17,7 +17,6 @@ export default params => {
     permissions,
     originalPermissions,
     additionalPermissions,
-    requiredSignoffs,
   } = params;
   const currentRoles = roles.map(role => role.name);
   const removedRoles = originalRoles.filter(
@@ -28,9 +27,6 @@ export default params => {
     p => !currentPermissions.includes(p.name)
   );
 
-  // TODO: need to add support for grabbing scheduled permission changes to ViewUser
-  // and figure out where those will be in the data structure. maybe compare to the rules
-  // edit page to figure it out?
   return Promise.all(
     [].concat(
       additionalRoles.map(role => addRole(username, role.name)),
@@ -39,11 +35,17 @@ export default params => {
       ),
       permissions.map(permission => {
         let skip = false;
+
         originalPermissions.forEach(value => {
-          const newOptions = permission.sc ? permission.sc.options : permission.options;
+          const newOptions = permission.sc
+            ? permission.sc.options
+            : permission.options;
           const originalOptions = value.sc ? value.sc.options : value.options;
 
-          if (value.name === permission.name && equals(newOptions, originalOptions)) {
+          if (
+            value.name === permission.name &&
+            equals(newOptions, originalOptions)
+          ) {
             skip = true;
           }
         });
@@ -52,16 +54,26 @@ export default params => {
           return;
         }
 
-        if (permission.sc && equals(permission.options, permission.sc.options)) {
+        if (
+          permission.sc &&
+          equals(permission.options, permission.sc.options)
+        ) {
           return deleteScheduledPermissionChange({
             scId: permission.sc.sc_id,
             scDataVersion: permission.sc.sc_data_version,
           });
         }
 
-        const options = {products: permission.sc ? permission.sc.options.products : permission.options.products}
+        const options = {
+          products: permission.sc
+            ? permission.sc.options.products
+            : permission.options.products,
+        };
+
         if (supportsActionRestriction(permission.name)) {
-          options.actions = permission.sc ? permission.sc.options.actions : permission.options.actions;
+          options.actions = permission.sc
+            ? permission.sc.options.actions
+            : permission.options.actions;
         }
 
         if (permission.sc) {
