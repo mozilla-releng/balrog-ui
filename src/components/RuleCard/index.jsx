@@ -26,6 +26,7 @@ import { parseDiff, Diff, Hunk } from 'react-diff-view';
 import { formatDistanceStrict } from 'date-fns';
 import 'react-diff-view/style/index.css';
 import SignoffSummary from '../SignoffSummary';
+import { withUser } from '../../utils/AuthContext';
 import Link from '../../utils/Link';
 import { RULE_DIFF_PROPERTIES } from '../../utils/constants';
 import { rule } from '../../utils/prop-types';
@@ -132,7 +133,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function RuleCard({ rule, onRuleDelete, ...props }) {
+function RuleCard({ rule, onRuleDelete, user, ...props }) {
   const classes = useStyles();
   const requiresSignoff =
     rule.scheduledChange && Object.keys(rule.scheduledChange).length > 0;
@@ -710,7 +711,7 @@ function RuleCard({ rule, onRuleDelete, ...props }) {
             )}
           </Fragment>
         )}
-        {rule.scheduledChange && requiresSignoff && (
+        {requiresSignoff && (
           <Fragment>
             <Divider className={classes.divider} />
             <SignoffSummary
@@ -741,6 +742,12 @@ function RuleCard({ rule, onRuleDelete, ...props }) {
         <Button color="secondary" onClick={() => onRuleDelete(rule)}>
           Delete
         </Button>
+        {requiresSignoff &&
+        (user && user.email in rule.scheduledChange.signoffs) ? (
+          <Button color="secondary">Revoke Signoff</Button>
+        ) : (
+          <Button color="secondary">Signoff as</Button>
+        )}
       </CardActions>
     </Card>
   );
@@ -751,4 +758,4 @@ RuleCard.propTypes = {
   onRuleDelete: func.isRequired,
 };
 
-export default RuleCard;
+export default withUser(RuleCard);
