@@ -23,7 +23,7 @@ function Main() {
   const [backendError, setBackendError] = useState('');
 
   useEffect(() => {
-    axios.get('/__heartbeati__').then(
+    axios.get('/__heartbeat__').then(
       () => setBackendError(''),
       error => {
         setBackendError(
