@@ -25,6 +25,7 @@ import { diffLines, formatLines } from 'unidiff';
 import { parseDiff, Diff, Hunk } from 'react-diff-view';
 import { formatDistanceStrict } from 'date-fns';
 import 'react-diff-view/style/index.css';
+import SignoffSummary from '../SignoffSummary';
 import Link from '../../utils/Link';
 import { RULE_DIFF_PROPERTIES } from '../../utils/constants';
 import { rule } from '../../utils/prop-types';
@@ -133,6 +134,8 @@ const useStyles = makeStyles(theme => ({
 
 function RuleCard({ rule, onRuleDelete, ...props }) {
   const classes = useStyles();
+  const requiresSignoff =
+    rule.scheduledChange && Object.keys(rule.scheduledChange).length > 0;
   const getChipIcon = changeType => {
     switch (changeType) {
       case 'delete': {
@@ -705,6 +708,15 @@ function RuleCard({ rule, onRuleDelete, ...props }) {
                 </Diff>
               )
             )}
+          </Fragment>
+        )}
+        {rule.scheduledChange && requiresSignoff && (
+          <Fragment>
+            <Divider className={classes.divider} />
+            <SignoffSummary
+              requiredSignoffs={rule.scheduledChange.required_signoffs}
+              signoffs={rule.scheduledChange.signoffs}
+            />
           </Fragment>
         )}
       </CardContent>

@@ -415,6 +415,19 @@ function ListRules(props) {
           // diff viewer
           height += diffedProperties.length * 21 + theme.spacing(5);
         }
+
+        if (Object.keys(rule.scheduledChange.required_signoffs).length > 0) {
+          // add some space for the basic "requires signoff from" text
+          // and divider
+          // todo: how to know how much to add?
+          height += theme.spacing(6);
+
+          // add extra space if more than one signoff has been made
+          // not sure if this is the right amount
+          height += theme.spacing(
+            5 * Object.keys(rule.scheduledChange.signoffs).length - 1
+          );
+        }
       }
     }
 
