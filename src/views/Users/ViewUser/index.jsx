@@ -350,7 +350,7 @@ function ViewUser({ isNewUser, ...props }) {
         <AutoCompleteText
           multi
           disabled={
-            permission.sc.change_type === 'delete' ||
+            permission.sc && permission.sc.change_type === 'delete' ||
             !supportsProductRestriction(
               permission.sc ? permission.sc.name : permission.name
             )
@@ -374,7 +374,7 @@ function ViewUser({ isNewUser, ...props }) {
         <AutoCompleteText
           multi
           disabled={
-            permission.sc.change_type === 'delete' ||
+            permission.sc && permission.sc.change_type === 'delete' ||
             !supportsActionRestriction(
               permission.sc ? permission.sc.name : permission.name
             )
