@@ -35,9 +35,9 @@ function Main() {
 
   return backendError ? (
     <BrowserRouter>
-    <Dashboard title="Error" disabled>
-      <ErrorPanel fixed error={backendError} />
-    </Dashboard>
+      <Dashboard title="Error" disabled>
+        <ErrorPanel fixed error={backendError} />
+      </Dashboard>
     </BrowserRouter>
   ) : (
     <BrowserRouter>

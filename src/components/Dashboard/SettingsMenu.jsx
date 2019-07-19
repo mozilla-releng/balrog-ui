@@ -44,7 +44,11 @@ function SettingsMenu({ user, disabled }) {
         onClick={handleMenuOpen}>
         <SettingsOutlineIcon
           size={24}
-          className={(user && !disabled) ? classes.settingsIcon : classes.settingsIconDisabled}
+          className={
+            user && !disabled
+              ? classes.settingsIcon
+              : classes.settingsIconDisabled
+          }
         />
       </IconButton>
       <Menu
