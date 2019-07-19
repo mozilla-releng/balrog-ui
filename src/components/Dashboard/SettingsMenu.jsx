@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function SettingsMenu({ user }) {
+function SettingsMenu({ user, disabled }) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   const handleMenuOpen = e => setAnchorEl(e.currentTarget);
@@ -36,7 +36,7 @@ function SettingsMenu({ user }) {
   return (
     <Fragment>
       <IconButton
-        disabled={!user}
+        disabled={!user || disabled}
         className={classes.settings}
         aria-haspopup="true"
         aria-controls="user-menu"
@@ -44,7 +44,7 @@ function SettingsMenu({ user }) {
         onClick={handleMenuOpen}>
         <SettingsOutlineIcon
           size={24}
-          className={user ? classes.settingsIcon : classes.settingsIconDisabled}
+          className={(user && !disabled) ? classes.settingsIcon : classes.settingsIconDisabled}
         />
       </IconButton>
       <Menu
