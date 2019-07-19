@@ -147,16 +147,14 @@ function ViewUser({ isNewUser, ...props }) {
               },
             };
 
+            // Copy any scheduled changes associated with an existing
+            // permission into the list of permissions.
             if (sc.length > 0) {
+              // The backend refers to permission names as the 'permission'
+              // attribute of an object, but we prefer to call it 'name', so
+              // we have to adjust that.
               sc[0].name = sc[0].permission;
               delete sc[0].permission;
-
-              if (
-                sc[0].options &&
-                !Object.keys(sc[0].options).includes('actions')
-              ) {
-                sc[0].options.actions = [];
-              }
 
               [permission.sc] = sc;
             }
@@ -165,6 +163,8 @@ function ViewUser({ isNewUser, ...props }) {
           }
         );
 
+        // Scheduled inserts don't have an existing permission to associate
+        // with, so we need to create an empty one, and add to it.
         scheduledChanges.data.data.scheduled_changes.forEach(sc => {
           if (sc.change_type === 'insert') {
             const p = getEmptyPermission(false);
@@ -350,7 +350,7 @@ function ViewUser({ isNewUser, ...props }) {
         <AutoCompleteText
           multi
           disabled={
-            permission.sc && permission.sc.change_type === 'delete' ||
+            (permission.sc && permission.sc.change_type === 'delete') ||
             !supportsProductRestriction(
               permission.sc ? permission.sc.name : permission.name
             )
@@ -374,7 +374,7 @@ function ViewUser({ isNewUser, ...props }) {
         <AutoCompleteText
           multi
           disabled={
-            permission.sc && permission.sc.change_type === 'delete' ||
+            (permission.sc && permission.sc.change_type === 'delete') ||
             !supportsActionRestriction(
               permission.sc ? permission.sc.name : permission.name
             )
