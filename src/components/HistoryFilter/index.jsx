@@ -11,6 +11,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Button from '@material-ui/core/Button';
 import MenuItem from '@material-ui/core/MenuItem';
+import Grid from '@material-ui/core/Grid';
 import MagnifyIcon from 'mdi-react/MagnifyIcon';
 import DateTimePicker from '../DateTimePicker';
 
@@ -105,20 +106,28 @@ export default function HistoryFilter(props) {
                 {changedBy}
               </TextField>
             </ListItem>
-            <ListItem>
-              <DateTimePicker
-                label="From"
-                onDateTimeChange={handleDateTimeStartChange}
-                value={new Date()}
-              />
-            </ListItem>
-            <ListItem>
-              <DateTimePicker
-                label="To"
-                onDateTimeChange={handleDateTimeEndChange}
-                value={new Date()}
-              />
-            </ListItem>
+            <Grid container>
+              <Grid item xs={12} sm={6}>
+                <ListItem>
+                  <DateTimePicker
+                    fullWidth
+                    label="From"
+                    onDateTimeChange={handleDateTimeStartChange}
+                    value={new Date()}
+                  />
+                </ListItem>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <ListItem>
+                  <DateTimePicker
+                    fullWidth
+                    label="To"
+                    onDateTimeChange={handleDateTimeEndChange}
+                    value={new Date()}
+                  />
+                </ListItem>
+              </Grid>
+            </Grid>
           </List>
           <div className={classes.actions}>
             <Button color="primary" type="submit" variant="contained">
