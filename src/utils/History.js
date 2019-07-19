@@ -1,4 +1,3 @@
-import { stringify } from 'qs';
 import axios from 'axios';
 
 const getHistory = (object, qs) => axios.get(`/${object}/history/${qs}`);

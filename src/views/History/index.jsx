@@ -1,5 +1,5 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { stringify, parse } from 'qs';
+import React, { Fragment, useState } from 'react';
+import { stringify } from 'qs';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import DataTable from '../../components/DataTable';
