@@ -55,7 +55,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ViewUser({ isNewUser, ...props }) {
-  const getEmptyPermission = additional => ({
+  const getEmptyPermission = (additional = false) => ({
     name: '',
     options: {
       products: [],
@@ -156,7 +156,9 @@ function ViewUser({ isNewUser, ...props }) {
               sc[0].name = sc[0].permission;
               delete sc[0].permission;
 
-              [permission.sc] = sc;
+              // Array destructuring is not very readable here.
+              // eslint-disable-next-line prefer-destructuring
+              permission.sc = sc[0];
             }
 
             return permission;
@@ -167,7 +169,7 @@ function ViewUser({ isNewUser, ...props }) {
         // with, so we need to create an empty one, and add to it.
         scheduledChanges.data.data.scheduled_changes.forEach(sc => {
           if (sc.change_type === 'insert') {
-            const p = getEmptyPermission(false);
+            const p = getEmptyPermission();
 
             p.name = sc.permission;
             p.sc = clone(sc);
@@ -472,7 +474,7 @@ function ViewUser({ isNewUser, ...props }) {
                 disabled={saveAction.loading}
                 icon={<DeleteIcon />}
                 tooltipOpen
-                tooltipTitle="Delete Signoff"
+                tooltipTitle="Delete User"
                 onClick={handleUserDelete}
               />
             </SpeedDial>
