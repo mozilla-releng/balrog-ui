@@ -743,11 +743,11 @@ function RuleCard({ rule, onRuleDelete, user, ...props }) {
           Delete
         </Button>
         {requiresSignoff &&
-        (user && user.email in rule.scheduledChange.signoffs) ? (
-          <Button color="secondary">Revoke Signoff</Button>
-        ) : (
-          <Button color="secondary">Signoff as</Button>
-        )}
+          (user && user.email in rule.scheduledChange.signoffs ? (
+            <Button color="secondary">Revoke Signoff</Button>
+          ) : (
+            <Button color="secondary">Signoff as</Button>
+          ))}
       </CardActions>
     </Card>
   );
