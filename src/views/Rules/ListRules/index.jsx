@@ -417,7 +417,9 @@ function ListRules(props) {
         }
 
         if (Object.keys(rule.scheduledChange.required_signoffs).length > 0) {
-          const requiredRoles = Object.keys(rule.scheduledChange.required_signoffs).length;
+          const requiredRoles = Object.keys(
+            rule.scheduledChange.required_signoffs
+          ).length;
           const nSignoffs = Object.keys(rule.scheduledChange.signoffs).length;
 
           // Add space for the "Requires Signoff From" title
