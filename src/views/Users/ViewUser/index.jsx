@@ -311,7 +311,25 @@ function ViewUser({ isNewUser, ...props }) {
     }
   };
 
-  const handleUserDelete = () => {};
+  const handleUserDelete = async () => {
+    // We can use the existing saveUser function to delete a user
+    // as long as we set current/additional roles and permissions
+    // to empty arrays.
+    const { error } = await saveUser({
+      username,
+      roles: [],
+      originalRoles,
+      additionalRoles: [],
+      permissions: [],
+      originalPermissions,
+      additionalPermissions: [],
+    });
+
+    if (!error) {
+      props.history.push('/users');
+    }
+  };
+
   const renderRole = (role, index) => (
     <Grid container spacing={2} key={index}>
       <Grid item xs={11}>
