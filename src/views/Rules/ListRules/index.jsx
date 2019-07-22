@@ -417,16 +417,23 @@ function ListRules(props) {
         }
 
         if (Object.keys(rule.scheduledChange.required_signoffs).length > 0) {
-          // add some space for the basic "requires signoff from" text
-          // and divider
-          // todo: how to know how much to add?
-          height += theme.spacing(6);
+          const requiredRoles = Object.keys(rule.scheduledChange.required_signoffs).length;
+          const nSignoffs = Object.keys(rule.scheduledChange.signoffs).length;
 
-          // add extra space if more than one signoff has been made
-          // not sure if this is the right amount
-          height += theme.spacing(
-            5 * Object.keys(rule.scheduledChange.signoffs).length - 1
-          );
+          // Add space for the "Requires Signoff From" title
+          height += theme.spacing(4);
+
+          // Add space for each row of required roles
+          height += theme.spacing(4 * requiredRoles);
+
+          // Signoffs and required roles are beside one another, so if there's
+          // the same number or fewer signoffs than required roles, we don't
+          // need to add extra space for them. If the signoffs are more
+          // mnumerous than the number of required roles, we need more space
+          // for the extras.
+          if (nSignoffs > requiredRoles) {
+            height += theme.spacing(5 * (nSignoffs - requiredRoles));
+          }
         }
       }
     }
