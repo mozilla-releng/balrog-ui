@@ -28,6 +28,7 @@ export default function DataTable(props) {
     sortDirection,
     noItemsMessage,
     tableHeadCellProps,
+    onHeaderClick: _,
     ...rest
   } = props;
   const colSpan = columnsSize || (headers && headers.length) || 0;

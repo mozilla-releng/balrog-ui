@@ -11,6 +11,8 @@ export const LABELS = {
 };
 export const RULE_DIFF_PROPERTIES = [
   'alias',
+  'fallbackMapping',
+  'mapping',
   'backgroundRate',
   'buildTarget',
   'buildID',
