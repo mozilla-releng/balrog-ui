@@ -68,6 +68,9 @@ function ListSignoffs() {
     getRS().then(({ data }) => setRequiredSignoffs(data));
   }, []);
 
+  const handleSignoff = () => {};
+  const handleRevoke = () => {};
+
   return (
     <Dashboard title="Required Signoffs">
       {error && <ErrorPanel fixed error={error} />}
@@ -111,7 +114,13 @@ function ListSignoffs() {
 
                   return (
                     <Fragment key={key}>
-                      <SignoffCardEntry key={name} name={name} entry={role} />
+                      <SignoffCardEntry
+                        key={name}
+                        name={name}
+                        entry={role}
+                        onSignoff={handleSignoff}
+                        onRevoke={handleRevoke}
+                      />
                       <Divider
                         className={classNames({
                           [classes.lastDivider]: arr.length - 1 === index,
@@ -152,6 +161,8 @@ function ListSignoffs() {
                                 key={roleName}
                                 name={roleName}
                                 entry={role}
+                                onSignoff={handleSignoff}
+                                onRevoke={handleRevoke}
                               />
                               <Divider
                                 className={classNames({
