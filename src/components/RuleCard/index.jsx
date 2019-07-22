@@ -52,6 +52,9 @@ const useStyles = makeStyles(theme => ({
       },
     },
   },
+  space: {
+    paddingTop: theme.spacing(1),
+  },
   cardHeader: {
     paddingBottom: 0,
   },
@@ -136,7 +139,7 @@ const useStyles = makeStyles(theme => ({
 function RuleCard({ rule, onRuleDelete, user, ...props }) {
   const classes = useStyles();
   const requiresSignoff =
-    rule.scheduledChange && Object.keys(rule.scheduledChange).length > 0;
+    rule.scheduledChange && Object.keys(rule.scheduledChange.required_signoffs).length > 0;
   const getChipIcon = changeType => {
     switch (changeType) {
       case 'delete': {
@@ -713,7 +716,7 @@ function RuleCard({ rule, onRuleDelete, user, ...props }) {
         )}
         {requiresSignoff && (
           <Fragment>
-            <Divider className={classes.divider} />
+            <div className={classes.space} />
             <SignoffSummary
               requiredSignoffs={rule.scheduledChange.required_signoffs}
               signoffs={rule.scheduledChange.signoffs}
