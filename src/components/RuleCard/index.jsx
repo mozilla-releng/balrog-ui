@@ -134,7 +134,15 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function RuleCard({ rule, onRuleDelete, user, readOnly, ...props }) {
+function RuleCard({
+  rule,
+  onRuleDelete,
+  user,
+  readOnly,
+  onAuthorize,
+  onUnauthorize,
+  ...props
+}) {
   const classes = useStyles();
   const requiresSignoff =
     rule.scheduledChange &&
