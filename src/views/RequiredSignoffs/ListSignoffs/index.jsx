@@ -12,12 +12,15 @@ import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
+import DialogAction from '../../../components/DialogAction';
 import SignoffCard from '../../../components/SignoffCard';
 import ErrorPanel from '../../../components/ErrorPanel';
 import SignoffCardEntry from '../../../components/SignoffCardEntry';
+import { signoffRequiredSignoff, revokeRequiredSignoff } from '../../../services/requiredSignoffs';
 import Link from '../../../utils/Link';
 import getRequiredSignoffs from '../utils/getRequiredSignoffs';
 import useAction from '../../../hooks/useAction';
+import { DIALOG_ACTION_INITIAL_STATE } from '../../../utils/constants';
 
 const getPermissionChangesLens = product => lensPath([product, 'permissions']);
 const getRulesOrReleasesChangesLens = product =>
@@ -52,7 +55,12 @@ function ListSignoffs() {
   const classes = useStyles();
   const [requiredSignoffs, setRequiredSignoffs] = useState(null);
   const [product, setProduct] = useState('Firefox');
-  const [{ error, loading }, getRS] = useAction(getRequiredSignoffs);
+  const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
+  const [getRSAction, getRS] = useAction(getRequiredSignoffs);
+  const [signoffAction, signoff] = useAction(signoffRequiredSignoff);
+  const [revokeAction, revoke] = useAction(revokeRequiredSignoff);
+  const loading = getRSAction.loading;
+  const error = getRSAction.error || signoffAction.error || revokeAction.error;
   const handleFilterChange = ({ target: { value } }) => setProduct(value);
   const permissionChanges = view(
     getPermissionChangesLens(product),
@@ -68,8 +76,31 @@ function ListSignoffs() {
     getRS().then(({ data }) => setRequiredSignoffs(data));
   }, []);
 
-  const handleSignoff = () => {};
-  const handleRevoke = () => {};
+  const handleDialogError = error => {
+    setDialogState({ ...dialogState, error });
+  };
+
+  const handleDialogClose = () => {
+    setDialogState(DIALOG_ACTION_INITIAL_STATE);
+  };
+
+  const handleDialogSubmit = async () => {
+    // make signoff or revocation
+  };
+
+  const handleDialogActionComplete = result => {
+    // update state
+    handleDialogClose();
+  };
+
+  const handleSignoff = () => {
+    // if user has more than one role, open dialog
+    // else, signoff directly and update UI
+  };
+  const handleRevoke = () => {
+    // if user has more than one role, open dialog
+    // else, signoff directly and update UI
+  };
 
   return (
     <Dashboard title="Required Signoffs">
@@ -195,6 +226,17 @@ function ListSignoffs() {
           </Link>
         </Fragment>
       )}
+      <DialogAction
+        open={dialogState.open}
+        title={dialogState.title}
+        body={dialogState.body}
+        confirmText={dialogState.confirmText}
+        onSubmit={handleDialogSubmit}
+        onError={handleDialogError}
+        error={dialogState.error}
+        onComplete={handleDialogActionComplete}
+        onClose={handleDialogClose}
+      />
     </Dashboard>
   );
 }
