@@ -120,7 +120,13 @@ function ListSignoffs({ user }) {
     });
   }, []);
 
-  const updateSignoffs = ({ signoffRole, type, roleName, product, channelName }) => {
+  const updateSignoffs = ({
+    signoffRole,
+    type,
+    roleName,
+    product,
+    channelName,
+  }) => {
     const result = clone(requiredSignoffs);
 
     if (type === OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF) {
@@ -128,9 +134,7 @@ function ListSignoffs({ user }) {
         username
       ] = signoffRole;
     } else {
-      result[product].permissions[roleName].sc.signoffs[
-        username
-      ] = signoffRole;
+      result[product].permissions[roleName].sc.signoffs[username] = signoffRole;
     }
 
     setRequiredSignoffs(result);
@@ -150,7 +154,10 @@ function ListSignoffs({ user }) {
       role: signoffRole,
     });
 
-    return { error, result: { signoffRole, type, roleName, product, channelName } };
+    return {
+      error,
+      result: { signoffRole, type, roleName, product, channelName },
+    };
   };
 
   const handleSignoff = async (...props) => {
