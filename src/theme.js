@@ -1,5 +1,5 @@
 import { createMuiTheme } from '@material-ui/core/styles';
-import { red, blue, deepPurple } from '@material-ui/core/colors';
+import { red } from '@material-ui/core/colors';
 
 const SPACING = {
   UNIT: 8,
@@ -10,8 +10,16 @@ const SPACING = {
 
 export default createMuiTheme({
   palette: {
-    primary: deepPurple,
-    secondary: blue,
+    primary: {
+      light: '#804cc5',
+      main: '#4e1f94',
+      dark: '#160065',
+    },
+    secondary: {
+      light: '#678dff',
+      main: '#0061f2',
+      dark: '#0038be',
+    },
     error: red,
   },
   typography: {

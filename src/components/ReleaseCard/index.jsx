@@ -87,6 +87,9 @@ const useStyles = makeStyles(theme => ({
     height: theme.spacing(4),
     marginRight: theme.spacing(1),
   },
+  link: {
+    ...theme.mixins.link,
+  },
 }));
 
 function ReleaseCard(props) {
@@ -159,7 +162,10 @@ function ReleaseCard(props) {
                   secondary={
                     hasRulesPointingAtRevision ? (
                       release.rule_ids.map(ruleId => (
-                        <Link key={ruleId} to={`/rules/${ruleId}`}>
+                        <Link
+                          className={classes.link}
+                          key={ruleId}
+                          to={`/rules/${ruleId}`}>
                           <Chip
                             clickable
                             size="small"
@@ -180,7 +186,7 @@ function ReleaseCard(props) {
         </List>
       </CardContent>
       <CardActions className={classes.cardActions}>
-        <Link to={`/releases/${release.name}`}>
+        <Link className={classes.link} to={`/releases/${release.name}`}>
           <Button disabled={release.read_only} color="secondary">
             Update
           </Button>
