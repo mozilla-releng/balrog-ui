@@ -51,7 +51,7 @@ const useStyles = makeStyles(theme => ({
     },
   },
   space: {
-    paddingTop: theme.spacing(1),
+    paddingTop: theme.spacing(2),
   },
   cardHeader: {
     paddingBottom: 0,
@@ -698,12 +698,12 @@ function RuleCard({
             )}
           </Fragment>
         )}
-        {requiresSignoff && (
+        {!readOnly && requiresSignoff && (
           <Fragment>
-            <div className={classes.space} />
             <SignoffSummary
               requiredSignoffs={rule.scheduledChange.required_signoffs}
               signoffs={rule.scheduledChange.signoffs}
+              className={classes.space}
             />
           </Fragment>
         )}

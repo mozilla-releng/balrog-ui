@@ -1,32 +1,40 @@
 import React, { Fragment } from 'react';
+import { object } from 'prop-types';
+import classNames from 'classnames';
 import { makeStyles } from '@material-ui/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import Typography from '@material-ui/core/Typography';
-import { object } from 'prop-types';
 
 const useStyles = makeStyles(theme => ({
   listSubheader: {
     lineHeight: 1.5,
-    marginBottom: theme.spacing(1),
+    marginBottom: theme.spacing(0.5),
+    paddingLeft: theme.spacing(1),
   },
   listWrapper: {
     display: 'flex',
   },
-  requiresSignoffsList: {
+  listItemText: {
+    marginBottom: 0,
+    marginTop: 0,
+  },
+  signoffsList: {
     marginRight: theme.spacing(6),
+    paddingTop: 0,
+    paddingBottom: 0,
   },
 }));
 
 function SignoffSummary(props) {
   const classes = useStyles();
-  const { requiredSignoffs, signoffs } = props;
+  const { requiredSignoffs, signoffs, className } = props;
   const listOfSignoffs = Object.entries(signoffs);
 
   return (
-    <div className={classes.listWrapper}>
+    <div className={classNames(classes.listWrapper, className)}>
       <List
         dense
         subheader={
@@ -38,9 +46,14 @@ function SignoffSummary(props) {
           const key = `${role}-${index}`;
 
           return (
-            <ListItem key={key} dense className={classes.requiresSignoffsList}>
+            <ListItem key={key} className={classes.signoffsList}>
               <ListItemText
-                primary={`${count} member${count > 1 ? 's' : ''} of ${role}`}
+                primary={
+                  <Typography>{`${count} member${
+                    count > 1 ? 's' : ''
+                  } of ${role}`}</Typography>
+                }
+                className={classes.listItemText}
               />
             </ListItem>
           );
@@ -54,7 +67,7 @@ function SignoffSummary(props) {
               Signed By
             </ListSubheader>
           }>
-          <ListItem dense>
+          <ListItem className={classes.signoffsList}>
             {listOfSignoffs.map(([username, signoffRole]) => (
               <ListItemText
                 key={username}
@@ -67,6 +80,7 @@ function SignoffSummary(props) {
                     </Typography>
                   </Fragment>
                 }
+                className={classes.listItemText}
               />
             ))}
           </ListItem>
@@ -79,6 +93,11 @@ function SignoffSummary(props) {
 SignoffSummary.propTypes = {
   requiredSignoffs: object.isRequired,
   signoffs: object.isRequired,
+  className: object,
+};
+
+SignoffSummary.defaultProps = {
+  className: null,
 };
 
 export default SignoffSummary;
