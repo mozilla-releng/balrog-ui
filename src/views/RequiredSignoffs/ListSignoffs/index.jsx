@@ -109,12 +109,13 @@ function ListSignoffs({ user }) {
   // Fetch view data
   useEffect(() => {
     Promise.all([getRS(), getRoles(username)]).then(([rs, userInfo]) => {
-      setRequiredSignoffs(rs.data);
-      setRoles(Object.keys(userInfo.data.data.roles));
+      const roleList = Object.keys(userInfo.data.data.roles);
 
-      // todo: y u no work
-      if (roles.length > 0) {
-        setSignoffRole(roles[0]);
+      setRequiredSignoffs(rs.data);
+      setRoles(roleList);
+
+      if (roleList.length > 0) {
+        setSignoffRole(roleList[0]);
       }
     });
   }, []);
