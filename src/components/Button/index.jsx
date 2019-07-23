@@ -25,7 +25,7 @@ function Button({ color, ...rest }) {
 }
 
 Button.propTypes = {
-  color: oneOf[('default', 'primary', 'secondary', 'danger')],
+  color: oneOf(['default', 'inherit', 'primary', 'secondary', 'danger']),
 };
 
 Button.defaultProps = {

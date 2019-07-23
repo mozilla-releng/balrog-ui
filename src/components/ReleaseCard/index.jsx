@@ -1,7 +1,6 @@
 import React from 'react';
 import { func } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
@@ -19,6 +18,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import HistoryIcon from 'mdi-react/HistoryIcon';
 import LinkIcon from 'mdi-react/LinkIcon';
+import Button from '../Button';
 import Link from '../../utils/Link';
 import { release } from '../../utils/prop-types';
 
