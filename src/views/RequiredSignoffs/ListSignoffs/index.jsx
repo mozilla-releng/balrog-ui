@@ -80,6 +80,7 @@ function ListSignoffs({ user }) {
     getRSAction.error ||
     revokeAction.error ||
     rolesAction.error ||
+    // If there's more than one role, this error is shown inside of the dialog
     (roles.length === 1 && signoffAction.error);
   const handleFilterChange = ({ target: { value } }) => setProduct(value);
   const handleSignoffRoleChange = ({ target: { value } }) =>
