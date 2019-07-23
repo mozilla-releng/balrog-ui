@@ -21,8 +21,6 @@ export default createMuiTheme({
     link: {
       textDecoration: 'none',
       color: 'unset',
-      height: '100%',
-      width: '100%',
     },
     fab: {
       position: 'fixed',

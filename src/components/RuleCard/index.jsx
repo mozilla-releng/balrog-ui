@@ -127,6 +127,9 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     alignItems: 'center',
   },
+  link: {
+    ...theme.mixins.link,
+  },
 }));
 
 function RuleCard({ rule, onRuleDelete, readOnly, ...props }) {
@@ -686,6 +689,7 @@ function RuleCard({ rule, onRuleDelete, readOnly, ...props }) {
       {!readOnly && (
         <CardActions className={classes.cardActions}>
           <Link
+            className={classes.link}
             to={{
               pathname: '/rules/create',
               state: {
@@ -695,6 +699,7 @@ function RuleCard({ rule, onRuleDelete, readOnly, ...props }) {
             <Button color="secondary">Duplicate</Button>
           </Link>
           <Link
+            className={classes.link}
             to={
               rule.rule_id
                 ? `/rules/${rule.rule_id}`
