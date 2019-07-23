@@ -196,7 +196,6 @@ function ListSignoffs({ user }) {
     }
   };
 
-  // todo: this is actually unused i think?
   const handleDialogError = error => {
     setDialogState({ ...dialogState, error });
   };
