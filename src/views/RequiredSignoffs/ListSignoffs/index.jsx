@@ -107,39 +107,25 @@ function ListSignoffs({ user }) {
     });
   }, []);
 
-  const handleDialogError = error => {
-    setDialogState({ ...dialogState, error });
-  };
+  const doSignoff = async (signoffRole, type, entry, roleName, product, channelName) => {
+    const { error } = await signoff({ type, scId: entry.sc.sc_id, role: signoffRole });
 
-  const handleDialogClose = () => {
-    setDialogState(DIALOG_ACTION_INITIAL_STATE);
-  };
-
-  const handleDialogSubmit = async () => {
-    // make signoff or revocation
-  };
-
-  const handleDialogActionComplete = result => {
-    // update state
-    handleDialogClose();
-  };
-
-  const handleSignoff = async (type, entry, roleName, product, channelName) => {
-    // todo: double check that errors are handled
-    if (roles.length === 1) {
-      const { error } = await signoff({ type, scId: entry.sc.sc_id, role: roles[0] });
-
-      if (!error) {
-        const result = clone(requiredSignoffs);
-
-        if (type === OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF) {
-          result[product].channels[channelName][roleName].sc.signoffs[username] = roles[0];
-        } else {
-          result[product].permissions[roleName].sc.signoffs[username] = roles[0];
-        }
-
-        setRequiredSignoffs(result);
+    if (!error) {
+      const result = clone(requiredSignoffs);
+  
+      if (type === OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF) {
+        result[product].channels[channelName][roleName].sc.signoffs[username] = signoffRole;
+      } else {
+        result[product].permissions[roleName].sc.signoffs[username] = signoffRole;
       }
+  
+      setRequiredSignoffs(result);
+    }
+  };
+
+  const handleSignoff = async (...props) => {
+    if (roles.length === 1) {
+      await doSignoff(roles[0], ...props);
     }
     else {
       setDialogState({
@@ -147,7 +133,7 @@ function ListSignoffs({ user }) {
         open: true,
         title: 'Signoff as…',
         confirmText: 'Sign off',
-        item: entry,
+        item: props,
       });
     }
   };
@@ -168,6 +154,21 @@ function ListSignoffs({ user }) {
     }
   };
 
+  // todo: this is actually unused i think?
+  const handleDialogError = error => {
+    setDialogState({ ...dialogState, error });
+  };
+
+  const handleDialogClose = () => {
+    setDialogState(DIALOG_ACTION_INITIAL_STATE);
+  };
+
+  const handleDialogSubmit = async () => await doSignoff(signoffRole, ...dialogState.item);
+
+  const handleDialogActionComplete = () => {
+    handleDialogClose();
+  };
+  
   return (
     <Dashboard title="Required Signoffs">
       {error && <ErrorPanel fixed error={error} />}
@@ -299,7 +300,7 @@ function ListSignoffs({ user }) {
         confirmText={dialogState.confirmText}
         onSubmit={handleDialogSubmit}
         onError={handleDialogError}
-        error={dialogState.error}
+        error={signoffAction.error}
         onComplete={handleDialogActionComplete}
         onClose={handleDialogClose}
       />
