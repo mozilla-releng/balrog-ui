@@ -167,7 +167,7 @@ function SignoffCardEntry(props) {
           {user && user.email in entry.sc.signoffs ? (
             <Button color="secondary" onClick={onRevoke}>Revoke Signoff</Button>
           ) : (
-            <Button color="secondary" onClick={onSignoff}>Signoff as</Button>
+            <Button color="secondary" onClick={onSignoff}>Signoff</Button>
           )}
         </CardActions>
       )}
