@@ -78,9 +78,9 @@ function ListSignoffs({ user }) {
   const loading = getRSAction.loading || rolesAction.loading;
   const error =
     getRSAction.error ||
-    signoffAction.error ||
     revokeAction.error ||
-    rolesAction.error;
+    rolesAction.error ||
+    (roles.length === 1 && signoffAction.error);
   const handleFilterChange = ({ target: { value } }) => setProduct(value);
   const handleSignoffRoleChange = ({ target: { value } }) =>
     setSignoffRole(value);
@@ -112,11 +112,28 @@ function ListSignoffs({ user }) {
       setRequiredSignoffs(rs.data);
       setRoles(Object.keys(userInfo.data.data.roles));
 
+      // todo: y u no work
       if (roles.length > 0) {
         setSignoffRole(roles[0]);
       }
     });
   }, []);
+
+  const updateSignoffs = ({ signoffRole, type, roleName, product, channelName }) => {
+    const result = clone(requiredSignoffs);
+
+    if (type === OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF) {
+      result[product].channels[channelName][roleName].sc.signoffs[
+        username
+      ] = signoffRole;
+    } else {
+      result[product].permissions[roleName].sc.signoffs[
+        username
+      ] = signoffRole;
+    }
+
+    setRequiredSignoffs(result);
+  };
 
   const doSignoff = async (
     signoffRole,
@@ -132,26 +149,16 @@ function ListSignoffs({ user }) {
       role: signoffRole,
     });
 
-    if (!error) {
-      const result = clone(requiredSignoffs);
-
-      if (type === OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF) {
-        result[product].channels[channelName][roleName].sc.signoffs[
-          username
-        ] = signoffRole;
-      } else {
-        result[product].permissions[roleName].sc.signoffs[
-          username
-        ] = signoffRole;
-      }
-
-      setRequiredSignoffs(result);
-    }
+    return { error, result: { signoffRole, type, roleName, product, channelName } };
   };
 
   const handleSignoff = async (...props) => {
     if (roles.length === 1) {
-      await doSignoff(roles[0], ...props);
+      const { error, result } = await doSignoff(roles[0], ...props);
+
+      if (!error) {
+        updateSignoffs(result);
+      }
     } else {
       setDialogState({
         ...dialogState,
@@ -190,9 +197,18 @@ function ListSignoffs({ user }) {
     setDialogState(DIALOG_ACTION_INITIAL_STATE);
   };
 
-  const handleDialogSubmit = async () =>
-    doSignoff(signoffRole, ...dialogState.item);
-  const handleDialogActionComplete = () => {
+  const handleDialogSubmit = async () => {
+    const { error, result } = await doSignoff(signoffRole, ...dialogState.item);
+
+    if (error) {
+      throw error;
+    }
+
+    return result;
+  };
+
+  const handleDialogActionComplete = result => {
+    updateSignoffs(result);
     handleDialogClose();
   };
 
@@ -357,7 +373,7 @@ function ListSignoffs({ user }) {
         confirmText={dialogState.confirmText}
         onSubmit={handleDialogSubmit}
         onError={handleDialogError}
-        error={signoffAction.error}
+        error={dialogState.error}
         onComplete={handleDialogActionComplete}
         onClose={handleDialogClose}
       />
