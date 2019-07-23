@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { titleCase } from 'change-case';
 import classNames from 'classnames';
-import { view, lensPath } from 'ramda';
+import { clone, view, lensPath } from 'ramda';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { makeStyles } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
@@ -17,10 +17,12 @@ import SignoffCard from '../../../components/SignoffCard';
 import ErrorPanel from '../../../components/ErrorPanel';
 import SignoffCardEntry from '../../../components/SignoffCardEntry';
 import { signoffRequiredSignoff, revokeRequiredSignoff } from '../../../services/requiredSignoffs';
+import { getUserInfo } from '../../../services/users';
 import Link from '../../../utils/Link';
 import getRequiredSignoffs from '../utils/getRequiredSignoffs';
 import useAction from '../../../hooks/useAction';
-import { DIALOG_ACTION_INITIAL_STATE } from '../../../utils/constants';
+import { DIALOG_ACTION_INITIAL_STATE, OBJECT_NAMES } from '../../../utils/constants';
+import { withUser } from '../../../utils/AuthContext';
 
 const getPermissionChangesLens = product => lensPath([product, 'permissions']);
 const getRulesOrReleasesChangesLens = product =>
@@ -51,16 +53,19 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function ListSignoffs() {
+function ListSignoffs({ user }) {
+  const username = user.email;
   const classes = useStyles();
   const [requiredSignoffs, setRequiredSignoffs] = useState(null);
   const [product, setProduct] = useState('Firefox');
+  const [roles, setRoles] = useState([]);
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [getRSAction, getRS] = useAction(getRequiredSignoffs);
   const [signoffAction, signoff] = useAction(signoffRequiredSignoff);
   const [revokeAction, revoke] = useAction(revokeRequiredSignoff);
-  const loading = getRSAction.loading;
-  const error = getRSAction.error || signoffAction.error || revokeAction.error;
+  const [rolesAction, getRoles] = useAction(getUserInfo);
+  const loading = getRSAction.loading || rolesAction.loading;
+  const error = getRSAction.error || signoffAction.error || revokeAction.error || rolesAction.error;
   const handleFilterChange = ({ target: { value } }) => setProduct(value);
   const permissionChanges = view(
     getPermissionChangesLens(product),
@@ -73,7 +78,13 @@ function ListSignoffs() {
 
   // Fetch view data
   useEffect(() => {
-    getRS().then(({ data }) => setRequiredSignoffs(data));
+    Promise.all([
+      getRS(),
+      getRoles(username),
+    ]).then(([rs, userInfo]) => {
+      setRequiredSignoffs(rs.data);
+      setRoles(Object.keys(userInfo.data.data.roles));
+    });
   }, []);
 
   const handleDialogError = error => {
@@ -93,14 +104,32 @@ function ListSignoffs() {
     handleDialogClose();
   };
 
-  const handleSignoff = () => {
+  const handleSignoff = async (type, entry, product, channelName, roleName) => {
+    // todo: double check that errors are handled
+    if (roles.length === 1) {
+      const { error } = await signoff({ type, scId: entry.sc.sc_id, role: roles[0] });
+
+      if (!error) {
+        if (type === OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF) {
+          const result = clone(requiredSignoffs);
+          result[product].channels[channelName][roleName].sc.signoffs[username] = roles[0];
+          setRequiredSignoffs(result);
+        }
+      }
+    }
     // if user has more than one role, open dialog
-    // else, signoff directly and update UI
   };
-  const handleRevoke = () => {
-    // if user has more than one role, open dialog
-    // else, signoff directly and update UI
-  };
+  const handleRevoke = async (type, entry, product, channelName, roleName) => {
+    const { error } = await revoke({ type, scId: entry.sc.sc_id });
+
+    if (!error) {
+      if (type === OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF) {
+        const result = clone(requiredSignoffs);
+        delete result[product].channels[channelName][roleName].sc.signoffs[username];
+        setRequiredSignoffs(result);
+      }
+    }
+  }
 
   return (
     <Dashboard title="Required Signoffs">
@@ -149,8 +178,8 @@ function ListSignoffs() {
                         key={name}
                         name={name}
                         entry={role}
-                        onSignoff={handleSignoff}
-                        onRevoke={handleRevoke}
+                        onSignoff={() => handleSignoff(OBJECT_NAMES.PERMISSIONS_REQUIRED_SIGNOFF, role)}
+                        onRevoke={() => handleRevoke(OBJECT_NAMES.PERMISSIONS_REQUIRED_SIGNOFF, role)}
                       />
                       <Divider
                         className={classNames({
@@ -192,8 +221,8 @@ function ListSignoffs() {
                                 key={roleName}
                                 name={roleName}
                                 entry={role}
-                                onSignoff={handleSignoff}
-                                onRevoke={handleRevoke}
+                                onSignoff={() => handleSignoff(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF, role, product, channelName, roleName)}
+                                onRevoke={() => handleRevoke(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF, role, product, channelName, roleName)}
                               />
                               <Divider
                                 className={classNames({
@@ -241,4 +270,4 @@ function ListSignoffs() {
   );
 }
 
-export default ListSignoffs;
+export default withUser(ListSignoffs);
