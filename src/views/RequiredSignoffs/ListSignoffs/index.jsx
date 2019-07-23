@@ -20,12 +20,18 @@ import DialogAction from '../../../components/DialogAction';
 import SignoffCard from '../../../components/SignoffCard';
 import ErrorPanel from '../../../components/ErrorPanel';
 import SignoffCardEntry from '../../../components/SignoffCardEntry';
-import { signoffRequiredSignoff, revokeRequiredSignoff } from '../../../services/requiredSignoffs';
+import {
+  signoffRequiredSignoff,
+  revokeRequiredSignoff,
+} from '../../../services/requiredSignoffs';
 import { getUserInfo } from '../../../services/users';
 import Link from '../../../utils/Link';
 import getRequiredSignoffs from '../utils/getRequiredSignoffs';
 import useAction from '../../../hooks/useAction';
-import { DIALOG_ACTION_INITIAL_STATE, OBJECT_NAMES } from '../../../utils/constants';
+import {
+  DIALOG_ACTION_INITIAL_STATE,
+  OBJECT_NAMES,
+} from '../../../utils/constants';
 import { withUser } from '../../../utils/AuthContext';
 
 const getPermissionChangesLens = product => lensPath([product, 'permissions']);
@@ -70,9 +76,14 @@ function ListSignoffs({ user }) {
   const [revokeAction, revoke] = useAction(revokeRequiredSignoff);
   const [rolesAction, getRoles] = useAction(getUserInfo);
   const loading = getRSAction.loading || rolesAction.loading;
-  const error = getRSAction.error || signoffAction.error || revokeAction.error || rolesAction.error;
+  const error =
+    getRSAction.error ||
+    signoffAction.error ||
+    revokeAction.error ||
+    rolesAction.error;
   const handleFilterChange = ({ target: { value } }) => setProduct(value);
-  const handleSignoffRoleChange = ({ target: { value } }) => setSignoffRole(value);
+  const handleSignoffRoleChange = ({ target: { value } }) =>
+    setSignoffRole(value);
   const permissionChanges = view(
     getPermissionChangesLens(product),
     requiredSignoffs
@@ -88,37 +99,52 @@ function ListSignoffs({ user }) {
         name="role"
         value={signoffRole}
         onChange={handleSignoffRoleChange}>
-        {roles.map(r => <FormControlLabel key={r} value={r} label={r} control={<Radio />} />)}
+        {roles.map(r => (
+          <FormControlLabel key={r} value={r} label={r} control={<Radio />} />
+        ))}
       </RadioGroup>
     </FormControl>
   );
 
   // Fetch view data
   useEffect(() => {
-    Promise.all([
-      getRS(),
-      getRoles(username),
-    ]).then(([rs, userInfo]) => {
+    Promise.all([getRS(), getRoles(username)]).then(([rs, userInfo]) => {
       setRequiredSignoffs(rs.data);
       setRoles(Object.keys(userInfo.data.data.roles));
+
       if (roles.length > 0) {
         setSignoffRole(roles[0]);
       }
     });
   }, []);
 
-  const doSignoff = async (signoffRole, type, entry, roleName, product, channelName) => {
-    const { error } = await signoff({ type, scId: entry.sc.sc_id, role: signoffRole });
+  const doSignoff = async (
+    signoffRole,
+    type,
+    entry,
+    roleName,
+    product,
+    channelName
+  ) => {
+    const { error } = await signoff({
+      type,
+      scId: entry.sc.sc_id,
+      role: signoffRole,
+    });
 
     if (!error) {
       const result = clone(requiredSignoffs);
-  
+
       if (type === OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF) {
-        result[product].channels[channelName][roleName].sc.signoffs[username] = signoffRole;
+        result[product].channels[channelName][roleName].sc.signoffs[
+          username
+        ] = signoffRole;
       } else {
-        result[product].permissions[roleName].sc.signoffs[username] = signoffRole;
+        result[product].permissions[roleName].sc.signoffs[
+          username
+        ] = signoffRole;
       }
-  
+
       setRequiredSignoffs(result);
     }
   };
@@ -126,8 +152,7 @@ function ListSignoffs({ user }) {
   const handleSignoff = async (...props) => {
     if (roles.length === 1) {
       await doSignoff(roles[0], ...props);
-    }
-    else {
+    } else {
       setDialogState({
         ...dialogState,
         open: true,
@@ -145,11 +170,13 @@ function ListSignoffs({ user }) {
       const result = clone(requiredSignoffs);
 
       if (type === OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF) {
-        delete result[product].channels[channelName][roleName].sc.signoffs[username];
+        delete result[product].channels[channelName][roleName].sc.signoffs[
+          username
+        ];
       } else {
         delete result[product].permissions[roleName].sc.signoffs[username];
       }
-      
+
       setRequiredSignoffs(result);
     }
   };
@@ -163,12 +190,12 @@ function ListSignoffs({ user }) {
     setDialogState(DIALOG_ACTION_INITIAL_STATE);
   };
 
-  const handleDialogSubmit = async () => await doSignoff(signoffRole, ...dialogState.item);
-
+  const handleDialogSubmit = async () =>
+    doSignoff(signoffRole, ...dialogState.item);
   const handleDialogActionComplete = () => {
     handleDialogClose();
   };
-  
+
   return (
     <Dashboard title="Required Signoffs">
       {error && <ErrorPanel fixed error={error} />}
@@ -216,8 +243,22 @@ function ListSignoffs({ user }) {
                         key={name}
                         name={name}
                         entry={role}
-                        onSignoff={() => handleSignoff(OBJECT_NAMES.PERMISSIONS_REQUIRED_SIGNOFF, role, name, product)}
-                        onRevoke={() => handleRevoke(OBJECT_NAMES.PERMISSIONS_REQUIRED_SIGNOFF, role, name, product)}
+                        onSignoff={() =>
+                          handleSignoff(
+                            OBJECT_NAMES.PERMISSIONS_REQUIRED_SIGNOFF,
+                            role,
+                            name,
+                            product
+                          )
+                        }
+                        onRevoke={() =>
+                          handleRevoke(
+                            OBJECT_NAMES.PERMISSIONS_REQUIRED_SIGNOFF,
+                            role,
+                            name,
+                            product
+                          )
+                        }
                       />
                       <Divider
                         className={classNames({
@@ -259,8 +300,24 @@ function ListSignoffs({ user }) {
                                 key={roleName}
                                 name={roleName}
                                 entry={role}
-                                onSignoff={() => handleSignoff(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF, role, roleName, product, channelName)}
-                                onRevoke={() => handleRevoke(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF, role, roleName, product, channelName)}
+                                onSignoff={() =>
+                                  handleSignoff(
+                                    OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF,
+                                    role,
+                                    roleName,
+                                    product,
+                                    channelName
+                                  )
+                                }
+                                onRevoke={() =>
+                                  handleRevoke(
+                                    OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF,
+                                    role,
+                                    roleName,
+                                    product,
+                                    channelName
+                                  )
+                                }
                               />
                               <Divider
                                 className={classNames({
