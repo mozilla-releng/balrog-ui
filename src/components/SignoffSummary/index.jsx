@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { object } from 'prop-types';
 import classNames from 'classnames';
 import { makeStyles } from '@material-ui/styles';
@@ -26,6 +26,10 @@ const useStyles = makeStyles(theme => ({
     paddingTop: 0,
     paddingBottom: 0,
   },
+  signedBy: {
+    display: 'flex',
+    alignItems: 'center',
+  },
 }));
 
 function SignoffSummary(props) {
@@ -48,11 +52,7 @@ function SignoffSummary(props) {
           return (
             <ListItem key={key} className={classes.signoffsList}>
               <ListItemText
-                primary={
-                  <Typography>{`${count} member${
-                    count > 1 ? 's' : ''
-                  } of ${role}`}</Typography>
-                }
+                primary={`${count} member${count > 1 ? 's' : ''} of ${role}`}
                 className={classes.listItemText}
               />
             </ListItem>
@@ -71,14 +71,21 @@ function SignoffSummary(props) {
             {listOfSignoffs.map(([username, signoffRole]) => (
               <ListItemText
                 key={username}
+                disableTypography
                 primary={
-                  <Fragment>
+                  <Typography
+                    component="p"
+                    className={classes.signedBy}
+                    variant="body2">
                     {username}
-                    {' - '}
-                    <Typography color="textSecondary" variant="caption">
+                    &nbsp; - &nbsp;
+                    <Typography
+                      component="span"
+                      color="textSecondary"
+                      variant="caption">
                       {signoffRole}
                     </Typography>
-                  </Fragment>
+                  </Typography>
                 }
                 className={classes.listItemText}
               />
