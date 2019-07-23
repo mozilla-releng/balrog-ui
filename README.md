@@ -1,5 +1,7 @@
 # Balrog UI
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/mozilla-frontend-infra/balrog-ui.svg)](https://greenkeeper.io/)
+
 ## UI Development
 
 To get started:
