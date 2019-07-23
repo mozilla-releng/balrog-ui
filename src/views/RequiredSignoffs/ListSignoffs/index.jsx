@@ -10,6 +10,10 @@ import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import DialogAction from '../../../components/DialogAction';
@@ -59,6 +63,7 @@ function ListSignoffs({ user }) {
   const [requiredSignoffs, setRequiredSignoffs] = useState(null);
   const [product, setProduct] = useState('Firefox');
   const [roles, setRoles] = useState([]);
+  const [signoffRole, setSignoffRole] = useState('');
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [getRSAction, getRS] = useAction(getRequiredSignoffs);
   const [signoffAction, signoff] = useAction(signoffRequiredSignoff);
@@ -67,6 +72,7 @@ function ListSignoffs({ user }) {
   const loading = getRSAction.loading || rolesAction.loading;
   const error = getRSAction.error || signoffAction.error || revokeAction.error || rolesAction.error;
   const handleFilterChange = ({ target: { value } }) => setProduct(value);
+  const handleSignoffRoleChange = ({ target: { value } }) => setSignoffRole(value);
   const permissionChanges = view(
     getPermissionChangesLens(product),
     requiredSignoffs
@@ -74,6 +80,17 @@ function ListSignoffs({ user }) {
   const rulesOrReleasesChanges = view(
     getRulesOrReleasesChangesLens(product),
     requiredSignoffs
+  );
+  const dialogBody = (
+    <FormControl component="fieldset">
+      <RadioGroup
+        aria-label="Role"
+        name="role"
+        value={signoffRole}
+        onChange={handleSignoffRoleChange}>
+        {roles.map(r => <FormControlLabel key={r} value={r} label={r} control={<Radio />} />)}
+      </RadioGroup>
+    </FormControl>
   );
 
   // Fetch view data
@@ -84,6 +101,9 @@ function ListSignoffs({ user }) {
     ]).then(([rs, userInfo]) => {
       setRequiredSignoffs(rs.data);
       setRoles(Object.keys(userInfo.data.data.roles));
+      if (roles.length > 0) {
+        setSignoffRole(roles[0]);
+      }
     });
   }, []);
 
@@ -121,7 +141,15 @@ function ListSignoffs({ user }) {
         setRequiredSignoffs(result);
       }
     }
-    // if user has more than one role, open dialog
+    else {
+      setDialogState({
+        ...dialogState,
+        open: true,
+        title: 'Signoff as…',
+        confirmText: 'Sign off',
+        item: entry,
+      });
+    }
   };
 
   const handleRevoke = async (type, entry, roleName, product, channelName) => {
@@ -138,7 +166,7 @@ function ListSignoffs({ user }) {
       
       setRequiredSignoffs(result);
     }
-  }
+  };
 
   return (
     <Dashboard title="Required Signoffs">
@@ -267,7 +295,7 @@ function ListSignoffs({ user }) {
       <DialogAction
         open={dialogState.open}
         title={dialogState.title}
-        body={dialogState.body}
+        body={dialogBody}
         confirmText={dialogState.confirmText}
         onSubmit={handleDialogSubmit}
         onError={handleDialogError}
