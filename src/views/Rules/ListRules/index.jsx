@@ -69,7 +69,7 @@ const useStyles = makeStyles(theme => ({
 function ListRules(props) {
   const classes = useStyles();
   const theme = useTheme();
-  const { username } = props;
+  const username = (props.user && props.user.email) || '';
   const { search, hash } = props.location;
   const query = parse(search.slice(1));
   const hashQuery = parse(hash.replace('#', ''));
@@ -103,8 +103,12 @@ function ListRules(props) {
   );
   const fetchRequiredSignoffs = useAction(getRequiredSignoffs)[1];
   const delRule = useAction(deleteRule)[1];
-  const [signoffAction, signoff] = useAction(props => makeSignoff({ type: 'rules', ...props }));
-  const [revokeAction, revoke] = useAction(props => revokeSignoff({ type: 'rules', ...props }));
+  const [signoffAction, signoff] = useAction(props =>
+    makeSignoff({ type: 'rules', ...props })
+  );
+  const [revokeAction, revoke] = useAction(props =>
+    revokeSignoff({ type: 'rules', ...props })
+  );
   const [rolesAction, fetchRoles] = useAction(getUserInfo);
   const isLoading =
     products.loading ||
@@ -177,15 +181,16 @@ function ListRules(props) {
       fetchScheduledChanges(),
       fetchRules(),
       fetchRequiredSignoffs(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
-      fetchRoles(),
+      fetchRoles(username),
       fetchProducts(),
       fetchChannels(),
     ]).then(([sc, r, rs, userInfo]) => {
-      if (!sc.data || !r.data || !rs.data || !userInfo) {
+      if (!sc.data || !r.data || !rs.data) {
         return;
       }
 
-      const roleList = Object.keys(userInfo.data.data.roles);
+      const roleList =
+        (userInfo.data && Object.keys(userInfo.data.data.roles)) || [];
       const scheduledChanges = sc.data.data.scheduled_changes;
       const requiredSignoffs = rs.data.data.required_signoffs;
       const { rules } = r.data.data;
@@ -398,12 +403,16 @@ function ListRules(props) {
   };
 
   const doSignoff = async (signoffRole, rule) => {
-    const { error } = await signoff({ scId: rule.scheduledChange.sc_id, role: signoffRole });
+    const { error } = await signoff({
+      scId: rule.scheduledChange.sc_id,
+      role: signoffRole,
+    });
 
     return { error, result: { signoffRole, rule } };
   };
 
   const handleSignoffDialogSubmit = async () => {
+    console.log(dialogState);
     const { error, result } = await doSignoff(signoffRole, dialogState.item);
 
     if (error) {
@@ -440,7 +449,10 @@ function ListRules(props) {
   };
 
   const handleRevoke = async rule => {
-    const { error } = await revoke({ scId: rule.scheduledChange.sc_id, role: signoffRole });
+    const { error } = await revoke({
+      scId: rule.scheduledChange.sc_id,
+      role: signoffRole,
+    });
 
     if (!error) {
       setRulesWithScheduledChanges(
@@ -448,11 +460,11 @@ function ListRules(props) {
           if (r.rule_id !== rule.rule_id) {
             return r;
           }
-  
+
           const newRule = { ...r };
-  
+
           delete newRule.scheduledChange.signoffs[username];
-  
+
           return newRule;
         })
       );
