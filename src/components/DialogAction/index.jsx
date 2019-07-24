@@ -22,6 +22,9 @@ const useStyles = makeStyles(theme => ({
     marginLeft: -theme.spacing(1) * 1.5,
     marginTop: -theme.spacing(1) * 1.5,
   },
+  paper: {
+    minWidth: theme.spacing(50),
+  },
 }));
 
 function DialogAction(props) {
@@ -63,7 +66,11 @@ function DialogAction(props) {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} {...rest}>
+    <Dialog
+      classes={{ paper: classes.paper }}
+      open={open}
+      onClose={onClose}
+      {...rest}>
       {title && <DialogTitle>{title}</DialogTitle>}
       <DialogContent>
         {error && (
@@ -74,7 +81,10 @@ function DialogAction(props) {
         {body && <DialogContentText component="div">{body}</DialogContentText>}
       </DialogContent>
       <DialogActions>
-        <Button disabled={actionExecuting} onClick={onClose}>
+        <Button
+          disabled={actionExecuting}
+          onClick={onClose}
+          action={actions => actions && actions.focusVisible()}>
           Cancel
         </Button>
         <div className={classes.executingActionWrapper}>
