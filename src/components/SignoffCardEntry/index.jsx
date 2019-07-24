@@ -181,6 +181,8 @@ function SignoffCardEntry(props) {
 
 SignoffCardEntry.propTypes = {
   entry: signoffEntry.isRequired,
+  onSignoff: Function.prototype,
+  onRevoke: Function.prototype,
 };
 
 export default withUser(SignoffCardEntry);
