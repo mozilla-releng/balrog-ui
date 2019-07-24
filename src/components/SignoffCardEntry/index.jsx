@@ -5,6 +5,7 @@ import CardActions from '@material-ui/core/CardActions';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import ArrowRightIcon from 'mdi-react/ArrowRightIcon';
+import { func } from 'prop-types';
 import StatusLabel from '../StatusLabel';
 import Button from '../Button';
 import SignoffSummary from '../SignoffSummary';
@@ -53,7 +54,7 @@ function getStatus(entry) {
 
 function SignoffCardEntry(props) {
   const classes = useStyles();
-  const { user, entry, name } = props;
+  const { user, entry, name, onSignoff, onRevoke } = props;
   const status = getStatus(entry);
   const isScheduled = 'sc' in entry;
   const signoffsRequiredCurrent = Number(entry.signoffs_required);
@@ -99,9 +100,13 @@ function SignoffCardEntry(props) {
             <Button color="secondary">Cancel Delete</Button>
           )}
           {user && user.email in entry.sc.signoffs ? (
-            <Button color="secondary">Revoke Signoff</Button>
+            <Button color="secondary" onClick={onRevoke}>
+              Revoke Signoff
+            </Button>
           ) : (
-            <Button color="secondary">Signoff as</Button>
+            <Button color="secondary" onClick={onSignoff}>
+              Signoff
+            </Button>
           )}
         </CardActions>
       )}
@@ -111,6 +116,8 @@ function SignoffCardEntry(props) {
 
 SignoffCardEntry.propTypes = {
   entry: signoffEntry.isRequired,
+  onSignoff: func.isRequired,
+  onRevoke: func.isRequired,
 };
 
 export default withUser(SignoffCardEntry);
