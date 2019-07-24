@@ -1,5 +1,5 @@
 import React from 'react';
-import { object } from 'prop-types';
+import { object, string } from 'prop-types';
 import classNames from 'classnames';
 import { makeStyles } from '@material-ui/styles';
 import List from '@material-ui/core/List';
@@ -100,7 +100,7 @@ function SignoffSummary(props) {
 SignoffSummary.propTypes = {
   requiredSignoffs: object.isRequired,
   signoffs: object.isRequired,
-  className: object,
+  className: string,
 };
 
 SignoffSummary.defaultProps = {

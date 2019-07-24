@@ -55,7 +55,7 @@ const useStyles = makeStyles(theme => ({
     flex: 'unset',
   },
   ruleCard: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing(1),
   },
 }));
 
@@ -422,11 +422,14 @@ function ListRules(props) {
           ).length;
           const nSignoffs = Object.keys(rule.scheduledChange.signoffs).length;
 
+          // Add space for the padding above the summary
+          height += theme.spacing(2);
+
           // Add space for the "Requires Signoff From" title
-          height += theme.spacing(4);
+          height += theme.spacing(3);
 
           // Add space for each row of required roles
-          height += theme.spacing(4 * requiredRoles);
+          height += requiredRoles * theme.spacing(3);
 
           // Signoffs and required roles are beside one another, so if there's
           // the same number or fewer signoffs than required roles, we don't
@@ -434,7 +437,7 @@ function ListRules(props) {
           // mnumerous than the number of required roles, we need more space
           // for the extras.
           if (nSignoffs > requiredRoles) {
-            height += theme.spacing(5 * (nSignoffs - requiredRoles));
+            height += (nSignoffs - requiredRoles) * theme.spacing(3);
           }
         }
       }
