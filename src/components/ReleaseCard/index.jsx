@@ -1,7 +1,6 @@
 import React from 'react';
 import { func } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
@@ -19,6 +18,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import HistoryIcon from 'mdi-react/HistoryIcon';
 import LinkIcon from 'mdi-react/LinkIcon';
+import Button from '../Button';
 import Link from '../../utils/Link';
 import { release } from '../../utils/prop-types';
 
@@ -86,6 +86,9 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     height: theme.spacing(4),
     marginRight: theme.spacing(1),
+  },
+  link: {
+    ...theme.mixins.link,
   },
 }));
 
@@ -159,7 +162,10 @@ function ReleaseCard(props) {
                   secondary={
                     hasRulesPointingAtRevision ? (
                       release.rule_ids.map(ruleId => (
-                        <Link key={ruleId} to={`/rules/${ruleId}`}>
+                        <Link
+                          className={classes.link}
+                          key={ruleId}
+                          to={`/rules/${ruleId}`}>
                           <Chip
                             clickable
                             size="small"
@@ -180,7 +186,7 @@ function ReleaseCard(props) {
         </List>
       </CardContent>
       <CardActions className={classes.cardActions}>
-        <Link to={`/releases/${release.name}`}>
+        <Link className={classes.link} to={`/releases/${release.name}`}>
           <Button disabled={release.read_only} color="secondary">
             Update
           </Button>

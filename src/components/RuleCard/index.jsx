@@ -1,5 +1,5 @@
-import React, { Fragment, useMemo } from 'react';
-import { func } from 'prop-types';
+import React, { Fragment } from 'react';
+import { bool, func } from 'prop-types';
 import classNames from 'classnames';
 import { makeStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
@@ -11,7 +11,6 @@ import IconButton from '@material-ui/core/IconButton';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
-import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Avatar from '@material-ui/core/Avatar';
 import Divider from '@material-ui/core/Divider';
@@ -21,14 +20,13 @@ import DeleteIcon from 'mdi-react/DeleteIcon';
 import UpdateIcon from 'mdi-react/UpdateIcon';
 import PlusCircleIcon from 'mdi-react/PlusCircleIcon';
 import HistoryIcon from 'mdi-react/HistoryIcon';
-import { diffLines, formatLines } from 'unidiff';
-import { parseDiff, Diff, Hunk } from 'react-diff-view';
 import { formatDistanceStrict } from 'date-fns';
 import 'react-diff-view/style/index.css';
+import DiffRule from '../DiffRule';
+import Button from '../Button';
 import Link from '../../utils/Link';
 import { RULE_DIFF_PROPERTIES } from '../../utils/constants';
 import { rule } from '../../utils/prop-types';
-import getDiff from '../../utils/diff';
 import getDiffedProperties from '../../utils/getDiffedProperties';
 
 const useStyles = makeStyles(theme => ({
@@ -129,9 +127,12 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     alignItems: 'center',
   },
+  link: {
+    ...theme.mixins.link,
+  },
 }));
 
-function RuleCard({ rule, onRuleDelete, ...props }) {
+function RuleCard({ rule, onRuleDelete, readOnly, ...props }) {
   const classes = useStyles();
   const getChipIcon = changeType => {
     switch (changeType) {
@@ -160,23 +161,6 @@ function RuleCard({ rule, onRuleDelete, ...props }) {
     rule && rule.scheduledChange
       ? getDiffedProperties(RULE_DIFF_PROPERTIES, rule, rule.scheduledChange)
       : [];
-  const diff = useMemo(() => {
-    if (!rule.scheduledChange) {
-      return;
-    }
-
-    const [oldText, newText] = getDiff(
-      diffedProperties,
-      rule,
-      rule.scheduledChange
-    );
-    const diffText = formatLines(diffLines(oldText, newText), {
-      context: 0,
-    });
-    const [diff] = parseDiff(diffText, { nearbySequences: 'zip' });
-
-    return diff;
-  }, [rule]);
 
   return (
     <Card classes={{ root: classes.root }} spacing={4} {...props}>
@@ -221,11 +205,15 @@ function RuleCard({ rule, onRuleDelete, ...props }) {
             </Typography>
           }
           action={
-            <Tooltip title="History">
-              <IconButton>
-                <HistoryIcon />
-              </IconButton>
-            </Tooltip>
+            !readOnly ? (
+              <Link to={`/rules/${rule.rule_id}/revisions`}>
+                <Tooltip title="Revisions">
+                  <IconButton>
+                    <HistoryIcon />
+                  </IconButton>
+                </Tooltip>
+              </Link>
+            ) : null
           }
         />
       )}
@@ -693,50 +681,51 @@ function RuleCard({ rule, onRuleDelete, ...props }) {
                 All properties will be deleted
               </Typography>
             ) : (
-              diff.type && (
-                <Diff
-                  className={classes.diff}
-                  viewType="split"
-                  diffType={diff.type}
-                  hunks={diff.hunks || []}>
-                  {hunks =>
-                    hunks.map(hunk => <Hunk key={hunk.content} hunk={hunk} />)
-                  }
-                </Diff>
-              )
+              <DiffRule firstRule={rule} secondRule={rule.scheduledChange} />
             )}
           </Fragment>
         )}
       </CardContent>
-      <CardActions className={classes.cardActions}>
-        <Link
-          to={{
-            pathname: '/rules/create',
-            state: {
-              rule,
-            },
-          }}>
-          <Button color="secondary">Duplicate</Button>
-        </Link>
-        <Link
-          to={
-            rule.rule_id
-              ? `/rules/${rule.rule_id}`
-              : `/rules/create/${rule.scheduledChange.sc_id}`
-          }>
-          <Button color="secondary">Update</Button>
-        </Link>
-        <Button color="secondary" onClick={() => onRuleDelete(rule)}>
-          Delete
-        </Button>
-      </CardActions>
+      {!readOnly && (
+        <CardActions className={classes.cardActions}>
+          <Link
+            className={classes.link}
+            to={{
+              pathname: '/rules/create',
+              state: {
+                rule,
+              },
+            }}>
+            <Button color="secondary">Duplicate</Button>
+          </Link>
+          <Link
+            className={classes.link}
+            to={
+              rule.rule_id
+                ? `/rules/${rule.rule_id}`
+                : `/rules/create/${rule.scheduledChange.sc_id}`
+            }>
+            <Button color="secondary">Update</Button>
+          </Link>
+          <Button color="secondary" onClick={() => onRuleDelete(rule)}>
+            Delete
+          </Button>
+        </CardActions>
+      )}
     </Card>
   );
 }
 
 RuleCard.propTypes = {
-  rule,
-  onRuleDelete: func.isRequired,
+  rule: rule.isRequired,
+  onRuleDelete: func,
+  // If true, the card will hide all buttons.
+  readOnly: bool,
+};
+
+RuleCard.defaultProps = {
+  onRuleDelete: Function.prototype,
+  readOnly: false,
 };
 
 export default RuleCard;

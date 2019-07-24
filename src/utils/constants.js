@@ -11,6 +11,8 @@ export const LABELS = {
 };
 export const RULE_DIFF_PROPERTIES = [
   'alias',
+  'fallbackMapping',
+  'mapping',
   'backgroundRate',
   'buildTarget',
   'buildID',
@@ -47,6 +49,7 @@ export const DIALOG_ACTION_INITIAL_STATE = {
   confirmText: '',
   item: null,
   open: false,
+  destructive: false,
   handleSubmit: Function.prototype,
   handleClose: Function.prototype,
   handleError: Function.prototype,
