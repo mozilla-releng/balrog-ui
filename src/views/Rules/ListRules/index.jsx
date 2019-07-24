@@ -334,8 +334,8 @@ function ListRules(props) {
     handleDialogClose();
   };
 
-  const handleDeleteDialogSubmit = async () => {
-    const dialogRule = dialogState.item;
+  const handleDeleteDialogSubmit = async state => {
+    const dialogRule = state.item;
     const { error } = await delRule({
       ruleId: dialogRule.rule_id,
       dataVersion: dialogRule.data_version,
@@ -411,9 +411,8 @@ function ListRules(props) {
     return { error, result: { signoffRole, rule } };
   };
 
-  const handleSignoffDialogSubmit = async () => {
-    console.log(dialogState);
-    const { error, result } = await doSignoff(signoffRole, dialogState.item);
+  const handleSignoffDialogSubmit = async state => {
+    const { error, result } = await doSignoff(signoffRole, state.item);
 
     if (error) {
       throw error;
@@ -690,7 +689,7 @@ function ListRules(props) {
         destructive={dialogState.destructive}
         body={dialogState.body}
         confirmText={dialogState.confirmText}
-        onSubmit={dialogState.handleSubmit}
+        onSubmit={() => dialogState.handleSubmit(dialogState)}
         onError={handleDialogError}
         error={dialogState.error}
         onComplete={dialogState.handleComplete}
