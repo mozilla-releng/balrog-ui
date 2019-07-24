@@ -66,7 +66,7 @@ function getStatus(entry) {
 
 function SignoffCardEntry(props) {
   const classes = useStyles();
-  const { user, entry, name } = props;
+  const { user, entry, name, onSignoff, onRevoke } = props;
   const status = getStatus(entry);
   const isScheduled = 'sc' in entry;
   const signoffsRequiredCurrent = Number(entry.signoffs_required);
@@ -165,9 +165,13 @@ function SignoffCardEntry(props) {
             <Button color="secondary">Cancel Delete</Button>
           )}
           {user && user.email in entry.sc.signoffs ? (
-            <Button color="secondary">Revoke Signoff</Button>
+            <Button color="secondary" onClick={onRevoke}>
+              Revoke Signoff
+            </Button>
           ) : (
-            <Button color="secondary">Signoff as</Button>
+            <Button color="secondary" onClick={onSignoff}>
+              Signoff
+            </Button>
           )}
         </CardActions>
       )}
@@ -177,6 +181,8 @@ function SignoffCardEntry(props) {
 
 SignoffCardEntry.propTypes = {
   entry: signoffEntry.isRequired,
+  onSignoff: Function.prototype,
+  onRevoke: Function.prototype,
 };
 
 export default withUser(SignoffCardEntry);
