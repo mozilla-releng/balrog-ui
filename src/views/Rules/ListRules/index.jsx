@@ -427,10 +427,10 @@ function ListRules(props) {
           height += theme.spacing(2);
 
           // Add space for the "Requires Signoff From" title
-          height += theme.spacing(3);
+          height += theme.spacing(7);
 
           // Add space for each row of required roles
-          height += requiredRoles * theme.spacing(3);
+          height += requiredRoles * theme.spacing(5);
 
           // Signoffs and required roles are beside one another, so if there's
           // the same number or fewer signoffs than required roles, we don't
@@ -438,7 +438,7 @@ function ListRules(props) {
           // mnumerous than the number of required roles, we need more space
           // for the extras.
           if (nSignoffs > requiredRoles) {
-            height += (nSignoffs - requiredRoles) * theme.spacing(3);
+            height += (nSignoffs - requiredRoles) * theme.spacing(5);
           }
         }
       }
