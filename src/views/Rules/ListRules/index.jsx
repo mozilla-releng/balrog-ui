@@ -7,6 +7,10 @@ import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
@@ -26,6 +30,8 @@ import {
   deleteRule,
 } from '../../../services/rules';
 import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
+import { makeSignoff, revokeSignoff } from '../../../services/signoffs';
+import { getUserInfo } from '../../../services/users';
 import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
 import {
   RULE_DIFF_PROPERTIES,
@@ -33,6 +39,7 @@ import {
   OBJECT_NAMES,
   SNACKBAR_INITIAL_STATE,
 } from '../../../utils/constants';
+import { withUser } from '../../../utils/AuthContext';
 import Snackbar from '../../../components/Snackbar';
 
 const ALL = 'all';
@@ -62,6 +69,7 @@ const useStyles = makeStyles(theme => ({
 function ListRules(props) {
   const classes = useStyles();
   const theme = useTheme();
+  const { username } = props;
   const { search, hash } = props.location;
   const query = parse(search.slice(1));
   const hashQuery = parse(hash.replace('#', ''));
@@ -85,6 +93,8 @@ function ListRules(props) {
   );
   const [dateTimePickerError, setDateTimePickerError] = useState(null);
   const [scrollToRow, setScrollToRow] = useState(null);
+  const [roles, setRoles] = useState([]);
+  const [signoffRole, setSignoffRole] = useState('');
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
   const [rules, fetchRules] = useAction(getRules);
@@ -93,9 +103,21 @@ function ListRules(props) {
   );
   const fetchRequiredSignoffs = useAction(getRequiredSignoffs)[1];
   const delRule = useAction(deleteRule)[1];
-  const isLoading = products.loading || channels.loading || rules.loading;
+  const [signoffAction, signoff] = useAction(props => makeSignoff({ type: 'rules', ...props }));
+  const [revokeAction, revoke] = useAction(props => revokeSignoff({ type: 'rules', ...props }));
+  const [rolesAction, fetchRoles] = useAction(getUserInfo);
+  const isLoading =
+    products.loading ||
+    channels.loading ||
+    rules.loading ||
+    rolesAction.loading;
   const error =
-    products.error || channels.error || rules.error || scheduledChanges.error;
+    products.error ||
+    channels.error ||
+    rules.error ||
+    scheduledChanges.error ||
+    revokeAction.error ||
+    (roles.length === 1 && signoffAction.error);
   const handleFilterChange = ({ target: { value } }) => {
     const [product, channel] = value.split(productChannelSeparator);
     const query =
@@ -108,6 +130,8 @@ function ListRules(props) {
     setProductChannelFilter(value);
   };
 
+  const handleSignoffRoleChange = ({ target: { value } }) =>
+    setSignoffRole(value);
   const handleSnackbarOpen = ({ message, variant = 'success' }) => {
     setSnackbarState({ message, variant, open: true });
   };
@@ -153,13 +177,15 @@ function ListRules(props) {
       fetchScheduledChanges(),
       fetchRules(),
       fetchRequiredSignoffs(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
+      fetchRoles(),
       fetchProducts(),
       fetchChannels(),
-    ]).then(([sc, r, rs]) => {
-      if (!sc.data || !r.data || !rs.data) {
+    ]).then(([sc, r, rs, userInfo]) => {
+      if (!sc.data || !r.data || !rs.data || !userInfo) {
         return;
       }
 
+      const roleList = Object.keys(userInfo.data.data.roles);
       const scheduledChanges = sc.data.data.scheduled_changes;
       const requiredSignoffs = rs.data.data.required_signoffs;
       const { rules } = r.data.data;
@@ -217,6 +243,12 @@ function ListRules(props) {
       });
 
       setRulesWithScheduledChanges(sortedRules);
+
+      setRoles(roleList);
+
+      if (roleList.length > 0) {
+        setSignoffRole(roleList[0]);
+      }
     });
   }, []);
   const filteredRulesWithScheduledChanges = useMemo(
@@ -260,42 +292,11 @@ function ListRules(props) {
     setDialogState({ ...dialogState, error });
   };
 
-  const dialogBody =
-    dialogState.item &&
-    (Object.keys(dialogState.item.requiredSignoffs).length > 0 ? (
-      <DateTimePicker
-        disablePast
-        inputVariant="outlined"
-        fullWidth
-        label="When"
-        onError={handleDateTimePickerError}
-        helperText={
-          dateTimePickerError ||
-          (scheduleDeleteDate < new Date() ? 'Scheduled for ASAP' : undefined)
-        }
-        onDateTimeChange={handleDateTimeChange}
-        value={scheduleDeleteDate}
-      />
-    ) : (
-      `This will delete rule ${dialogState.item.rule_id}.`
-    ));
-  const filteredRulesCount = filteredRulesWithScheduledChanges.length;
-  const handleRuleDelete = rule => {
-    setDialogState({
-      ...dialogState,
-      open: true,
-      title: 'Delete Rule?',
-      confirmText: 'Delete',
-      destructive: true,
-      item: rule,
-    });
-  };
-
   const handleDialogClose = () => {
     setDialogState(DIALOG_ACTION_INITIAL_STATE);
   };
 
-  const handleDialogComplete = result => {
+  const handleDeleteDialogComplete = result => {
     if (typeof result === 'number') {
       // The rule was directly deleted, just remove it.
       setRulesWithScheduledChanges(
@@ -328,7 +329,7 @@ function ListRules(props) {
     handleDialogClose();
   };
 
-  const handleDialogSubmit = async () => {
+  const handleDeleteDialogSubmit = async () => {
     const dialogRule = dialogState.item;
     const { error } = await delRule({
       ruleId: dialogRule.rule_id,
@@ -345,6 +346,131 @@ function ListRules(props) {
     }
 
     return dialogRule.rule_id;
+  };
+
+  const deleteDialogBody =
+    dialogState.item &&
+    (Object.keys(dialogState.item.requiredSignoffs).length > 0 ? (
+      <DateTimePicker
+        disablePast
+        inputVariant="outlined"
+        fullWidth
+        label="When"
+        onError={handleDateTimePickerError}
+        helperText={
+          dateTimePickerError ||
+          (scheduleDeleteDate < new Date() ? 'Scheduled for ASAP' : undefined)
+        }
+        onDateTimeChange={handleDateTimeChange}
+        value={scheduleDeleteDate}
+      />
+    ) : (
+      `This will delete rule ${dialogState.item.rule_id}.`
+    ));
+  const signoffDialogBody = (
+    <FormControl component="fieldset">
+      <RadioGroup
+        aria-label="Role"
+        name="role"
+        value={signoffRole}
+        onChange={handleSignoffRoleChange}>
+        {roles.map(r => (
+          <FormControlLabel key={r} value={r} label={r} control={<Radio />} />
+        ))}
+      </RadioGroup>
+    </FormControl>
+  );
+  const filteredRulesCount = filteredRulesWithScheduledChanges.length;
+  const updateSignoffs = ({ signoffRole, rule }) => {
+    setRulesWithScheduledChanges(
+      rulesWithScheduledChanges.map(r => {
+        if (r.rule_id !== rule.rule_id) {
+          return r;
+        }
+
+        const newRule = { ...r };
+
+        newRule.scheduledChange.signoffs[username] = signoffRole;
+
+        return newRule;
+      })
+    );
+  };
+
+  const doSignoff = async (signoffRole, rule) => {
+    const { error } = await signoff({ scId: rule.scheduledChange.sc_id, role: signoffRole });
+
+    return { error, result: { signoffRole, rule } };
+  };
+
+  const handleSignoffDialogSubmit = async () => {
+    const { error, result } = await doSignoff(signoffRole, dialogState.item);
+
+    if (error) {
+      throw error;
+    }
+
+    return result;
+  };
+
+  const handleSignoffDialogComplete = result => {
+    updateSignoffs(result);
+    handleDialogClose();
+  };
+
+  const handleSignoff = async rule => {
+    if (roles.length === 1) {
+      const { error, result } = await doSignoff(roles[0], rule);
+
+      if (!error) {
+        updateSignoffs(result);
+      }
+    } else {
+      setDialogState({
+        ...dialogState,
+        open: true,
+        title: 'Signoff as…',
+        confirmText: 'Sign off',
+        item: rule,
+        body: signoffDialogBody,
+        handleComplete: handleSignoffDialogComplete,
+        handleSubmit: handleSignoffDialogSubmit,
+      });
+    }
+  };
+
+  const handleRevoke = async rule => {
+    const { error } = await revoke({ scId: rule.scheduledChange.sc_id, role: signoffRole });
+
+    if (!error) {
+      setRulesWithScheduledChanges(
+        rulesWithScheduledChanges.map(r => {
+          if (r.rule_id !== rule.rule_id) {
+            return r;
+          }
+  
+          const newRule = { ...r };
+  
+          delete newRule.scheduledChange.signoffs[username];
+  
+          return newRule;
+        })
+      );
+    }
+  };
+
+  const handleRuleDelete = rule => {
+    setDialogState({
+      ...dialogState,
+      open: true,
+      title: 'Delete Rule?',
+      confirmText: 'Delete',
+      destructive: true,
+      item: rule,
+      body: deleteDialogBody,
+      handleComplete: handleDeleteDialogComplete,
+      handleSubmit: handleDeleteDialogSubmit,
+    });
   };
 
   const getRowHeight = ({ index }) => {
@@ -471,6 +597,8 @@ function ListRules(props) {
           key={rule.rule_id}
           rule={rule}
           onRuleDelete={handleRuleDelete}
+          onSignoff={() => handleSignoff(rule)}
+          onRevoke={() => handleRevoke(rule)}
         />
       </div>
     );
@@ -548,12 +676,12 @@ function ListRules(props) {
         open={dialogState.open}
         title={dialogState.title}
         destructive={dialogState.destructive}
-        body={dialogBody}
+        body={dialogState.body}
         confirmText={dialogState.confirmText}
-        onSubmit={handleDialogSubmit}
+        onSubmit={dialogState.handleSubmit}
         onError={handleDialogError}
         error={dialogState.error}
-        onComplete={handleDialogComplete}
+        onComplete={dialogState.handleComplete}
         onClose={handleDialogClose}
       />
       <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
@@ -561,4 +689,4 @@ function ListRules(props) {
   );
 }
 
-export default ListRules;
+export default withUser(ListRules);
