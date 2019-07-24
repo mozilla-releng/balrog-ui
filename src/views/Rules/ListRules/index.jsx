@@ -286,6 +286,7 @@ function ListRules(props) {
       open: true,
       title: 'Delete Rule?',
       confirmText: 'Delete',
+      destructive: true,
       item: rule,
     });
   };
@@ -541,6 +542,7 @@ function ListRules(props) {
       <DialogAction
         open={dialogState.open}
         title={dialogState.title}
+        destructive={dialogState.destructive}
         body={dialogBody}
         confirmText={dialogState.confirmText}
         onSubmit={handleDialogSubmit}

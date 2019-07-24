@@ -159,6 +159,7 @@ function ListReleases(props) {
       body: `This would make ${release.name} ${
         checked ? 'read only' : 'writable'
       }.`,
+      destructive: false,
       item: release,
       handleSubmit: handleReadOnlySubmit,
       handleClose: handleReadOnlyClose,
@@ -174,6 +175,7 @@ function ListReleases(props) {
       confirmText: 'Delete',
       body: `This will delete ${release.name}`,
       item: release,
+      destructive: true,
       handleSubmit: handleDeleteSubmit,
       handleClose: handleDeleteClose,
       handleError: handleDeleteError,

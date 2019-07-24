@@ -11,7 +11,6 @@ import IconButton from '@material-ui/core/IconButton';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
-import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Avatar from '@material-ui/core/Avatar';
 import Divider from '@material-ui/core/Divider';
@@ -23,6 +22,7 @@ import PlusCircleIcon from 'mdi-react/PlusCircleIcon';
 import HistoryIcon from 'mdi-react/HistoryIcon';
 import { formatDistanceStrict } from 'date-fns';
 import 'react-diff-view/style/index.css';
+import Button from '../Button';
 import DiffRule from '../DiffRule';
 import SignoffSummary from '../SignoffSummary';
 import { withUser } from '../../utils/AuthContext';
@@ -131,6 +131,9 @@ const useStyles = makeStyles(theme => ({
   primaryText: {
     display: 'flex',
     alignItems: 'center',
+  },
+  link: {
+    ...theme.mixins.link,
   },
 }));
 
@@ -711,6 +714,7 @@ function RuleCard({
       {!readOnly && (
         <CardActions className={classes.cardActions}>
           <Link
+            className={classes.link}
             to={{
               pathname: '/rules/create',
               state: {
@@ -720,6 +724,7 @@ function RuleCard({
             <Button color="secondary">Duplicate</Button>
           </Link>
           <Link
+            className={classes.link}
             to={
               rule.rule_id
                 ? `/rules/${rule.rule_id}`
