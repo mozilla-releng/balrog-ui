@@ -9,6 +9,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import ArrowRightIcon from 'mdi-react/ArrowRightIcon';
+import { func } from 'prop-types';
 import StatusLabel from '../StatusLabel';
 import Button from '../Button';
 import { signoffEntry } from '../../utils/prop-types';
@@ -181,8 +182,8 @@ function SignoffCardEntry(props) {
 
 SignoffCardEntry.propTypes = {
   entry: signoffEntry.isRequired,
-  onSignoff: Function.prototype,
-  onRevoke: Function.prototype,
+  onSignoff: func.isRequired,
+  onRevoke: func.isRequired,
 };
 
 export default withUser(SignoffCardEntry);
