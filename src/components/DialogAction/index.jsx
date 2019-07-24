@@ -7,7 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Button from '@material-ui/core/Button';
+import Button from '../Button';
 import ErrorPanel from '../ErrorPanel';
 import tryCatch from '../../utils/tryCatch';
 
@@ -37,6 +37,7 @@ function DialogAction(props) {
     onSubmit,
     onComplete,
     onError,
+    destructive,
     ...rest
   } = props;
   const handleSubmit = async () => {
@@ -80,7 +81,7 @@ function DialogAction(props) {
           <Button
             disabled={actionExecuting}
             onClick={handleSubmit}
-            color="secondary"
+            color={destructive ? 'danger' : 'primary'}
             variant="contained"
             autoFocus>
             {confirmText}
@@ -118,6 +119,11 @@ DialogAction.propTypes = {
   onClose: func.isRequired,
   /** Error to display. */
   error: oneOfType([string, object]),
+  /**
+   * If true, the action is considered destructive (e.g., delete)
+   * and will have the confirmation button filled with red
+   */
+  destructive: bool,
 };
 
 DialogAction.defaultProps = {
@@ -126,6 +132,7 @@ DialogAction.defaultProps = {
   onComplete: null,
   onError: null,
   error: null,
+  destructive: false,
 };
 
 export default DialogAction;
