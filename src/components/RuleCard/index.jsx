@@ -559,7 +559,7 @@ function RuleCard({
                   />
                 </ListItem>
               )}
-              {rule.mig64 && (
+              {rule.mig64 !== null && (
                 <ListItem className={classes.listItem}>
                   <ListItemText
                     primaryTypographyProps={{
@@ -581,7 +581,7 @@ function RuleCard({
                   />
                 </ListItem>
               )}
-              {rule.jaws && (
+              {rule.jaws !== null && (
                 <ListItem className={classes.listItem}>
                   <ListItemText
                     primaryTypographyProps={{
