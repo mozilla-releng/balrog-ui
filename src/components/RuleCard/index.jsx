@@ -218,430 +218,433 @@ function RuleCard({ rule, onRuleDelete, readOnly, ...props }) {
         />
       )}
       <CardContent classes={{ root: classes.cardContentRoot }}>
-        <Grid container>
-          <Grid item xs={4}>
-            <List>
-              {rule.mapping && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    title={rule.mapping}
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    secondaryTypographyProps={{
-                      className: classes.textEllipsis,
-                    }}
-                    primary={
-                      <Fragment>
-                        Mapping
-                        {diffedProperties.includes('mapping') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.mapping}
-                  />
-                </ListItem>
-              )}
-              {rule.fallbackMapping && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    title={rule.fallbackMapping}
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    secondaryTypographyProps={{
-                      className: classes.textEllipsis,
-                    }}
-                    primary={
-                      <Fragment>
-                        Fallback Mapping
-                        {diffedProperties.includes('fallbackMapping') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.fallbackMapping}
-                  />
-                </ListItem>
-              )}
-              {Number.isInteger(Number(rule.backgroundRate)) && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        Background Rate
-                        {diffedProperties.includes('backgroundRate') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.backgroundRate}
-                  />
-                </ListItem>
-              )}
-            </List>
-          </Grid>
-          <Grid item xs={4}>
-            <List>
-              {rule.data_version && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        Data Version
-                        {diffedProperties.includes('data_version') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.data_version}
-                  />
-                </ListItem>
-              )}
-              {Number.isInteger(Number(rule.rule_id)) && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primary="Rule ID"
-                    secondary={
-                      <Fragment>
-                        <Typography
-                          component="span"
-                          variant="body2"
-                          className={classes.inline}
-                          color="textPrimary">
-                          {rule.rule_id}
-                        </Typography>
-                        {rule.alias && ` ${rule.alias} (alias)`}
-                      </Fragment>
-                    }
-                  />
-                </ListItem>
-              )}
-            </List>
-          </Grid>
-          <Grid item xs={4}>
-            <List>
-              {rule.version && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        Version
-                        {diffedProperties.includes('version') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.version}
-                  />
-                </ListItem>
-              )}
-              {rule.buildID && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        Build ID
-                        {diffedProperties.includes('buildID') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.buildID}
-                  />
-                </ListItem>
-              )}
-              {rule.buildTarget && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        Build Target
-                        {diffedProperties.includes('buildTarget') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.buildTarget}
-                  />
-                </ListItem>
-              )}
-              {rule.locale && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        Locale
-                        {diffedProperties.includes('locale') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.locale}
-                  />
-                </ListItem>
-              )}
-              {rule.distribution && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        Distribution
-                        {diffedProperties.includes('distribution') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.distribution}
-                  />
-                </ListItem>
-              )}
-              {rule.distVersion && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        Distribution Version
-                        {diffedProperties.includes('distVersion') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.distVersion}
-                  />
-                </ListItem>
-              )}
-              {rule.osVersion && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    title={rule.osVersion}
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    secondaryTypographyProps={{
-                      className: classes.textEllipsis,
-                    }}
-                    primary={
-                      <Fragment>
-                        OS Version
-                        {diffedProperties.includes('osVersion') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.osVersion}
-                  />
-                </ListItem>
-              )}
-              {rule.instructionSet && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        Instruction Set
-                        {diffedProperties.includes('instructionSet') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.instructionSet}
-                  />
-                </ListItem>
-              )}
-              {rule.memory && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        Memory
-                        {diffedProperties.includes('memory') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.memory}
-                  />
-                </ListItem>
-              )}
-              {rule.mig64 && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        64-bit Migration Opt-in
-                        {diffedProperties.includes('mig64') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={String(rule.mig64)}
-                  />
-                </ListItem>
-              )}
-              {rule.jaws && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        Incompatible JAWS Screen Reader
-                        {diffedProperties.includes('jaws') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={String(rule.jaws)}
-                  />
-                </ListItem>
-              )}
-              {rule.headerArchitecture && (
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        Header Architecture
-                        {diffedProperties.includes('headerArchitecture') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.headerArchitecture}
-                  />
-                </ListItem>
-              )}
-            </List>
-          </Grid>
-          <Grid item xs={12}>
-            {rule.comment && (
+        {(!rule.scheduledChange ||
+          rule.scheduledChange.change_type !== 'insert') && (
+          <Grid container>
+            <Grid item xs={4}>
               <List>
-                <ListItem className={classes.listItem}>
-                  <ListItemText
-                    className={classes.comment}
-                    primaryTypographyProps={{
-                      component: 'div',
-                      className: classes.primaryText,
-                    }}
-                    primary={
-                      <Fragment>
-                        Comment
-                        {diffedProperties.includes('comment') &&
-                          rule.scheduledChange.change_type === 'update' && (
-                            <span
-                              className={classes.propertyWithScheduledChange}
-                            />
-                          )}
-                      </Fragment>
-                    }
-                    secondary={rule.comment}
-                  />
-                </ListItem>
+                {rule.mapping && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      title={rule.mapping}
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      secondaryTypographyProps={{
+                        className: classes.textEllipsis,
+                      }}
+                      primary={
+                        <Fragment>
+                          Mapping
+                          {diffedProperties.includes('mapping') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.mapping}
+                    />
+                  </ListItem>
+                )}
+                {rule.fallbackMapping && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      title={rule.fallbackMapping}
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      secondaryTypographyProps={{
+                        className: classes.textEllipsis,
+                      }}
+                      primary={
+                        <Fragment>
+                          Fallback Mapping
+                          {diffedProperties.includes('fallbackMapping') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.fallbackMapping}
+                    />
+                  </ListItem>
+                )}
+                {Number.isInteger(Number(rule.backgroundRate)) && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          Background Rate
+                          {diffedProperties.includes('backgroundRate') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.backgroundRate}
+                    />
+                  </ListItem>
+                )}
               </List>
-            )}
+            </Grid>
+            <Grid item xs={4}>
+              <List>
+                {rule.data_version && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          Data Version
+                          {diffedProperties.includes('data_version') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.data_version}
+                    />
+                  </ListItem>
+                )}
+                {Number.isInteger(Number(rule.rule_id)) && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primary="Rule ID"
+                      secondary={
+                        <Fragment>
+                          <Typography
+                            component="span"
+                            variant="body2"
+                            className={classes.inline}
+                            color="textPrimary">
+                            {rule.rule_id}
+                          </Typography>
+                          {rule.alias && ` ${rule.alias} (alias)`}
+                        </Fragment>
+                      }
+                    />
+                  </ListItem>
+                )}
+              </List>
+            </Grid>
+            <Grid item xs={4}>
+              <List>
+                {rule.version && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          Version
+                          {diffedProperties.includes('version') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.version}
+                    />
+                  </ListItem>
+                )}
+                {rule.buildID && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          Build ID
+                          {diffedProperties.includes('buildID') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.buildID}
+                    />
+                  </ListItem>
+                )}
+                {rule.buildTarget && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          Build Target
+                          {diffedProperties.includes('buildTarget') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.buildTarget}
+                    />
+                  </ListItem>
+                )}
+                {rule.locale && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          Locale
+                          {diffedProperties.includes('locale') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.locale}
+                    />
+                  </ListItem>
+                )}
+                {rule.distribution && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          Distribution
+                          {diffedProperties.includes('distribution') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.distribution}
+                    />
+                  </ListItem>
+                )}
+                {rule.distVersion && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          Distribution Version
+                          {diffedProperties.includes('distVersion') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.distVersion}
+                    />
+                  </ListItem>
+                )}
+                {rule.osVersion && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      title={rule.osVersion}
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      secondaryTypographyProps={{
+                        className: classes.textEllipsis,
+                      }}
+                      primary={
+                        <Fragment>
+                          OS Version
+                          {diffedProperties.includes('osVersion') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.osVersion}
+                    />
+                  </ListItem>
+                )}
+                {rule.instructionSet && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          Instruction Set
+                          {diffedProperties.includes('instructionSet') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.instructionSet}
+                    />
+                  </ListItem>
+                )}
+                {rule.memory && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          Memory
+                          {diffedProperties.includes('memory') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.memory}
+                    />
+                  </ListItem>
+                )}
+                {rule.mig64 && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          64-bit Migration Opt-in
+                          {diffedProperties.includes('mig64') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={String(rule.mig64)}
+                    />
+                  </ListItem>
+                )}
+                {rule.jaws && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          Incompatible JAWS Screen Reader
+                          {diffedProperties.includes('jaws') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={String(rule.jaws)}
+                    />
+                  </ListItem>
+                )}
+                {rule.headerArchitecture && (
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          Header Architecture
+                          {diffedProperties.includes('headerArchitecture') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.headerArchitecture}
+                    />
+                  </ListItem>
+                )}
+              </List>
+            </Grid>
+            <Grid item xs={12}>
+              {rule.comment && (
+                <List>
+                  <ListItem className={classes.listItem}>
+                    <ListItemText
+                      className={classes.comment}
+                      primaryTypographyProps={{
+                        component: 'div',
+                        className: classes.primaryText,
+                      }}
+                      primary={
+                        <Fragment>
+                          Comment
+                          {diffedProperties.includes('comment') &&
+                            rule.scheduledChange.change_type === 'update' && (
+                              <span
+                                className={classes.propertyWithScheduledChange}
+                              />
+                            )}
+                        </Fragment>
+                      }
+                      secondary={rule.comment}
+                    />
+                  </ListItem>
+                </List>
+              )}
+            </Grid>
           </Grid>
-        </Grid>
+        )}
         {rule.scheduledChange && (
           <Fragment>
             {rule.scheduledChange.change_type !== 'insert' && (
