@@ -133,7 +133,7 @@ function ViewUser({ isNewUser, ...props }) {
           name => {
             const details = userdata.data.data.permissions[name];
             const sc = scheduledChanges.data.data.scheduled_changes.filter(
-              sc => sc.permission === name
+              sc => sc.username === existingUsername && sc.permission === name
             );
             const permission = {
               name,
@@ -168,7 +168,7 @@ function ViewUser({ isNewUser, ...props }) {
         // Scheduled inserts don't have an existing permission to associate
         // with, so we need to create an empty one, and add to it.
         scheduledChanges.data.data.scheduled_changes.forEach(sc => {
-          if (sc.change_type === 'insert') {
+          if (sc.username === existingUsername && sc.change_type === 'insert') {
             const p = getEmptyPermission();
 
             p.name = sc.permission;

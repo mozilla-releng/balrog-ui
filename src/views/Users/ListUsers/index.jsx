@@ -55,6 +55,7 @@ function ListUsers() {
               username={user}
               roles={users[user].roles}
               permissions={users[user].permissions}
+              scheduledPermissions={users[user].scheduledPermissions}
             />
           ))}
           <Tooltip title="Add User">

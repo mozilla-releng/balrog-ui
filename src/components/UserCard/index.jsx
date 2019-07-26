@@ -1,19 +1,28 @@
-import React from 'react';
-import { string, object } from 'prop-types';
+import React, { Fragment } from 'react';
+import { func, string, object } from 'prop-types';
 import classNames from 'classnames';
 import Card from '@material-ui/core/Card';
 import { makeStyles } from '@material-ui/styles';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardActionArea from '@material-ui/core/CardActionArea';
+import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
+import Divider from '@material-ui/core/Divider';
+import Grid from '@material-ui/core/Grid';
 import AccountGroupIcon from 'mdi-react/AccountGroupIcon';
+import ArrowRightIcon from 'mdi-react/ArrowRightIcon';
 import KeyVariantIcon from 'mdi-react/KeyVariantIcon';
 import PencilIcon from 'mdi-react/PencilIcon';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import Button from '../Button';
+import SignoffSummary from '../SignoffSummary';
+import StatusLabel from '../StatusLabel';
+import { withUser } from '../../utils/AuthContext';
 import Link from '../../utils/Link';
+import { LABELS } from '../../utils/constants';
 import { getPermissionString, getRolesString } from '../../utils/userUtils';
 
 const useStyles = makeStyles(theme => ({
@@ -26,17 +35,50 @@ const useStyles = makeStyles(theme => ({
   cardHeaderAction: {
     alignSelf: 'end',
   },
+  cardActions: {
+    justifyContent: 'flex-end',
+  },
   pencilIcon: {
     marginRight: theme.spacing(1),
   },
   link: {
     ...theme.mixins.link,
   },
+  arrowIcon: {
+    margin: `0 ${theme.spacing(1)}px`,
+  },
+  propertyWithScheduledChange: {
+    width: theme.spacing(1),
+    height: theme.spacing(1),
+    borderRadius: '50%',
+    background: 'red',
+    marginLeft: theme.spacing(1),
+    display: 'inline-block',
+  },
 }));
 
-export default function User(props) {
+function getStatus(changeType) {
+  if (changeType !== 'delete') {
+    return LABELS.PENDING;
+  }
+
+  if (changeType === 'delete') {
+    return LABELS.PENDING_DELETE;
+  }
+}
+
+function User(props) {
   const classes = useStyles();
-  const { className, username, roles, permissions } = props;
+  const {
+    user,
+    className,
+    username,
+    roles,
+    permissions,
+    scheduledPermissions,
+    onSignoff,
+    onRevoke,
+  } = props;
   const returnOptionIfExists = (options, key, defaultValue) => {
     if (options && options[key]) {
       return options[key];
@@ -45,8 +87,6 @@ export default function User(props) {
     return defaultValue;
   };
 
-  // TODO: Add admin-or-not marker. Needs backend support.
-  // should links like the ones below be in a component?
   return (
     <Card className={classNames(classes.card, className)}>
       <Link className={classes.link} to={`/users/${username}`}>
@@ -66,13 +106,20 @@ export default function User(props) {
               <ListItemIcon>
                 <KeyVariantIcon />
               </ListItemIcon>
-              <ListItemText>
-                {getPermissionString(
-                  permission,
-                  returnOptionIfExists(details.options, 'actions', []),
-                  returnOptionIfExists(details.options, 'products', [])
-                )}
-              </ListItemText>
+              <ListItemText
+                primary={
+                  <Fragment>
+                    {getPermissionString(
+                      permission,
+                      returnOptionIfExists(details.options, 'actions', []),
+                      returnOptionIfExists(details.options, 'products', [])
+                    )}
+                    {scheduledPermissions[permission] && (
+                      <span className={classes.propertyWithScheduledChange} />
+                    )}
+                  </Fragment>
+                }
+              />
             </ListItem>
           ))}
           {Object.keys(roles).length > 0 && (
@@ -87,6 +134,71 @@ export default function User(props) {
           )}
         </List>
       </CardContent>
+      {Object.keys(scheduledPermissions).length > 0 &&
+        Object.entries(scheduledPermissions).map(([permission, details]) => (
+          <Fragment key={permission}>
+            <Divider />
+            <CardContent className={classes.scheduled}>
+              <List>
+                <ListItem>
+                  <ListItemIcon>
+                    <KeyVariantIcon />
+                  </ListItemIcon>
+                  <ListItemText>
+                    {permissions[permission] && (
+                      <Fragment>
+                        {getPermissionString(
+                          permission,
+                          returnOptionIfExists(
+                            permissions[permission].options,
+                            'actions',
+                            []
+                          ),
+                          returnOptionIfExists(
+                            permissions[permission].options,
+                            'products',
+                            []
+                          )
+                        )}
+                        <ArrowRightIcon className={classes.arrowIcon} />
+                      </Fragment>
+                    )}
+                    {getPermissionString(
+                      permission,
+                      returnOptionIfExists(details.options, 'actions', []),
+                      returnOptionIfExists(details.options, 'products', []),
+                      details.change_type
+                    )}
+                  </ListItemText>
+                </ListItem>
+              </List>
+              <Grid container spacing={4}>
+                <Grid item xs={4}>
+                  <div className={classes.statusLabel}>
+                    <StatusLabel state={getStatus(details.change_type)} />
+                  </div>
+                </Grid>
+                <Grid item xs={8}>
+                  <SignoffSummary
+                    requiredSignoffs={details.required_signoffs}
+                    signoffs={details.signoffs}
+                  />
+                </Grid>
+              </Grid>
+            </CardContent>
+            <CardActions className={classes.cardActions}>
+              {user && user.email in details.signoffs ? (
+                <Button color="secondary" onClick={onRevoke}>
+                  Revoke Signoff
+                </Button>
+              ) : (
+                <Button color="secondary" onClick={onSignoff}>
+                  Signoff
+                </Button>
+              )}
+            </CardActions>
+          </Fragment>
+        ))}
     </Card>
   );
 }
@@ -95,9 +207,15 @@ User.propTypes = {
   username: string.isRequired,
   roles: object,
   permissions: object,
+  scheduledPermissions: object,
+  onSignoff: func.isRequired,
+  onRevoke: func.isRequired,
 };
 
 User.defaultProps = {
   roles: {},
   permissions: {},
+  scheduledPermissions: {},
 };
+
+export default withUser(User);
