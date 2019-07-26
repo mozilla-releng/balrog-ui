@@ -362,11 +362,11 @@ function ListRules(props) {
     const listPadding = theme.spacing(1);
     const listItemTextMargin = 6;
     const diffRowHeight = remToPx(theme.typography.body2.fontSize) * 1.5;
-    // Rule card margin + <CardContent /> padding
-    let height = theme.spacing(2) + theme.spacing(2);
+    // <CardContent /> padding
+    let height = theme.spacing(2);
 
     // actions row
-    height = buttonHeight + theme.spacing(2);
+    height += buttonHeight + theme.spacing(2);
 
     if (!hasScheduledChanges || rule.scheduledChange.change_type !== 'insert') {
       // avatar height (title) + padding
@@ -403,13 +403,9 @@ function ListRules(props) {
         2 * listPadding;
 
       // row with comment
-      // (max 2 lines of comments otherwise we display a scroller)
+      // (max 8*10px; ~3 lines of comments otherwise we display a scroller)
       if (rule.comment) {
-        height +=
-          body1TextHeight() +
-          body2TextHeight(2) +
-          2 * listItemTextMargin +
-          2 * listPadding;
+        height += theme.spacing(10) + 2 * listItemTextMargin + 2 * listPadding;
       }
     }
 
