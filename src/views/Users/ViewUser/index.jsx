@@ -40,7 +40,7 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
   },
   addGrid: {
-    marginTop: theme.spacing(0),
+    marginTop: theme.spacing(5),
   },
   gridWithIcon: {
     marginTop: theme.spacing(3),
@@ -331,7 +331,7 @@ function ViewUser({ isNewUser, ...props }) {
   };
 
   const renderRole = (role, index) => (
-    <Grid container spacing={2} key={index}>
+    <Grid container spacing={2} key={index} className={classes.gridWithIcon}>
       <Grid item xs={11}>
         <TextField
           disabled={role.metadata.isAdditional ? false : !isNewUser}
@@ -341,16 +341,14 @@ function ViewUser({ isNewUser, ...props }) {
         />
       </Grid>
       <Grid item xs={1} className={classes.gridDelete}>
-        <IconButton
-          className={classes.iconButton}
-          onClick={() => handleRoleDelete(role, index)}>
+        <IconButton onClick={() => handleRoleDelete(role, index)}>
           <DeleteIcon />
         </IconButton>
       </Grid>
     </Grid>
   );
   const renderPermission = (permission, index) => (
-    <Grid container spacing={2} key={index}>
+    <Grid container spacing={2} key={index} className={classes.gridWithIcon}>
       <Grid item xs={3}>
         <AutoCompleteText
           value={defaultToEmptyString(
