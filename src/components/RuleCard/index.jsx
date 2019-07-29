@@ -22,8 +22,10 @@ import PlusCircleIcon from 'mdi-react/PlusCircleIcon';
 import HistoryIcon from 'mdi-react/HistoryIcon';
 import { formatDistanceStrict } from 'date-fns';
 import 'react-diff-view/style/index.css';
-import DiffRule from '../DiffRule';
 import Button from '../Button';
+import DiffRule from '../DiffRule';
+import SignoffSummary from '../SignoffSummary';
+import { withUser } from '../../utils/AuthContext';
 import Link from '../../utils/Link';
 import { RULE_DIFF_PROPERTIES } from '../../utils/constants';
 import { rule } from '../../utils/prop-types';
@@ -47,6 +49,9 @@ const useStyles = makeStyles(theme => ({
         },
       },
     },
+  },
+  space: {
+    paddingTop: theme.spacing(2),
   },
   cardHeader: {
     paddingBottom: 0,
@@ -132,8 +137,19 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function RuleCard({ rule, onRuleDelete, readOnly, ...props }) {
+function RuleCard({
+  rule,
+  onRuleDelete,
+  user,
+  readOnly,
+  onAuthorize,
+  onUnauthorize,
+  ...props
+}) {
   const classes = useStyles();
+  const requiresSignoff =
+    rule.scheduledChange &&
+    Object.keys(rule.scheduledChange.required_signoffs).length > 0;
   const getChipIcon = changeType => {
     switch (changeType) {
       case 'delete': {
@@ -548,7 +564,7 @@ function RuleCard({ rule, onRuleDelete, readOnly, ...props }) {
                     />
                   </ListItem>
                 )}
-                {rule.mig64 && (
+                {rule.mig64 != null && (
                   <ListItem className={classes.listItem}>
                     <ListItemText
                       primaryTypographyProps={{
@@ -570,7 +586,7 @@ function RuleCard({ rule, onRuleDelete, readOnly, ...props }) {
                     />
                   </ListItem>
                 )}
-                {rule.jaws && (
+                {rule.jaws != null && (
                   <ListItem className={classes.listItem}>
                     <ListItemText
                       primaryTypographyProps={{
@@ -688,6 +704,15 @@ function RuleCard({ rule, onRuleDelete, readOnly, ...props }) {
             )}
           </Fragment>
         )}
+        {!readOnly && requiresSignoff && (
+          <Fragment>
+            <SignoffSummary
+              requiredSignoffs={rule.scheduledChange.required_signoffs}
+              signoffs={rule.scheduledChange.signoffs}
+              className={classes.space}
+            />
+          </Fragment>
+        )}
       </CardContent>
       {!readOnly && (
         <CardActions className={classes.cardActions}>
@@ -713,6 +738,12 @@ function RuleCard({ rule, onRuleDelete, readOnly, ...props }) {
           <Button color="secondary" onClick={() => onRuleDelete(rule)}>
             Delete
           </Button>
+          {requiresSignoff &&
+            (user && user.email in rule.scheduledChange.signoffs ? (
+              <Button color="secondary">Revoke Signoff</Button>
+            ) : (
+              <Button color="secondary">Signoff as</Button>
+            ))}
         </CardActions>
       )}
     </Card>
@@ -731,4 +762,4 @@ RuleCard.defaultProps = {
   readOnly: false,
 };
 
-export default RuleCard;
+export default withUser(RuleCard);
