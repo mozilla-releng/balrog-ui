@@ -4,14 +4,11 @@ import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListSubheader from '@material-ui/core/ListSubheader';
 import ArrowRightIcon from 'mdi-react/ArrowRightIcon';
 import { func } from 'prop-types';
 import StatusLabel from '../StatusLabel';
 import Button from '../Button';
+import SignoffSummary from '../SignoffSummary';
 import { signoffEntry } from '../../utils/prop-types';
 import { LABELS } from '../../utils/constants';
 import { withUser } from '../../utils/AuthContext';
@@ -39,16 +36,6 @@ const useStyles = makeStyles(theme => ({
   statusLabel: {
     marginTop: theme.spacing(1),
   },
-  listSubheader: {
-    lineHeight: 1.5,
-    marginBottom: theme.spacing(1),
-  },
-  listWrapper: {
-    display: 'flex',
-  },
-  requiresSignoffsList: {
-    marginRight: theme.spacing(6),
-  },
 }));
 
 function getStatus(entry) {
@@ -73,7 +60,6 @@ function SignoffCardEntry(props) {
   const signoffsRequiredCurrent = Number(entry.signoffs_required);
   const signoffsRequiredIntent =
     isScheduled && Number(entry.sc.signoffs_required);
-  const listOfSignoffs = isScheduled && Object.entries(entry.sc.signoffs);
 
   return (
     <Fragment>
@@ -100,62 +86,10 @@ function SignoffCardEntry(props) {
           </Grid>
           <Grid item xs={12} sm={8} className={classes.secondColumn}>
             {isScheduled && (
-              <div className={classes.listWrapper}>
-                <List
-                  dense
-                  subheader={
-                    <ListSubheader className={classes.listSubheader}>
-                      Requires Signoffs From
-                    </ListSubheader>
-                  }>
-                  {Object.entries(entry.sc.required_signoffs).map(
-                    ([role, count], index) => {
-                      const key = `${role}-${index}`;
-
-                      return (
-                        <ListItem
-                          key={key}
-                          dense
-                          className={classes.requiresSignoffsList}>
-                          <ListItemText
-                            primary={`${count} member${
-                              count > 1 ? 's' : ''
-                            } of ${role}`}
-                          />
-                        </ListItem>
-                      );
-                    }
-                  )}
-                </List>
-                {listOfSignoffs && Boolean(listOfSignoffs.length) && (
-                  <List
-                    dense
-                    subheader={
-                      <ListSubheader className={classes.listSubheader}>
-                        Signed By
-                      </ListSubheader>
-                    }>
-                    <ListItem dense>
-                      {listOfSignoffs.map(([username, signoffRole]) => (
-                        <ListItemText
-                          key={username}
-                          primary={
-                            <Fragment>
-                              {username}
-                              {' - '}
-                              <Typography
-                                color="textSecondary"
-                                variant="caption">
-                                {signoffRole}
-                              </Typography>
-                            </Fragment>
-                          }
-                        />
-                      ))}
-                    </ListItem>
-                  </List>
-                )}
-              </div>
+              <SignoffSummary
+                requiredSignoffs={entry.sc.required_signoffs}
+                signoffs={entry.sc.signoffs}
+              />
             )}
           </Grid>
         </Grid>
