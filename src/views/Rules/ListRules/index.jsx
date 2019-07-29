@@ -439,28 +439,18 @@ function ListRules(props) {
             rule.scheduledChange.required_signoffs
           ).length;
           const nSignoffs = Object.keys(rule.scheduledChange.signoffs).length;
+          // Required Roles and Signoffs are beside one another, so we only
+          // need to account for the one with the most items.
+          const signoffRows = Math.max(requiredRoles, nSignoffs);
 
-          // Add space for the padding above the summary,
-          // and at the bottom of the section
+          // Padding above the summary
           height += theme.spacing(2);
 
-          // Add space for the "Requires Signoff From" title
-          height += theme.spacing(3);
+          // The "Requires Signoff From" title and the padding beneath it
+          height += body1TextHeight() + theme.spacing(0.5);
 
-          // Add space for each row of required roles
-          // 2 is actually a little less than needed, but we rarely
-          // require more than 2 signoffs, and erring low looks better
-          // than erring high.
-          height += requiredRoles * theme.spacing(2);
-
-          // Signoffs and required roles are beside one another, so if there's
-          // the same number or fewer signoffs than required roles, we don't
-          // need to add extra space for them. If the signoffs are more
-          // mnumerous than the number of required roles, we need more space
-          // for the extras.
-          if (nSignoffs > requiredRoles) {
-            height += (nSignoffs - requiredRoles) * theme.spacing(2);
-          }
+          // Space for however many rows exist.
+          height += signoffRows * (body2TextHeight() + theme.spacing(1));
         }
       }
     }
