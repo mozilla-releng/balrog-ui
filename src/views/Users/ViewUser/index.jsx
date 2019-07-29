@@ -445,22 +445,26 @@ function ViewUser({ isNewUser, ...props }) {
             <br />
             <br />
             <br />
-            <Typography variant="h5">Roles</Typography>
-            {roles.map(renderRole)}
-            {additionalRoles.map(renderRole)}
-            <Grid item xs className={classes.addGrid}>
-              <Grid item xs={11}>
-                <Button
-                  onClick={handleRoleAdd}
-                  className={classes.fullWidth}
-                  variant="outlined">
-                  <PlusIcon />
-                </Button>
-              </Grid>
-            </Grid>
-            <br />
-            <br />
-            <br />
+            {!isNewUser && (
+              <Fragment>
+                <Typography variant="h5">Roles</Typography>
+                {roles.map(renderRole)}
+                {additionalRoles.map(renderRole)}
+                <Grid item xs className={classes.addGrid}>
+                  <Grid item xs={11}>
+                    <Button
+                      onClick={handleRoleAdd}
+                      className={classes.fullWidth}
+                      variant="outlined">
+                      <PlusIcon />
+                    </Button>
+                  </Grid>
+                </Grid>
+                <br />
+                <br />
+                <br />
+              </Fragment>
+            )}
             <Typography variant="h5">Permissions</Typography>
             {permissions.map(renderPermission)}
             {additionalPermissions.map(renderPermission)}
