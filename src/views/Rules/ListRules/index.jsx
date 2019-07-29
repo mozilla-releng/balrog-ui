@@ -583,11 +583,11 @@ function ListRules(props) {
           // Padding above the summary
           height += theme.spacing(2);
 
-          // The "Requires Signoff From" title and the padding beneath it
-          height += body1TextHeight() + theme.spacing(0.5);
+          // The "Requires Signoff From" title and the margin beneath it
+          height += body2TextHeight() + theme.spacing(0.5);
 
           // Space for however many rows exist.
-          height += signoffRows * (body2TextHeight() + theme.spacing(1));
+          height += signoffRows * body2TextHeight();
         }
       }
     }
