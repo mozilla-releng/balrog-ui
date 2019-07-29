@@ -10,6 +10,7 @@ import { getUsers } from '../../../services/users';
 import useAction from '../../../hooks/useAction';
 import UserCard from '../../../components/UserCard';
 import getUsersInfo from '../utils/getUsersInfo';
+import Link from '../../../utils/Link';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -40,8 +41,6 @@ function ListUsers() {
     });
   }, []);
 
-  const handleUserAdd = () => {};
-
   return (
     <Dashboard title="Users">
       {isLoading && <Spinner loading />}
@@ -57,15 +56,16 @@ function ListUsers() {
               permissions={users[user].permissions}
             />
           ))}
-          <Tooltip title="Add User">
-            <Fab
-              color="primary"
-              className={classes.fab}
-              classes={{ root: classes.fab }}
-              onClick={handleUserAdd}>
-              <PlusIcon />
-            </Fab>
-          </Tooltip>
+          <Link to="/users/create">
+            <Tooltip title="Add User">
+              <Fab
+                color="primary"
+                className={classes.fab}
+                classes={{ root: classes.fab }}>
+                <PlusIcon />
+              </Fab>
+            </Tooltip>
+          </Link>
         </Fragment>
       )}
     </Dashboard>
