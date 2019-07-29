@@ -52,7 +52,11 @@ function SignoffSummary(props) {
           return (
             <ListItem key={key} className={classes.signoffsList}>
               <ListItemText
-                primary={`${count} member${count > 1 ? 's' : ''} of ${role}`}
+                primary={
+                  <Typography component="p" variant="body2">
+                    {`${count} member${count > 1 ? 's' : ''} of ${role}`}
+                  </Typography>
+                }
                 className={classes.listItemText}
               />
             </ListItem>
