@@ -213,10 +213,10 @@ function ListRules(props) {
           );
         }
 
-        returnedRule.requiredSignoffs = {};
+        returnedRule.required_signoffs = {};
         requiredSignoffs.forEach(rs => {
           if (ruleMatchesRequiredSignoff(rule, rs)) {
-            returnedRule.requiredSignoffs[rs.role] = rs.signoffs_required;
+            returnedRule.required_signoffs[rs.role] = rs.signoffs_required;
           }
         });
 
@@ -227,7 +227,7 @@ function ListRules(props) {
         if (sc.change_type === 'insert') {
           const rule = { scheduledChange: sc };
 
-          Object.assign(rule, { scheduledChange: sc });
+          Object.assign(rule, { scheduledChange: sc, required_signoffs: sc.required_signoffs });
           Object.assign(rule.scheduledChange, {
             when: new Date(rule.scheduledChange.when),
           });
@@ -353,7 +353,7 @@ function ListRules(props) {
       throw error;
     }
 
-    if (Object.keys(dialogRule.requiredSignoffs).length > 0) {
+    if (Object.keys(dialogRule.required_signoffs).length > 0) {
       return (await getScheduledChangeByRuleId(dialogRule.rule_id)).data
         .scheduled_changes[0];
     }
@@ -361,25 +361,6 @@ function ListRules(props) {
     return dialogRule.rule_id;
   };
 
-  const deleteDialogBody =
-    dialogState.item &&
-    (Object.keys(dialogState.item.requiredSignoffs).length > 0 ? (
-      <DateTimePicker
-        disablePast
-        inputVariant="outlined"
-        fullWidth
-        label="When"
-        onError={handleDateTimePickerError}
-        helperText={
-          dateTimePickerError ||
-          (scheduleDeleteDate < new Date() ? 'Scheduled for ASAP' : undefined)
-        }
-        onDateTimeChange={handleDateTimeChange}
-        value={scheduleDeleteDate}
-      />
-    ) : (
-      `This will delete rule ${dialogState.item.rule_id}.`
-    ));
   const signoffDialogBody = (
     <FormControl component="fieldset">
       <RadioGroup
@@ -479,6 +460,25 @@ function ListRules(props) {
   };
 
   const handleRuleDelete = rule => {
+    const deleteDialogBody =
+      Object.keys(rule.required_signoffs).length > 0 ? (
+        <DateTimePicker
+          disablePast
+          inputVariant="outlined"
+          fullWidth
+          label="When"
+          onError={handleDateTimePickerError}
+          helperText={
+            dateTimePickerError ||
+            (scheduleDeleteDate < new Date() ? 'Scheduled for ASAP' : undefined)
+          }
+          onDateTimeChange={handleDateTimeChange}
+          value={scheduleDeleteDate}
+        />
+      ) : (
+        `This will delete rule ${rule.rule_id}.`
+      );
+
     setDialogState({
       ...dialogState,
       open: true,
