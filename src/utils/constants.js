@@ -114,3 +114,4 @@ export const ALL_PERMISSIONS = [
   'permission',
   'scheduled_change',
 ];
+export const NEW_LINES_REGEX = /\r?\n|\r/g;
