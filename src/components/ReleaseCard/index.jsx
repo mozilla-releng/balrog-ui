@@ -47,7 +47,7 @@ const useStyles = makeStyles(theme => ({
   cardHeaderContent: {
     ...theme.mixins.textEllipsis,
   },
-  ruleName: {
+  releaseName: {
     ...theme.mixins.textEllipsis,
   },
   listItem: {
@@ -106,7 +106,7 @@ function ReleaseCard(props) {
         className={classes.cardHeader}
         classes={{ content: classes.cardHeaderContent }}
         title={
-          <Typography className={classes.ruleName} component="h2" variant="h6">
+          <Typography className={classes.releaseName} component="h2" variant="h6">
             {release.name}{' '}
             <a
               href={`#${release.name}`}
