@@ -227,7 +227,10 @@ function ListRules(props) {
         if (sc.change_type === 'insert') {
           const rule = { scheduledChange: sc };
 
-          Object.assign(rule, { scheduledChange: sc, required_signoffs: sc.required_signoffs });
+          Object.assign(rule, {
+            scheduledChange: sc,
+            required_signoffs: sc.required_signoffs,
+          });
           Object.assign(rule.scheduledChange, {
             when: new Date(rule.scheduledChange.when),
           });
