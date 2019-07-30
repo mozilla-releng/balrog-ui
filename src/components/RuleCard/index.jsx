@@ -141,6 +141,8 @@ const useStyles = makeStyles(theme => ({
 function RuleCard({
   rule,
   onRuleDelete,
+  onSignoff,
+  onRevoke,
   user,
   readOnly,
   onAuthorize,
@@ -741,9 +743,13 @@ function RuleCard({
           </Button>
           {requiresSignoff &&
             (user && user.email in rule.scheduledChange.signoffs ? (
-              <Button color="secondary">Revoke Signoff</Button>
+              <Button color="secondary" onClick={onRevoke}>
+                Revoke Signoff
+              </Button>
             ) : (
-              <Button color="secondary">Signoff as</Button>
+              <Button color="secondary" onClick={onSignoff}>
+                Signoff
+              </Button>
             ))}
         </CardActions>
       )}
@@ -756,6 +762,8 @@ RuleCard.propTypes = {
   onRuleDelete: func,
   // If true, the card will hide all buttons.
   readOnly: bool,
+  onSignoff: func.isRequired,
+  onRevoke: func.isRequired,
 };
 
 RuleCard.defaultProps = {
