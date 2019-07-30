@@ -616,6 +616,7 @@ function ListRules(props) {
           className={classes.ruleCard}
           key={rule.rule_id}
           rule={rule}
+          readOnly={username === '' ? true : false}
           onRuleDelete={handleRuleDelete}
           onSignoff={() => handleSignoff(rule)}
           onRevoke={() => handleRevoke(rule)}
