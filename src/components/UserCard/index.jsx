@@ -58,12 +58,13 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function getStatus(changeType) {
-  if (changeType !== 'delete') {
-    return LABELS.PENDING;
-  }
-
-  if (changeType === 'delete') {
-    return LABELS.PENDING_DELETE;
+  switch (changeType) {
+    case 'insert':
+      return LABELS.PENDING_INSERT;
+    case 'delete':
+      return LABELS.PENDING_DELETE;
+    default:
+      return LABELS.PENDING;
   }
 }
 
