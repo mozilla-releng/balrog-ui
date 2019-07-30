@@ -63,11 +63,7 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
   },
   propertyWithScheduledChange: {
-    width: theme.spacing(1),
-    height: theme.spacing(1),
-    borderRadius: '50%',
-    background: 'red',
-    marginLeft: theme.spacing(1),
+    ...theme.mixins.redDot,
     display: 'inline-block',
   },
 }));
