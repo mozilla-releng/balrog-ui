@@ -44,14 +44,19 @@ const useStyles = makeStyles(theme => ({
   link: {
     ...theme.mixins.link,
   },
+  scheduledChangeContainer: {
+    marginBottom: theme.spacing(4),
+  },
   scheduledChangeDescriptionMarginLeft: {
     lineHeight: '24px',
     marginLeft: theme.spacing(1),
-    marginBottom: theme.spacing(2),
   },
   scheduledChangeDescription: {
     lineHeight: '24px',
-    marginBottom: theme.spacing(2),
+  },
+  arrowContainer: {
+    display: 'flex',
+    justifyContent: 'center',
   },
   statusLabel: {
     marginLeft: theme.spacing(1),
@@ -160,7 +165,7 @@ function User(props) {
                   state={getStatus(details.change_type)}
                 />
               </div>
-              <Grid container>
+              <Grid container className={classes.scheduledChangeContainer}>
                 {permissions[permission] && (
                   <Fragment>
                     <Grid
@@ -181,10 +186,8 @@ function User(props) {
                         )
                       )}
                     </Grid>
-                    <Grid item xs={1}>
-                      <Fragment>
-                        <ArrowRightIcon className={classes.arrowIcon} />
-                      </Fragment>
+                    <Grid item xs={1} className={classes.arrowContainer}>
+                      <ArrowRightIcon />
                     </Grid>
                   </Fragment>
                 )}
