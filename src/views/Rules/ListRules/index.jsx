@@ -270,7 +270,7 @@ function ListRules(props) {
       if (roleList.length > 0) {
         setSignoffRole(roleList[0]);
       }
-    })
+    });
   }, [username]);
 
   const filteredRulesWithScheduledChanges = useMemo(
@@ -387,7 +387,10 @@ function ListRules(props) {
   const updateSignoffs = ({ signoffRole, rule }) => {
     setRulesWithScheduledChanges(
       rulesWithScheduledChanges.map(r => {
-        if (!r.scheduledChange || r.scheduledChange.sc_id !== rule.scheduledChange.sc_id) {
+        if (
+          !r.scheduledChange ||
+          r.scheduledChange.sc_id !== rule.scheduledChange.sc_id
+        ) {
           return r;
         }
 
@@ -454,7 +457,10 @@ function ListRules(props) {
     if (!error) {
       setRulesWithScheduledChanges(
         rulesWithScheduledChanges.map(r => {
-          if (!r.scheduledChange || r.scheduledChange.sc_id !== rule.scheduledChange.sc_id) {
+          if (
+            !r.scheduledChange ||
+            r.scheduledChange.sc_id !== rule.scheduledChange.sc_id
+          ) {
             return r;
           }
 
@@ -468,27 +474,27 @@ function ListRules(props) {
     }
   };
 
-    const deleteDialogBody =
-      dialogState.item && (Object.keys(dialogState.item.required_signoffs).length > 0 ? (
-        <DateTimePicker
-          disablePast
-          inputVariant="outlined"
-          fullWidth
-          label="When"
-          onError={handleDateTimePickerError}
-          helperText={
-            dateTimePickerError ||
-            (scheduleDeleteDate < new Date() ? 'Scheduled for ASAP' : undefined)
-          }
-          onDateTimeChange={handleDateTimeChange}
-          value={scheduleDeleteDate}
-        />
-      ) : (
-        `This will delete rule ${dialogState.item.rule_id}.`
-      ));
-
+  const deleteDialogBody =
+    dialogState.item &&
+    (Object.keys(dialogState.item.required_signoffs).length > 0 ? (
+      <DateTimePicker
+        disablePast
+        inputVariant="outlined"
+        fullWidth
+        label="When"
+        onError={handleDateTimePickerError}
+        helperText={
+          dateTimePickerError ||
+          (scheduleDeleteDate < new Date() ? 'Scheduled for ASAP' : undefined)
+        }
+        onDateTimeChange={handleDateTimeChange}
+        value={scheduleDeleteDate}
+      />
+    ) : (
+      `This will delete rule ${dialogState.item.rule_id}.`
+    ));
   const handleRuleDelete = rule => {
-      setDialogMode('delete');
+    setDialogMode('delete');
     setDialogState({
       ...dialogState,
       open: true,
@@ -622,7 +628,7 @@ function ListRules(props) {
           className={classes.ruleCard}
           key={rule.rule_id}
           rule={rule}
-          readOnly={username === '' ? true : false}
+          readOnly={username === ''}
           onRuleDelete={handleRuleDelete}
           onSignoff={() => handleSignoff(rule)}
           onRevoke={() => handleRevoke(rule)}
