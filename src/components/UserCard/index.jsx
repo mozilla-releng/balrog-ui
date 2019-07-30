@@ -100,41 +100,45 @@ function User(props) {
           />
         </CardActionArea>
       </Link>
-      <CardContent>
-        <List>
-          {Object.entries(permissions).map(([permission, details]) => (
-            <ListItem key={permission}>
-              <ListItemIcon>
-                <KeyVariantIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Fragment>
-                    {getPermissionString(
-                      permission,
-                      returnOptionIfExists(details.options, 'actions', []),
-                      returnOptionIfExists(details.options, 'products', [])
-                    )}
-                    {scheduledPermissions[permission] && (
-                      <span className={classes.propertyWithScheduledChange} />
-                    )}
-                  </Fragment>
-                }
-              />
-            </ListItem>
-          ))}
-          {Object.keys(roles).length > 0 && (
-            <ListItem>
-              <ListItemIcon>
-                <AccountGroupIcon />
-              </ListItemIcon>
-              <ListItemText>
-                holds the {getRolesString(Object.keys(roles))}
-              </ListItemText>
-            </ListItem>
-          )}
-        </List>
-      </CardContent>
+      {/* We don't need to check roles here because users without permissions
+            cannot hold roles */}
+      {Object.keys(permissions).length > 0 && (
+        <CardContent>
+          <List>
+            {Object.entries(permissions).map(([permission, details]) => (
+              <ListItem key={permission}>
+                <ListItemIcon>
+                  <KeyVariantIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Fragment>
+                      {getPermissionString(
+                        permission,
+                        returnOptionIfExists(details.options, 'actions', []),
+                        returnOptionIfExists(details.options, 'products', [])
+                      )}
+                      {scheduledPermissions[permission] && (
+                        <span className={classes.propertyWithScheduledChange} />
+                      )}
+                    </Fragment>
+                  }
+                />
+              </ListItem>
+            ))}
+            {Object.keys(roles).length > 0 && (
+              <ListItem>
+                <ListItemIcon>
+                  <AccountGroupIcon />
+                </ListItemIcon>
+                <ListItemText>
+                  holds the {getRolesString(Object.keys(roles))}
+                </ListItemText>
+              </ListItem>
+            )}
+          </List>
+        </CardContent>
+      )}
       {Object.keys(scheduledPermissions).length > 0 &&
         Object.entries(scheduledPermissions).map(([permission, details]) => (
           <Fragment key={permission}>
@@ -175,7 +179,7 @@ function User(props) {
               </List>
               <Grid container spacing={4}>
                 <Grid item xs={4}>
-                  <div className={classes.statusLabel}>
+                  <div>
                     <StatusLabel state={getStatus(details.change_type)} />
                   </div>
                 </Grid>
