@@ -189,16 +189,13 @@ function ListRules(props) {
       fetchScheduledChanges(),
       fetchRules(),
       fetchRequiredSignoffs(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
-      fetchRoles(username),
       fetchProducts(),
       fetchChannels(),
-    ]).then(([sc, r, rs, userInfo]) => {
+    ]).then(([sc, r, rs]) => {
       if (!sc.data || !r.data || !rs.data) {
         return;
       }
 
-      const roleList =
-        (userInfo.data && Object.keys(userInfo.data.data.roles)) || [];
       const scheduledChanges = sc.data.data.scheduled_changes;
       const requiredSignoffs = rs.data.data.required_signoffs;
       const { rules } = r.data.data;
@@ -259,14 +256,22 @@ function ListRules(props) {
       });
 
       setRulesWithScheduledChanges(sortedRules);
+    });
+  }, []);
+
+  useEffect(() => {
+    fetchRoles(username).then(userInfo => {
+      const roleList =
+        (userInfo.data && Object.keys(userInfo.data.data.roles)) || [];
 
       setRoles(roleList);
 
       if (roleList.length > 0) {
         setSignoffRole(roleList[0]);
       }
-    });
-  }, []);
+    })
+  }, [username]);
+
   const filteredRulesWithScheduledChanges = useMemo(
     () =>
       productChannelFilter === ALL
