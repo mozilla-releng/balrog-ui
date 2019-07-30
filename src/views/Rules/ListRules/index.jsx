@@ -387,7 +387,7 @@ function ListRules(props) {
   const updateSignoffs = ({ signoffRole, rule }) => {
     setRulesWithScheduledChanges(
       rulesWithScheduledChanges.map(r => {
-        if (r.rule_id !== rule.rule_id) {
+        if (!r.scheduledChange || r.scheduledChange.sc_id !== rule.scheduledChange.sc_id) {
           return r;
         }
 
@@ -400,7 +400,6 @@ function ListRules(props) {
     );
   };
 
-  // TODO: this changes the state for all pending inserts at the same time
   const doSignoff = async (signoffRole, rule) => {
     const { error } = await signoff({
       scId: rule.scheduledChange.sc_id,
@@ -455,7 +454,7 @@ function ListRules(props) {
     if (!error) {
       setRulesWithScheduledChanges(
         rulesWithScheduledChanges.map(r => {
-          if (r.rule_id !== rule.rule_id) {
+          if (!r.scheduledChange || r.scheduledChange.sc_id !== rule.scheduledChange.sc_id) {
             return r;
           }
 
