@@ -44,8 +44,18 @@ const useStyles = makeStyles(theme => ({
   link: {
     ...theme.mixins.link,
   },
-  arrowIcon: {
-    margin: `0 ${theme.spacing(1)}px`,
+  scheduledChangeDescriptionMarginLeft: {
+    lineHeight: '24px',
+    marginLeft: theme.spacing(1),
+    marginBottom: theme.spacing(2),
+  },
+  scheduledChangeDescription: {
+    lineHeight: '24px',
+    marginBottom: theme.spacing(2),
+  },
+  statusLabel: {
+    marginLeft: theme.spacing(1),
+    marginBottom: theme.spacing(2),
   },
   propertyWithScheduledChange: {
     width: theme.spacing(1),
@@ -64,7 +74,7 @@ function getStatus(changeType) {
     case 'delete':
       return LABELS.PENDING_DELETE;
     default:
-      return LABELS.PENDING;
+      return LABELS.PENDING_UPDATE;
   }
 }
 
@@ -142,54 +152,67 @@ function User(props) {
       {Object.keys(scheduledPermissions).length > 0 &&
         Object.entries(scheduledPermissions).map(([permission, details]) => (
           <Fragment key={permission}>
-            <Divider />
+            {Object.keys(permissions).length > 0 && <Divider />}
             <CardContent className={classes.scheduled}>
-              <List>
-                <ListItem>
-                  <ListItemIcon>
-                    <KeyVariantIcon />
-                  </ListItemIcon>
-                  <ListItemText>
-                    {permissions[permission] && (
+              <div>
+                <StatusLabel
+                  className={classes.statusLabel}
+                  state={getStatus(details.change_type)}
+                />
+              </div>
+              <Grid container>
+                {permissions[permission] && (
+                  <Fragment>
+                    <Grid
+                      item
+                      xs={5}
+                      className={classes.scheduledChangeDescriptionMarginLeft}>
+                      {getPermissionString(
+                        permission,
+                        returnOptionIfExists(
+                          permissions[permission].options,
+                          'actions',
+                          []
+                        ),
+                        returnOptionIfExists(
+                          permissions[permission].options,
+                          'products',
+                          []
+                        )
+                      )}
+                    </Grid>
+                    <Grid item xs={1}>
                       <Fragment>
-                        {getPermissionString(
-                          permission,
-                          returnOptionIfExists(
-                            permissions[permission].options,
-                            'actions',
-                            []
-                          ),
-                          returnOptionIfExists(
-                            permissions[permission].options,
-                            'products',
-                            []
-                          )
-                        )}
                         <ArrowRightIcon className={classes.arrowIcon} />
                       </Fragment>
-                    )}
-                    {getPermissionString(
-                      permission,
-                      returnOptionIfExists(details.options, 'actions', []),
-                      returnOptionIfExists(details.options, 'products', []),
-                      details.change_type
-                    )}
-                  </ListItemText>
-                </ListItem>
-              </List>
-              <Grid container spacing={4}>
-                <Grid item xs={4}>
-                  <div>
-                    <StatusLabel state={getStatus(details.change_type)} />
-                  </div>
-                </Grid>
-                <Grid item xs={8}>
-                  <SignoffSummary
-                    requiredSignoffs={details.required_signoffs}
-                    signoffs={details.signoffs}
-                  />
+                    </Grid>
+                  </Fragment>
+                )}
+                {/* If the permission already exists, the Grid elements above
+                      will be displayed, so we can only take up half of the
+                      Grid here.
+                      TODO: After adding marginLeft for alignment this started wrapping
+                      if xs=6 was set. */}
+                <Grid
+                  item
+                  xs={permissions[permission] ? 5 : 12}
+                  className={
+                    permissions[permission]
+                      ? classes.scheduledChangeDescription
+                      : classes.scheduledChangeDescriptionMarginLeft
+                  }>
+                  {getPermissionString(
+                    permission,
+                    returnOptionIfExists(details.options, 'actions', []),
+                    returnOptionIfExists(details.options, 'products', []),
+                    details.change_type
+                  )}
                 </Grid>
               </Grid>
+              <SignoffSummary
+                requiredSignoffs={details.required_signoffs}
+                signoffs={details.signoffs}
+              />
             </CardContent>
             <CardActions className={classes.cardActions}>
               {user && user.email in details.signoffs ? (
