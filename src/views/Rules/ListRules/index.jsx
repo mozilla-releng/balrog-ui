@@ -96,6 +96,7 @@ function ListRules(props) {
       : ALL
   );
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
+  const [dialogMode, setDialogMode] = useState('delete');
   const [scheduleDeleteDate, setScheduleDeleteDate] = useState(
     addSeconds(new Date(), -30)
   );
@@ -399,6 +400,7 @@ function ListRules(props) {
     );
   };
 
+  // TODO: this changes the state for all pending inserts at the same time
   const doSignoff = async (signoffRole, rule) => {
     const { error } = await signoff({
       scId: rule.scheduledChange.sc_id,
@@ -431,13 +433,13 @@ function ListRules(props) {
         updateSignoffs(result);
       }
     } else {
+      setDialogMode('signoff');
       setDialogState({
         ...dialogState,
         open: true,
         title: 'Signoff as…',
         confirmText: 'Sign off',
         item: rule,
-        body: signoffDialogBody,
         handleComplete: handleSignoffDialogComplete,
         handleSubmit: handleSignoffDialogSubmit,
       });
@@ -467,9 +469,8 @@ function ListRules(props) {
     }
   };
 
-  const handleRuleDelete = rule => {
     const deleteDialogBody =
-      Object.keys(rule.required_signoffs).length > 0 ? (
+      dialogState.item && (Object.keys(dialogState.item.required_signoffs).length > 0 ? (
         <DateTimePicker
           disablePast
           inputVariant="outlined"
@@ -484,9 +485,11 @@ function ListRules(props) {
           value={scheduleDeleteDate}
         />
       ) : (
-        `This will delete rule ${rule.rule_id}.`
-      );
+        `This will delete rule ${dialogState.item.rule_id}.`
+      ));
 
+  const handleRuleDelete = rule => {
+      setDialogMode('delete');
     setDialogState({
       ...dialogState,
       open: true,
@@ -494,7 +497,6 @@ function ListRules(props) {
       confirmText: 'Delete',
       destructive: true,
       item: rule,
-      body: deleteDialogBody,
       handleComplete: handleDeleteDialogComplete,
       handleSubmit: handleDeleteDialogSubmit,
     });
@@ -702,7 +704,7 @@ function ListRules(props) {
         open={dialogState.open}
         title={dialogState.title}
         destructive={dialogState.destructive}
-        body={dialogState.body}
+        body={dialogMode === 'delete' ? deleteDialogBody : signoffDialogBody}
         confirmText={dialogState.confirmText}
         onSubmit={() => dialogState.handleSubmit(dialogState)}
         onError={handleDialogError}
