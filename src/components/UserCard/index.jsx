@@ -189,9 +189,7 @@ function User(props) {
                 )}
                 {/* If the permission already exists, the Grid elements above
                       will be displayed, so we can only take up half of the
-                      Grid here.
-                      TODO: After adding marginLeft for alignment this started wrapping
-                      if xs=6 was set. */}
+                      Grid here. */}
                 <Grid
                   item
                   xs={permissions[permission] ? 5 : 12}
