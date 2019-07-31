@@ -41,6 +41,7 @@ const useStyles = makeStyles(theme => ({
   },
   addGrid: {
     marginTop: theme.spacing(5),
+    marginBottom: theme.spacing(10),
   },
   gridWithIcon: {
     marginTop: theme.spacing(3),
@@ -115,79 +116,84 @@ function ViewUser({ isNewUser, ...props }) {
   const defaultToEmptyString = defaultTo('');
 
   useEffect(() => {
-    if (!isNewUser) {
-      Promise.all([
-        fetchUser(existingUsername),
-        fetchProducts(),
-        fetchRS(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
-        fetchSC(),
-      ]).then(([userdata, productdata, rs, scheduledChanges]) => {
-        const roles = Object.keys(userdata.data.data.roles).map(name => ({
-          name,
-          data_version: userdata.data.data.roles[name].data_version,
-          metadata: {
-            isAdditional: false,
-          },
-        }));
-        const permissions = Object.keys(userdata.data.data.permissions).map(
-          name => {
-            const details = userdata.data.data.permissions[name];
-            const sc = scheduledChanges.data.data.scheduled_changes.filter(
-              sc => sc.permission === name
-            );
-            const permission = {
+    Promise.all([
+      isNewUser ? null : fetchUser(existingUsername),
+      fetchProducts(),
+      fetchRS(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
+      fetchSC(),
+    ]).then(([userdata, productdata, rs, scheduledChanges]) => {
+      const roles =
+        userdata === null
+          ? []
+          : Object.keys(userdata.data.data.roles).map(name => ({
               name,
-              options: details.options || { products: [], actions: [] },
-              data_version: details.data_version,
-              sc: null,
+              data_version: userdata.data.data.roles[name].data_version,
               metadata: {
                 isAdditional: false,
-                productText: '',
-                actionText: '',
               },
-            };
+            }));
+      const permissions =
+        userdata === null
+          ? []
+          : Object.keys(userdata.data.data.permissions).map(name => {
+              const details = userdata.data.data.permissions[name];
+              const sc = scheduledChanges.data.data.scheduled_changes.filter(
+                sc => sc.username === existingUsername && sc.permission === name
+              );
+              const permission = {
+                name,
+                options: details.options || { products: [], actions: [] },
+                data_version: details.data_version,
+                sc: null,
+                metadata: {
+                  isAdditional: false,
+                  productText: '',
+                  actionText: '',
+                },
+              };
 
-            // Copy any scheduled changes associated with an existing
-            // permission into the list of permissions.
-            if (sc.length > 0) {
-              // The backend refers to permission names as the 'permission'
-              // attribute of an object, but we prefer to call it 'name', so
-              // we have to adjust that.
-              sc[0].name = sc[0].permission;
-              delete sc[0].permission;
+              // Copy any scheduled changes associated with an existing
+              // permission into the list of permissions.
+              if (sc.length > 0) {
+                // The backend refers to permission names as the 'permission'
+                // attribute of an object, but we prefer to call it 'name', so
+                // we have to adjust that.
+                sc[0].name = sc[0].permission;
+                delete sc[0].permission;
 
-              // Array destructuring is not very readable here.
-              // eslint-disable-next-line prefer-destructuring
-              permission.sc = sc[0];
-            }
+                // Array destructuring is not very readable here.
+                // eslint-disable-next-line prefer-destructuring
+                permission.sc = sc[0];
+              }
 
-            return permission;
-          }
-        );
+              return permission;
+            });
 
-        // Scheduled inserts don't have an existing permission to associate
-        // with, so we need to create an empty one, and add to it.
-        scheduledChanges.data.data.scheduled_changes.forEach(sc => {
-          if (sc.change_type === 'insert') {
-            const p = getEmptyPermission();
+      // Scheduled inserts don't have an existing permission to associate
+      // with, so we need to create an empty one, and add to it.
+      scheduledChanges.data.data.scheduled_changes.forEach(sc => {
+        if (sc.change_type === 'insert' && sc.username === existingUsername) {
+          const p = getEmptyPermission();
 
-            p.name = sc.permission;
-            p.sc = clone(sc);
-            p.sc.name = sc.permission;
-            delete p.sc.permission;
-            permissions.push(p);
-          }
-        });
-
-        setUsername(userdata.data.data.username);
-        setRoles(roles);
-        setOriginalRoles(clone(roles));
-        setPermissions(permissions);
-        setOriginalPermissions(clone(permissions));
-        setProducts(productdata.data.data.product);
-        setRequiredSignoffs(rs.data.data.required_signoffs);
+          p.name = sc.permission;
+          p.sc = clone(sc);
+          p.sc.name = sc.permission;
+          delete p.sc.permission;
+          permissions.push(p);
+        }
       });
-    }
+
+      if (userdata) {
+        setUsername(userdata.data.data.username);
+      }
+
+      setRoles(roles);
+      setOriginalRoles(clone(roles));
+      setPermissions(permissions);
+      setOriginalPermissions(clone(permissions));
+      setProducts(productdata.data.data.product);
+      setRequiredSignoffs(rs.data.data.required_signoffs);
+    });
   }, []);
 
   const handleUsernameChange = ({ target: { value } }) => setUsername(value);
