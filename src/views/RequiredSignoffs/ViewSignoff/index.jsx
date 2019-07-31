@@ -291,7 +291,9 @@ function ViewSignoff({ isNewSignoff, ...props }) {
             <Typography variant="h5">Roles</Typography>
             {roles.map(renderRole)}
             {additionalRoles.map(renderRole)}
-            <Grid className={classNames(classes.addRoleGrid, classes.gridSection)} container>
+            <Grid
+              className={classNames(classes.addRoleGrid, classes.gridSection)}
+              container>
               <Grid item xs={11}>
                 <Button
                   onClick={handleRoleAdd}
