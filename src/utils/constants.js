@@ -7,7 +7,9 @@ export const OBJECT_NAMES = {
 };
 export const LABELS = {
   PENDING: 'pending',
+  PENDING_INSERT: 'pendingInsert',
   PENDING_DELETE: 'pendingDelete',
+  PENDING_UPDATE: 'pendingUpdate',
 };
 export const RULE_DIFF_PROPERTIES = [
   'alias',
