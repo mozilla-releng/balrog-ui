@@ -467,9 +467,6 @@ function ViewUser({ isNewUser, ...props }) {
                     </Button>
                   </Grid>
                 </Grid>
-                <br />
-                <br />
-                <br />
               </Fragment>
             )}
             <Typography variant="h5">Permissions</Typography>
