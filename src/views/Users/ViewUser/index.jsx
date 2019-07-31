@@ -459,6 +459,7 @@ function ViewUser({ isNewUser, ...props }) {
                 <Grid item xs className={classes.addGrid}>
                   <Grid item xs={11}>
                     <Button
+                      color="primary"
                       onClick={handleRoleAdd}
                       className={classes.fullWidth}
                       variant="outlined">
@@ -477,6 +478,7 @@ function ViewUser({ isNewUser, ...props }) {
             <Grid item xs className={classes.addGrid}>
               <Grid item xs={11}>
                 <Button
+                  color="primary"
                   onClick={handlePermissionAdd}
                   className={classes.fullWidth}
                   variant="outlined">
