@@ -430,7 +430,10 @@ function ListRules(props) {
         height += diffedProperties.length * diffRowHeight + theme.spacing(1);
       }
 
-      if (rule.scheduledChange.change_type === 'delete' || rule.scheduledChange.change_type === 'update') {
+      if (
+        rule.scheduledChange.change_type === 'delete' ||
+        rule.scheduledChange.change_type === 'update'
+      ) {
         // divider
         height += theme.spacing(2) + 1;
 
