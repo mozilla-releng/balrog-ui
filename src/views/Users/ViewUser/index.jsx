@@ -164,6 +164,10 @@ function ViewUser({ isNewUser, ...props }) {
                 // Array destructuring is not very readable here.
                 // eslint-disable-next-line prefer-destructuring
                 permission.sc = sc[0];
+
+                if (permission.sc.options === null) {
+                  permission.sc.options = { products: [], actions: [] };
+                }
               }
 
               return permission;
@@ -179,6 +183,11 @@ function ViewUser({ isNewUser, ...props }) {
           p.sc = clone(sc);
           p.sc.name = sc.permission;
           delete p.sc.permission;
+
+          if (p.sc.options === null) {
+            p.sc.options = { products: [], actions: [] };
+          }
+
           permissions.push(p);
         }
       });
