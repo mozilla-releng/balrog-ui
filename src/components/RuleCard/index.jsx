@@ -718,35 +718,51 @@ function RuleCard({
       </CardContent>
       {!readOnly && (
         <CardActions className={classes.cardActions}>
-          <Link
-            className={classes.link}
-            to={{
-              pathname: '/rules/create',
-              state: {
-                rule,
-              },
-            }}>
-            <Button color="secondary">Duplicate</Button>
-          </Link>
-          <Link
-            className={classes.link}
-            to={
-              rule.rule_id
-                ? `/rules/${rule.rule_id}`
-                : `/rules/create/${rule.scheduledChange.sc_id}`
-            }>
-            <Button color="secondary">Update</Button>
-          </Link>
-          <Button color="secondary" onClick={() => onRuleDelete(rule)}>
+          {user ? (
+            <Link
+              className={classes.link}
+              to={{
+                pathname: '/rules/create',
+                state: {
+                  rule,
+                },
+              }}>
+              <Button color="secondary">Duplicate</Button>
+            </Link>
+          ) : (
+            <Button color="secondary" disabled>
+              Duplicate
+            </Button>
+          )}
+          {user ? (
+            <Link
+              className={classes.link}
+              to={
+                rule.rule_id
+                  ? `/rules/${rule.rule_id}`
+                  : `/rules/create/${rule.scheduledChange.sc_id}`
+              }>
+              <Button color="secondary">Update</Button>
+            </Link>
+          ) : (
+            <Button color="secondary" disabled>
+              Update
+            </Button>
+          )}
+          <Button
+            color="secondary"
+            disabled={!user}
+            onClick={() => onRuleDelete(rule)}>
             Delete
           </Button>
-          {requiresSignoff &&
+          {!readOnly &&
+            requiresSignoff &&
             (user && user.email in rule.scheduledChange.signoffs ? (
-              <Button color="secondary" onClick={onRevoke}>
+              <Button color="secondary" disabled={!user} onClick={onRevoke}>
                 Revoke Signoff
               </Button>
             ) : (
-              <Button color="secondary" onClick={onSignoff}>
+              <Button color="secondary" disabled={!user} onClick={onSignoff}>
                 Signoff
               </Button>
             ))}

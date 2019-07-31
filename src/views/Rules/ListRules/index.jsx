@@ -119,15 +119,12 @@ function ListRules(props) {
     revokeSignoff({ type: 'rules', ...props })
   );
   const [rolesAction, fetchRoles] = useAction(getUserInfo);
-  const isLoading =
-    products.loading ||
-    channels.loading ||
-    rules.loading ||
-    rolesAction.loading;
+  const isLoading = products.loading || channels.loading || rules.loading;
   const error =
     products.error ||
     channels.error ||
     rules.error ||
+    rolesAction.error ||
     scheduledChanges.error ||
     revokeAction.error ||
     (roles.length === 1 && signoffAction.error);
@@ -628,7 +625,6 @@ function ListRules(props) {
           className={classes.ruleCard}
           key={rule.rule_id}
           rule={rule}
-          readOnly={username === ''}
           onRuleDelete={handleRuleDelete}
           onSignoff={() => handleSignoff(rule)}
           onRevoke={() => handleRevoke(rule)}
