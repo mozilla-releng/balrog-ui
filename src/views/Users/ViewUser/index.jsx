@@ -22,7 +22,11 @@ import SpeedDial from '../../../components/SpeedDial';
 import useAction from '../../../hooks/useAction';
 import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
 import { getProducts } from '../../../services/rules';
-import { getUserInfo, getScheduledChanges } from '../../../services/users';
+import {
+  userExists,
+  getUserInfo,
+  getScheduledChanges,
+} from '../../../services/users';
 import { ALL_PERMISSIONS, OBJECT_NAMES } from '../../../utils/constants';
 import {
   supportsProductRestriction,
@@ -117,7 +121,9 @@ function ViewUser({ isNewUser, ...props }) {
 
   useEffect(() => {
     Promise.all([
-      isNewUser ? null : fetchUser(existingUsername),
+      userExists(existingUsername).then(exists =>
+        exists ? fetchUser(existingUsername) : null
+      ),
       fetchProducts(),
       fetchRS(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
       fetchSC(),
@@ -192,10 +198,7 @@ function ViewUser({ isNewUser, ...props }) {
         }
       });
 
-      if (userdata) {
-        setUsername(userdata.data.data.username);
-      }
-
+      setUsername(existingUsername);
       setRoles(roles);
       setOriginalRoles(clone(roles));
       setPermissions(permissions);
