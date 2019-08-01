@@ -119,15 +119,12 @@ function ListRules(props) {
     revokeSignoff({ type: 'rules', ...props })
   );
   const [rolesAction, fetchRoles] = useAction(getUserInfo);
-  const isLoading =
-    products.loading ||
-    channels.loading ||
-    rules.loading ||
-    rolesAction.loading;
+  const isLoading = products.loading || channels.loading || rules.loading;
   const error =
     products.error ||
     channels.error ||
     rules.error ||
+    rolesAction.error ||
     scheduledChanges.error ||
     revokeAction.error ||
     (roles.length === 1 && signoffAction.error);
@@ -261,16 +258,18 @@ function ListRules(props) {
   }, []);
 
   useEffect(() => {
-    fetchRoles(username).then(userInfo => {
-      const roleList =
-        (userInfo.data && Object.keys(userInfo.data.data.roles)) || [];
+    if (username !== '') {
+      fetchRoles(username).then(userInfo => {
+        const roleList =
+          (userInfo.data && Object.keys(userInfo.data.data.roles)) || [];
 
-      setRoles(roleList);
+        setRoles(roleList);
 
-      if (roleList.length > 0) {
-        setSignoffRole(roleList[0]);
-      }
-    });
+        if (roleList.length > 0) {
+          setSignoffRole(roleList[0]);
+        }
+      });
+    }
   }, [username]);
 
   const filteredRulesWithScheduledChanges = useMemo(
@@ -631,7 +630,6 @@ function ListRules(props) {
           className={classes.ruleCard}
           key={rule.rule_id}
           rule={rule}
-          readOnly={username === ''}
           onRuleDelete={handleRuleDelete}
           onSignoff={() => handleSignoff(rule)}
           onRevoke={() => handleRevoke(rule)}
