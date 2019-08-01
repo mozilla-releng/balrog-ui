@@ -171,7 +171,7 @@ function ViewUser({ isNewUser, ...props }) {
                 // eslint-disable-next-line prefer-destructuring
                 permission.sc = sc[0];
 
-                if (permission.sc.options === null) {
+                if (!permission.sc.options) {
                   permission.sc.options = { products: [], actions: [] };
                 }
               }
@@ -190,7 +190,7 @@ function ViewUser({ isNewUser, ...props }) {
           p.sc.name = sc.permission;
           delete p.sc.permission;
 
-          if (p.sc.options === null) {
+          if (!p.sc.options) {
             p.sc.options = { products: [], actions: [] };
           }
 
