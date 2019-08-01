@@ -119,11 +119,6 @@ const useStyles = makeStyles(theme => ({
   },
   propertyWithScheduledChange: {
     ...theme.mixins.redDot,
-    width: theme.spacing(1),
-    height: theme.spacing(1),
-    borderRadius: '50%',
-    background: 'red',
-    marginLeft: theme.spacing(1),
   },
   priorityScheduledChange: {
     marginLeft: -10,

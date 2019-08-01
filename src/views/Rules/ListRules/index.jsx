@@ -578,13 +578,16 @@ function ListRules(props) {
           rule.scheduledChange
         );
 
-        if (rule.scheduledChange.change_type === 'update') {
-          // divider
-          height += theme.spacing(2) + 1;
-        }
-
         // diff viewer + marginTop
         height += diffedProperties.length * diffRowHeight + theme.spacing(1);
+      }
+
+      if (
+        rule.scheduledChange.change_type === 'delete' ||
+        rule.scheduledChange.change_type === 'update'
+      ) {
+        // divider
+        height += theme.spacing(2) + 1;
 
         if (Object.keys(rule.scheduledChange.required_signoffs).length > 0) {
           const requiredRoles = Object.keys(

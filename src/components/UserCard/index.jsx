@@ -8,7 +8,7 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Divider from '@material-ui/core/Divider';
-import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
 import AccountGroupIcon from 'mdi-react/AccountGroupIcon';
 import ArrowRightIcon from 'mdi-react/ArrowRightIcon';
 import KeyVariantIcon from 'mdi-react/KeyVariantIcon';
@@ -45,26 +45,27 @@ const useStyles = makeStyles(theme => ({
     ...theme.mixins.link,
   },
   scheduledChangeContainer: {
-    marginBottom: theme.spacing(4),
-  },
-  scheduledChangeDescriptionMarginLeft: {
-    lineHeight: '24px',
-    marginLeft: theme.spacing(1),
-  },
-  scheduledChangeDescription: {
-    lineHeight: '24px',
-  },
-  arrowContainer: {
     display: 'flex',
-    justifyContent: 'center',
+    marginBottom: theme.spacing(1),
+    textAlign: 'justify',
+    alignItems: 'center',
   },
-  statusLabel: {
-    marginLeft: theme.spacing(1),
-    marginBottom: theme.spacing(2),
+  statusLabelDiv: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(4),
   },
   propertyWithScheduledChange: {
     ...theme.mixins.redDot,
     display: 'inline-block',
+  },
+  arrowRightIcon: {
+    margin: `0 ${theme.spacing(1)}px`,
+  },
+  permissionText: {
+    wordBreak: 'break-all',
+  },
+  signoffSummary: {
+    marginLeft: -8,
   },
 }));
 
@@ -115,9 +116,9 @@ function User(props) {
             cannot hold roles */}
       {Object.keys(permissions).length > 0 && (
         <CardContent>
-          <List>
+          <List dense>
             {Object.entries(permissions).map(([permission, details]) => (
-              <ListItem key={permission}>
+              <ListItem key={permission} disableGutters>
                 <ListItemIcon>
                   <KeyVariantIcon />
                 </ListItemIcon>
@@ -138,7 +139,7 @@ function User(props) {
               </ListItem>
             ))}
             {Object.keys(roles).length > 0 && (
-              <ListItem>
+              <ListItem disableGutters>
                 <ListItemIcon>
                   <AccountGroupIcon />
                 </ListItemIcon>
@@ -155,58 +156,47 @@ function User(props) {
           <Fragment key={permission}>
             {Object.keys(permissions).length > 0 && <Divider />}
             <CardContent className={classes.scheduled}>
-              <div>
-                <StatusLabel
-                  className={classes.statusLabel}
-                  state={getStatus(details.change_type)}
-                />
-              </div>
-              <Grid container className={classes.scheduledChangeContainer}>
+              <div className={classes.scheduledChangeContainer}>
                 {permissions[permission] && (
                   <Fragment>
-                    <Grid
-                      item
-                      xs={5}
-                      className={classes.scheduledChangeDescriptionMarginLeft}>
-                      {getPermissionString(
-                        permission,
-                        returnOptionIfExists(
-                          permissions[permission].options,
-                          'actions',
-                          []
-                        ),
-                        returnOptionIfExists(
-                          permissions[permission].options,
-                          'products',
-                          []
-                        )
-                      )}
-                    </Grid>
-                    <Grid item xs={1} className={classes.arrowContainer}>
-                      <ArrowRightIcon />
-                    </Grid>
+                    <Typography
+                      variant="body2"
+                      className={classes.permissionText}>
+                      <em>
+                        {getPermissionString(
+                          permission,
+                          returnOptionIfExists(
+                            permissions[permission].options,
+                            'actions',
+                            []
+                          ),
+                          returnOptionIfExists(
+                            permissions[permission].options,
+                            'products',
+                            []
+                          )
+                        )}
+                      </em>
+                    </Typography>
+                    <ArrowRightIcon className={classes.arrowRightIcon} />
                   </Fragment>
                 )}
-                {/* If the permission already exists, the Grid elements above
-                      will be displayed, so we can only take up half of the
-                      Grid here. */}
-                <Grid
-                  item
-                  xs={permissions[permission] ? 5 : 12}
-                  className={
-                    permissions[permission]
-                      ? classes.scheduledChangeDescription
-                      : classes.scheduledChangeDescriptionMarginLeft
-                  }>
-                  {getPermissionString(
-                    permission,
-                    returnOptionIfExists(details.options, 'actions', []),
-                    returnOptionIfExists(details.options, 'products', []),
-                    details.change_type
-                  )}
-                </Grid>
-              </Grid>
+                <Typography variant="body2" className={classes.permissionText}>
+                  <em>
+                    {getPermissionString(
+                      permission,
+                      returnOptionIfExists(details.options, 'actions', []),
+                      returnOptionIfExists(details.options, 'products', []),
+                      details.change_type
+                    )}
+                  </em>
+                </Typography>
+              </div>
+              <div className={classes.statusLabelDiv}>
+                <StatusLabel state={getStatus(details.change_type)} />
+              </div>
               <SignoffSummary
+                className={classes.signoffSummary}
                 requiredSignoffs={details.required_signoffs}
                 signoffs={details.signoffs}
               />
