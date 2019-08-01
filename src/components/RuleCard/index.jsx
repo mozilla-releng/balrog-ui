@@ -21,7 +21,6 @@ import UpdateIcon from 'mdi-react/UpdateIcon';
 import PlusCircleIcon from 'mdi-react/PlusCircleIcon';
 import HistoryIcon from 'mdi-react/HistoryIcon';
 import { formatDistanceStrict } from 'date-fns';
-import 'react-diff-view/style/index.css';
 import Button from '../Button';
 import DiffRule from '../DiffRule';
 import SignoffSummary from '../SignoffSummary';
