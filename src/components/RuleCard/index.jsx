@@ -118,11 +118,7 @@ const useStyles = makeStyles(theme => ({
     overflowY: 'auto',
   },
   propertyWithScheduledChange: {
-    width: theme.spacing(1),
-    height: theme.spacing(1),
-    borderRadius: '50%',
-    background: 'red',
-    marginLeft: theme.spacing(1),
+    ...theme.mixins.redDot,
   },
   priorityScheduledChange: {
     marginLeft: -10,
