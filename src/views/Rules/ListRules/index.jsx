@@ -258,16 +258,18 @@ function ListRules(props) {
   }, []);
 
   useEffect(() => {
-    fetchRoles(username).then(userInfo => {
-      const roleList =
-        (userInfo.data && Object.keys(userInfo.data.data.roles)) || [];
+    if (username !== '') {
+      fetchRoles(username).then(userInfo => {
+        const roleList =
+          (userInfo.data && Object.keys(userInfo.data.data.roles)) || [];
 
-      setRoles(roleList);
+        setRoles(roleList);
 
-      if (roleList.length > 0) {
-        setSignoffRole(roleList[0]);
-      }
-    });
+        if (roleList.length > 0) {
+          setSignoffRole(roleList[0]);
+        }
+      });
+    }
   }, [username]);
 
   const filteredRulesWithScheduledChanges = useMemo(
