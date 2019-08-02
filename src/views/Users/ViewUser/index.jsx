@@ -491,22 +491,22 @@ function ViewUser({ isNewUser, ...props }) {
             )}
             {!userError && (
               <Fragment>
-            <Typography variant="h5">Permissions</Typography>
-            {permissions.map(renderPermission)}
-            {additionalPermissions.map(renderPermission)}
-            <Grid item xs className={classes.addGrid}>
-              <Grid item xs={11}>
-                <Button
-                  color="primary"
-                  onClick={handlePermissionAdd}
-                  className={classes.fullWidth}
-                  variant="outlined">
-                  <PlusIcon />
-                </Button>
-              </Grid>
-            </Grid>
-            </Fragment>
-          )}
+                <Typography variant="h5">Permissions</Typography>
+                {permissions.map(renderPermission)}
+                {additionalPermissions.map(renderPermission)}
+                <Grid item xs className={classes.addGrid}>
+                  <Grid item xs={11}>
+                    <Button
+                      color="primary"
+                      onClick={handlePermissionAdd}
+                      className={classes.fullWidth}
+                      variant="outlined">
+                      <PlusIcon />
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Fragment>
+            )}
           </form>
           <Tooltip title="Save User">
             <Fab
