@@ -20,15 +20,20 @@ module.exports = {
           headers: {
             /*
               Whenever this changes we will also need to update the headers
-              for our deployed environments in XXXXXXX.
+              for our deployed environments in the cloudops repo (TODO: add link).
 
-              script-src: 
-              img-src:
-              style-src:
-              font-src:
-              connect-src:
+              script-src: unsafe-inline for reasons i'm not sure about.
+                          unsafe-eval is only for local dev, because of webpack/hotreload
+              img-src: gravatar & githubusercontent & i1.wp.com for user avatars
+                       (which can't be locked down to a specific path due to CSP format)
+              style-src: https://fonts.googleapis.com for dynamically loaded fonts
+              font-src: https://fonts.gstatic.com for fonts!
+              connect-src: https://localhost:9000 for the backend api
+                           {ws,https}://localhost:8010 for webpack connections (local dev only)
+                           https://balrog-localdev.auth0.com for authentication.
+                           note: this is different in stage/prod
             */
-            'Content-Security-Policy': "default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' https://*.gravatar.com https://*.githubusercontent.com https://i1.wp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://localhost:8010"
+            'Content-Security-Policy': "default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' https://*.gravatar.com https://*.githubusercontent.com https://i1.wp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src http://localhost:9000 ws://localhost:9000 https://localhost:8010 https://balrog-localdev.auth0.com"
           },
         },
         html: {
