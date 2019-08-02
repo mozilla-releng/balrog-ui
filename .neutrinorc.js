@@ -17,6 +17,19 @@ module.exports = {
           historyApiFallback: {
             disableDotRule: true,
           },
+          headers: {
+            /*
+              Whenever this changes we will also need to update the headers
+              for our deployed environments in XXXXXXX.
+
+              script-src: 
+              img-src:
+              style-src:
+              font-src:
+              connect-src:
+            */
+            'Content-Security-Policy': "default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' https://*.gravatar.com https://*.githubusercontent.com https://i1.wp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://localhost:8010"
+          },
         },
         html: {
           favicon: `${__dirname}/src/images/favicon.png`,
