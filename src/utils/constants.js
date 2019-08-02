@@ -7,7 +7,9 @@ export const OBJECT_NAMES = {
 };
 export const LABELS = {
   PENDING: 'pending',
+  PENDING_INSERT: 'pendingInsert',
   PENDING_DELETE: 'pendingDelete',
+  PENDING_UPDATE: 'pendingUpdate',
 };
 export const RULE_DIFF_PROPERTIES = [
   'alias',
@@ -114,3 +116,4 @@ export const ALL_PERMISSIONS = [
   'permission',
   'scheduled_change',
 ];
+export const NEW_LINES_REGEX = /\r?\n|\r/g;

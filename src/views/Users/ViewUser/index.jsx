@@ -40,7 +40,7 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
   },
   addGrid: {
-    marginTop: theme.spacing(0),
+    marginTop: theme.spacing(5),
   },
   gridWithIcon: {
     marginTop: theme.spacing(3),
@@ -133,7 +133,7 @@ function ViewUser({ isNewUser, ...props }) {
           name => {
             const details = userdata.data.data.permissions[name];
             const sc = scheduledChanges.data.data.scheduled_changes.filter(
-              sc => sc.permission === name
+              sc => sc.username === existingUsername && sc.permission === name
             );
             const permission = {
               name,
@@ -168,7 +168,7 @@ function ViewUser({ isNewUser, ...props }) {
         // Scheduled inserts don't have an existing permission to associate
         // with, so we need to create an empty one, and add to it.
         scheduledChanges.data.data.scheduled_changes.forEach(sc => {
-          if (sc.change_type === 'insert') {
+          if (sc.username === existingUsername && sc.change_type === 'insert') {
             const p = getEmptyPermission();
 
             p.name = sc.permission;
@@ -331,7 +331,7 @@ function ViewUser({ isNewUser, ...props }) {
   };
 
   const renderRole = (role, index) => (
-    <Grid container spacing={2} key={index}>
+    <Grid container spacing={2} key={index} className={classes.gridWithIcon}>
       <Grid item xs={11}>
         <TextField
           disabled={role.metadata.isAdditional ? false : !isNewUser}
@@ -341,16 +341,14 @@ function ViewUser({ isNewUser, ...props }) {
         />
       </Grid>
       <Grid item xs={1} className={classes.gridDelete}>
-        <IconButton
-          className={classes.iconButton}
-          onClick={() => handleRoleDelete(role, index)}>
+        <IconButton onClick={() => handleRoleDelete(role, index)}>
           <DeleteIcon />
         </IconButton>
       </Grid>
     </Grid>
   );
   const renderPermission = (permission, index) => (
-    <Grid container spacing={2} key={index}>
+    <Grid container spacing={2} key={index} className={classes.gridWithIcon}>
       <Grid item xs={3}>
         <AutoCompleteText
           value={defaultToEmptyString(
@@ -453,6 +451,7 @@ function ViewUser({ isNewUser, ...props }) {
             <Grid item xs className={classes.addGrid}>
               <Grid item xs={11}>
                 <Button
+                  color="primary"
                   onClick={handleRoleAdd}
                   className={classes.fullWidth}
                   variant="outlined">
@@ -469,6 +468,7 @@ function ViewUser({ isNewUser, ...props }) {
             <Grid item xs className={classes.addGrid}>
               <Grid item xs={11}>
                 <Button
+                  color="primary"
                   onClick={handlePermissionAdd}
                   className={classes.fullWidth}
                   variant="outlined">
