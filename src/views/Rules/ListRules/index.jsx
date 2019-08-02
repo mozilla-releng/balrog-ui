@@ -258,7 +258,7 @@ function ListRules(props) {
   }, []);
 
   useEffect(() => {
-    if (username !== '') {
+    if (username) {
       fetchRoles(username).then(userInfo => {
         const roleList =
           (userInfo.data && Object.keys(userInfo.data.data.roles)) || [];
@@ -314,6 +314,10 @@ function ListRules(props) {
   };
 
   const handleDialogClose = () => {
+    setDialogState({ ...dialogState, open: false });
+  };
+
+  const handleDialogExited = () => {
     setDialogState(DIALOG_ACTION_INITIAL_STATE);
   };
 
@@ -717,6 +721,7 @@ function ListRules(props) {
         error={dialogState.error}
         onComplete={dialogState.handleComplete}
         onClose={handleDialogClose}
+        onExited={handleDialogExited}
       />
       <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
     </Dashboard>

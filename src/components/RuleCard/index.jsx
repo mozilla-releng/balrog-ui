@@ -751,8 +751,7 @@ function RuleCard({
             onClick={() => onRuleDelete(rule)}>
             Delete
           </Button>
-          {!readOnly &&
-            requiresSignoff &&
+          {requiresSignoff &&
             (user && user.email in rule.scheduledChange.signoffs ? (
               <Button color="secondary" disabled={!user} onClick={onRevoke}>
                 Revoke Signoff
