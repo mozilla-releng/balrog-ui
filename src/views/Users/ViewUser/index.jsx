@@ -101,6 +101,7 @@ function ViewUser({ isNewUser, ...props }) {
   // TODO: show pending changes, signoffs, and allow them to be signed off
   // eslint-disable-next-line no-unused-vars
   const [requiredSignoffs, setRequiredSignoffs] = useState([]);
+  const [userError, setUserError] = useState(null);
   const [rsAction, fetchRS] = useAction(getRequiredSignoffs);
   const [productsAction, fetchProducts] = useAction(getProducts);
   const [userAction, fetchUser] = useAction(getUserInfo);
@@ -112,6 +113,7 @@ function ViewUser({ isNewUser, ...props }) {
     rsAction.loading ||
     SCAction.loading;
   const error =
+    userError ||
     userAction.error ||
     productsAction.error ||
     saveAction.error ||
@@ -197,6 +199,12 @@ function ViewUser({ isNewUser, ...props }) {
           permissions.push(p);
         }
       });
+
+      if (permissions.length === 0) {
+        setUserError('User does not exist!');
+
+        return;
+      }
 
       setUsername(existingUsername);
       setRoles(roles);
@@ -463,7 +471,7 @@ function ViewUser({ isNewUser, ...props }) {
             <br />
             <br />
             <br />
-            {!isNewUser && (
+            {!isNewUser && !userError && (
               <Fragment>
                 <Typography variant="h5">Roles</Typography>
                 {roles.map(renderRole)}
@@ -481,6 +489,8 @@ function ViewUser({ isNewUser, ...props }) {
                 </Grid>
               </Fragment>
             )}
+            {!userError && (
+              <Fragment>
             <Typography variant="h5">Permissions</Typography>
             {permissions.map(renderPermission)}
             {additionalPermissions.map(renderPermission)}
@@ -495,10 +505,12 @@ function ViewUser({ isNewUser, ...props }) {
                 </Button>
               </Grid>
             </Grid>
+            </Fragment>
+          )}
           </form>
           <Tooltip title="Save User">
             <Fab
-              disabled={saveAction.loading}
+              disabled={saveAction.loading || userError}
               onClick={handleUserSave}
               color="primary"
               className={classes.fab}>
@@ -508,7 +520,7 @@ function ViewUser({ isNewUser, ...props }) {
           {!isNewUser && (
             <SpeedDial ariaLabel="Secondary Actions">
               <SpeedDialAction
-                disabled={saveAction.loading}
+                disabled={saveAction.loading || userError}
                 icon={<DeleteIcon />}
                 tooltipOpen
                 tooltipTitle="Delete User"
