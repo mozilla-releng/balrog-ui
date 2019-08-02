@@ -436,25 +436,25 @@ function ListRules(props) {
       ) {
         // divider
         height += theme.spacing(2) + 1;
+      }
 
-        if (Object.keys(rule.scheduledChange.required_signoffs).length > 0) {
-          const requiredRoles = Object.keys(
-            rule.scheduledChange.required_signoffs
-          ).length;
-          const nSignoffs = Object.keys(rule.scheduledChange.signoffs).length;
-          // Required Roles and Signoffs are beside one another, so we only
-          // need to account for the one with the most items.
-          const signoffRows = Math.max(requiredRoles, nSignoffs);
+      if (Object.keys(rule.scheduledChange.required_signoffs).length > 0) {
+        const requiredRoles = Object.keys(
+          rule.scheduledChange.required_signoffs
+        ).length;
+        const nSignoffs = Object.keys(rule.scheduledChange.signoffs).length;
+        // Required Roles and Signoffs are beside one another, so we only
+        // need to account for the one with the most items.
+        const signoffRows = Math.max(requiredRoles, nSignoffs);
 
-          // Padding above the summary
-          height += theme.spacing(2);
+        // Padding above the summary
+        height += theme.spacing(2);
 
-          // The "Requires Signoff From" title and the margin beneath it
-          height += body2TextHeight() + theme.spacing(0.5);
+        // The "Requires Signoff From" title and the margin beneath it
+        height += body2TextHeight() + theme.spacing(0.5);
 
-          // Space for however many rows exist.
-          height += signoffRows * body2TextHeight();
-        }
+        // Space for however many rows exist.
+        height += signoffRows * body2TextHeight();
       }
     }
 
