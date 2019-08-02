@@ -3,6 +3,7 @@ import React, { Fragment, useState } from 'react';
 import { Authorize } from 'react-auth0-components';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/styles';
+import Helmet from 'react-helmet';
 import axios from 'axios';
 import { AuthContext } from './utils/AuthContext';
 import { BASE_URL, USER_SESSION } from './utils/constants';
@@ -93,6 +94,12 @@ const App = () => {
 
   return (
     <Fragment>
+      <Helmet>
+        <meta
+          httpEquiv="Content-Security-Policy"
+          content="default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src 'self' https://*.gravatar.com https://*.githubusercontent.com https://i1.wp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://localhost:8010; frame-src 'none'; object-src 'none';"
+        />
+      </Helmet>
       <CssBaseline />
       <AuthContext.Provider value={authContext}>
         <ThemeProvider theme={theme}>
