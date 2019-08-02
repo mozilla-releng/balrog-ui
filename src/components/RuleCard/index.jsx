@@ -138,6 +138,7 @@ function RuleCard({
   onRuleDelete,
   user,
   readOnly,
+  disableActions,
   onAuthorize,
   onUnauthorize,
   ...props
@@ -720,7 +721,9 @@ function RuleCard({
                 rule,
               },
             }}>
-            <Button color="secondary">Duplicate</Button>
+            <Button color="secondary" disabled={disableActions}>
+              Duplicate
+            </Button>
           </Link>
           <Link
             className={classes.link}
@@ -729,16 +732,25 @@ function RuleCard({
                 ? `/rules/${rule.rule_id}`
                 : `/rules/create/${rule.scheduledChange.sc_id}`
             }>
-            <Button color="secondary">Update</Button>
+            <Button color="secondary" disabled={disableActions}>
+              Update
+            </Button>
           </Link>
-          <Button color="secondary" onClick={() => onRuleDelete(rule)}>
+          <Button
+            color="secondary"
+            disabled={disableActions}
+            onClick={() => onRuleDelete(rule)}>
             Delete
           </Button>
           {requiresSignoff &&
             (user && user.email in rule.scheduledChange.signoffs ? (
-              <Button color="secondary">Revoke Signoff</Button>
+              <Button color="secondary" disabled={disableActions}>
+                Revoke Signoff
+              </Button>
             ) : (
-              <Button color="secondary">Signoff as</Button>
+              <Button color="secondary" disabled={disableActions}>
+                Signoff as
+              </Button>
             ))}
         </CardActions>
       )}
@@ -751,11 +763,14 @@ RuleCard.propTypes = {
   onRuleDelete: func,
   // If true, the card will hide all buttons.
   readOnly: bool,
+  // If true, the card will disable all buttons
+  disableActions: bool,
 };
 
 RuleCard.defaultProps = {
   onRuleDelete: Function.prototype,
   readOnly: false,
+  disableActions: false,
 };
 
 export default withUser(RuleCard);

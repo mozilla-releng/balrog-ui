@@ -7,6 +7,9 @@ import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
@@ -92,6 +95,8 @@ function ListRules(props) {
     addSeconds(new Date(), -30)
   );
   const [dateTimePickerError, setDateTimePickerError] = useState(null);
+  const [rewindDate, setRewindDate] = useState(null);
+  const [rewindDateError, setRewindDateError] = useState(null);
   const [scrollToRow, setScrollToRow] = useState(null);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
@@ -99,7 +104,9 @@ function ListRules(props) {
   const [scheduledChanges, fetchScheduledChanges] = useAction(
     getScheduledChanges
   );
-  const fetchRequiredSignoffs = useAction(getRequiredSignoffs)[1];
+  const [requiredSignoffs, fetchRequiredSignoffs] = useAction(
+    getRequiredSignoffs
+  );
   const delRule = useAction(deleteRule)[1];
   const isLoading = products.loading || channels.loading || rules.loading;
   const error =
@@ -157,22 +164,17 @@ function ListRules(props) {
   }, [products.data, channels.data, rules.data]);
 
   useEffect(() => {
-    Promise.all([
-      fetchScheduledChanges(),
-      fetchRules(),
-      fetchRequiredSignoffs(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
-      fetchProducts(),
-      fetchChannels(),
-    ]).then(([sc, r, rs]) => {
-      if (!sc.data || !r.data || !rs.data) {
-        return;
-      }
+    if (!rules.data || !scheduledChanges.data || !requiredSignoffs.data) {
+      return;
+    }
 
-      const scheduledChanges = sc.data.data.scheduled_changes;
-      const requiredSignoffs = rs.data.data.required_signoffs;
-      const { rules } = r.data.data;
-      const rulesWithScheduledChanges = rules.map(rule => {
-        const sc = scheduledChanges.find(sc => rule.rule_id === sc.rule_id);
+    if (rewindDate) {
+      setRulesWithScheduledChanges(rules.data.data.rules);
+    } else {
+      const rulesWithScheduledChanges = rules.data.data.rules.map(rule => {
+        const sc = scheduledChanges.data.data.scheduled_changes.find(
+          sc => rule.rule_id === sc.rule_id
+        );
         const returnedRule = Object.assign({}, rule);
 
         if (sc) {
@@ -183,7 +185,7 @@ function ListRules(props) {
         }
 
         returnedRule.requiredSignoffs = {};
-        requiredSignoffs.forEach(rs => {
+        requiredSignoffs.data.data.required_signoffs.forEach(rs => {
           if (ruleMatchesRequiredSignoff(rule, rs)) {
             returnedRule.requiredSignoffs[rs.role] = rs.signoffs_required;
           }
@@ -192,7 +194,7 @@ function ListRules(props) {
         return returnedRule;
       });
 
-      scheduledChanges.forEach(sc => {
+      scheduledChanges.data.data.scheduled_changes.forEach(sc => {
         if (sc.change_type === 'insert') {
           const rule = { scheduledChange: sc };
 
@@ -225,7 +227,21 @@ function ListRules(props) {
       });
 
       setRulesWithScheduledChanges(sortedRules);
-    });
+    }
+  }, [rules, scheduledChanges, requiredSignoffs]);
+
+  useEffect(() => {
+    fetchRules(rewindDate ? rewindDate.getTime() : null);
+  }, [rewindDate]);
+
+  useEffect(() => {
+    Promise.all([
+      fetchScheduledChanges(),
+      fetchRules(),
+      fetchRequiredSignoffs(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
+      fetchProducts(),
+      fetchChannels(),
+    ]);
   }, []);
   const filteredRulesWithScheduledChanges = useMemo(
     () =>
@@ -262,6 +278,12 @@ function ListRules(props) {
   const handleDateTimeChange = date => {
     setScheduleDeleteDate(date);
     setDateTimePickerError(null);
+  };
+
+  const handleRewindDateTimePickerError = error => setRewindDateError(error);
+  const handleRewindDateTimeChange = date => {
+    setRewindDate(date);
+    setRewindDateError(null);
   };
 
   const handleDialogError = error => {
@@ -475,11 +497,13 @@ function ListRules(props) {
             : Object.values(rule.scheduledChange).join('-')
         }
         style={style}>
+        {/* should we go read only mode if rewindDAte is set instead? */}
         <RuleCard
           className={classes.ruleCard}
           key={rule.rule_id}
           rule={rule}
           onRuleDelete={handleRuleDelete}
+          disableActions={!!rewindDate}
         />
       </div>
     );
@@ -520,6 +544,20 @@ function ListRules(props) {
       {!isLoading && productChannelOptions && (
         <Fragment>
           <div className={classes.options}>
+            <DateTimePicker
+              disableFuture
+              inputVariant="outlined"
+              label="Rewind to..."
+              onError={handleRewindDateTimePickerError}
+              helperText={rewindDateError}
+              onDateTimeChange={handleRewindDateTimeChange}
+              value={rewindDate}
+            />
+            <FormControl>
+              <FormLabel>Diff?</FormLabel>
+              <Checkbox disabled={!rewindDate} />
+            </FormControl>
+
             <TextField
               className={classes.dropdown}
               select
