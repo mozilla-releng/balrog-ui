@@ -19,6 +19,7 @@ import UserCard from '../../../components/UserCard';
 import { withUser } from '../../../utils/AuthContext';
 import { DIALOG_ACTION_INITIAL_STATE } from '../../../utils/constants';
 import getUsersInfo from '../utils/getUsersInfo';
+import Link from '../../../utils/Link';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -165,8 +166,6 @@ function ListUsers({ user }) {
     handleDialogClose();
   };
 
-  const handleUserAdd = () => {};
-
   return (
     <Dashboard title="Users">
       {isLoading && <Spinner loading />}
@@ -185,15 +184,16 @@ function ListUsers({ user }) {
               onRevoke={handleRevoke}
             />
           ))}
-          <Tooltip title="Add User">
-            <Fab
-              color="primary"
-              className={classes.fab}
-              classes={{ root: classes.fab }}
-              onClick={handleUserAdd}>
-              <PlusIcon />
-            </Fab>
-          </Tooltip>
+          <Link to="/users/create">
+            <Tooltip title="Add User">
+              <Fab
+                color="primary"
+                className={classes.fab}
+                classes={{ root: classes.fab }}>
+                <PlusIcon />
+              </Fab>
+            </Tooltip>
+          </Link>
         </Fragment>
       )}
       <DialogAction
