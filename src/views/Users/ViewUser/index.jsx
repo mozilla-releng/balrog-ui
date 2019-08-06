@@ -200,7 +200,7 @@ function ViewUser({ isNewUser, ...props }) {
         }
       });
 
-      if (permissions.length === 0) {
+      if (!isNewUser && permissions.length === 0) {
         setUserError('User does not exist!');
 
         return;
