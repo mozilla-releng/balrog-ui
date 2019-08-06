@@ -22,7 +22,8 @@ module.exports = {
               Whenever this changes we will also need to update the headers
               for our deployed environments in the cloudops repo (TODO: add link).
 
-              script-src: unsafe-inline for reasons i'm not sure about.
+              script-src: unsafe-inline for reasons i'm not entire sure about - at the very
+                          least, it's needed to make the backend availability check work
                           unsafe-eval is only for local dev, because of webpack/hotreload
               img-src: gravatar & githubusercontent & i1.wp.com for user avatars
                        (which can't be locked down to a specific path due to CSP format)
