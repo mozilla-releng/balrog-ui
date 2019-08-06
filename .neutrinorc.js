@@ -27,13 +27,13 @@ module.exports = {
                        (which can't be locked down to a specific path due to CSP format)
               style-src: https://fonts.googleapis.com for dynamically loaded fonts
               font-src: https://fonts.gstatic.com for fonts!
-              connect-src: https://localhost:9000 for the backend api
-                           {ws,https}://localhost:8010 for webpack connections (local dev only)
+              connect-src: https://localhost:8010 for the backend api
+                           'self' for webpack connections (local dev only)
                            https://balrog-localdev.auth0.com for authentication.
                            note: this is different in stage/prod
               frame-src: https://balrog-localdev.auth0.com for background token refreshes
             */
-            'Content-Security-Policy': "default-src 'none'; script-src 'self' 'unsafe-eval'; img-src 'self' https://*.gravatar.com https://*.githubusercontent.com https://i1.wp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src http://localhost:9000 ws://localhost:9000 https://localhost:8010 https://balrog-localdev.auth0.com; frame-src https://balrog-localdev.auth0.com",
+            'Content-Security-Policy': "default-src 'none'; script-src 'self' 'unsafe-eval'; img-src 'self' https://*.gravatar.com https://*.githubusercontent.com https://i1.wp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://localhost:8010 'self' https://balrog-localdev.auth0.com; frame-src https://balrog-localdev.auth0.com",
             'X-Frame-Options': 'SAMEORIGIN',
             'X-Content-Type-Options': 'nosniff',
             'X-XSS-Protection': '1; mode=block',
