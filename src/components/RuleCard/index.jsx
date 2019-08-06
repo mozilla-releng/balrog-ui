@@ -22,7 +22,7 @@ import PlusCircleIcon from 'mdi-react/PlusCircleIcon';
 import HistoryIcon from 'mdi-react/HistoryIcon';
 import { formatDistanceStrict } from 'date-fns';
 import Button from '../Button';
-import DiffRule from '../DiffRule';
+import Diff from '../Diff';
 import SignoffSummary from '../SignoffSummary';
 import { withUser } from '../../utils/AuthContext';
 import Link from '../../utils/Link';
@@ -697,7 +697,11 @@ function RuleCard({
                 All properties will be deleted
               </Typography>
             ) : (
-              <DiffRule firstRule={rule} secondRule={rule.scheduledChange} />
+              <Diff
+                type="rule"
+                firstObject={rule}
+                secondObject={rule.scheduledChange}
+              />
             )}
           </Fragment>
         )}

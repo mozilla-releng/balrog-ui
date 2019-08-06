@@ -10,6 +10,10 @@ import theme from './theme';
 import Main from './Main';
 
 axios.interceptors.request.use(config => {
+  if (config.url.startsWith('http')) {
+    return config;
+  }
+
   const result = config;
   let accessToken = null;
 
