@@ -6,7 +6,10 @@ import {
   updateScheduledPermissionChange,
   deleteScheduledPermissionChange,
 } from '../../../services/users';
-import { supportsActionRestriction, supportsProductRestriction } from '../../../utils/userUtils';
+import {
+  supportsActionRestriction,
+  supportsProductRestriction,
+} from '../../../utils/userUtils';
 
 export default params => {
   const {
