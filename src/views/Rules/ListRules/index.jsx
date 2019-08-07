@@ -17,6 +17,7 @@ import RuleCard from '../../../components/RuleCard';
 import DialogAction from '../../../components/DialogAction';
 import DateTimePicker from '../../../components/DateTimePicker';
 import VariableSizeList from '../../../components/VariableSizeList';
+import DiffRule from '../../../components/DiffRule';
 import Link from '../../../utils/Link';
 import getDiffedProperties from '../../../utils/getDiffedProperties';
 import useAction from '../../../hooks/useAction';
@@ -81,6 +82,9 @@ function ListRules(props) {
   const [ruleIdHash, setRuleIdHash] = useState(null);
   const [scheduledIdHash, setScheduledIdHash] = useState(null);
   const [rulesWithScheduledChanges, setRulesWithScheduledChanges] = useState(
+    []
+  );
+  const [rewoundRules, setRewoundRules] = useState(
     []
   );
   const [productChannelOptions, setProductChannelOptions] = useState([]);
@@ -169,7 +173,7 @@ function ListRules(props) {
     }
 
     if (rewindDate) {
-      setRulesWithScheduledChanges(rules.data.data.rules);
+      setRewoundRules(rules.data.data.rules);
     } else {
       const rulesWithScheduledChanges = rules.data.data.rules.map(rule => {
         const sc = scheduledChanges.data.data.scheduled_changes.find(
@@ -227,6 +231,7 @@ function ListRules(props) {
       });
 
       setRulesWithScheduledChanges(sortedRules);
+      setRewoundRules([]);
     }
   }, [rules, scheduledChanges, requiredSignoffs]);
 
@@ -244,10 +249,17 @@ function ListRules(props) {
     ]);
   }, []);
   const filteredRulesWithScheduledChanges = useMemo(
-    () =>
-      productChannelFilter === ALL
-        ? rulesWithScheduledChanges
-        : rulesWithScheduledChanges.filter(rule => {
+    () => {
+      // should be rulesWithScheduledChanges if rewoundRules.length is 0, or we're diffing
+      // rewound rules against current rules
+      // TODO: make this work without hardcodes :)
+      // use this line for non-diff mode
+      //const rulesToShow = rewoundRules.length === 0 ? rulesWithScheduledChanges : rewoundRules;
+      // use this line for diff mode
+      const rulesToShow = rulesWithScheduledChanges;
+      return productChannelFilter === ALL
+        ? rulesToShow
+        : rulesToShow.filter(rule => {
             const [productFilter, channelFilter] = searchQueries;
             const ruleProduct =
               rule.product ||
@@ -268,8 +280,9 @@ function ListRules(props) {
             }
 
             return true;
-          }),
-    [productChannelFilter, rulesWithScheduledChanges]
+          });
+    },
+    [productChannelFilter, rulesWithScheduledChanges, rewoundRules]
   );
   const handleDateTimePickerError = error => {
     setDateTimePickerError(error);
@@ -487,7 +500,11 @@ function ListRules(props) {
   };
 
   const Row = ({ index, style }) => {
+    // if we're in rewind mode, rule is a historical rule, not the current one
     const rule = filteredRulesWithScheduledChanges[index];
+
+    // this is always the current version
+    const currentRule = rulesWithScheduledChanges.filter(r => r.rule_id == rule.rule_id);
 
     return (
       <div
@@ -498,6 +515,7 @@ function ListRules(props) {
         }
         style={style}>
         {/* should we go read only mode if rewindDAte is set instead? */}
+        {rewoundRules === 0 ? (
         <RuleCard
           className={classes.ruleCard}
           key={rule.rule_id}
@@ -505,6 +523,10 @@ function ListRules(props) {
           onRuleDelete={handleRuleDelete}
           disableActions={!!rewindDate}
         />
+        ) : (
+        {/* todo: why is the current version of the rule showing up on the left side? */}
+        <DiffRule firstRule={rule} secondRule={currentRule} />
+        )}
       </div>
     );
   };

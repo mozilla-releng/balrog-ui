@@ -25,6 +25,8 @@ const useStyles = makeStyles(theme => ({
 function DiffRule(props) {
   const classes = useStyles();
   const { firstRule, secondRule } = props;
+  console.log(firstRule);
+  console.log(secondRule);
   const diffedProperties = getDiffedProperties(
     RULE_DIFF_PROPERTIES,
     firstRule,
