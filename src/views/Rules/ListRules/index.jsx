@@ -27,6 +27,7 @@ import {
   getRules,
   getScheduledChanges,
   getScheduledChangeByRuleId,
+  addScheduledChange,
   deleteRule,
 } from '../../../services/rules';
 import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
@@ -112,6 +113,7 @@ function ListRules(props) {
   );
   const fetchRequiredSignoffs = useAction(getRequiredSignoffs)[1];
   const delRule = useAction(deleteRule)[1];
+  const scheduleDelRule = useAction(addScheduledChange)[1];
   const [signoffAction, signoff] = useAction(props =>
     makeSignoff({ type: 'rules', ...props })
   );
@@ -356,9 +358,16 @@ function ListRules(props) {
 
   const handleDeleteDialogSubmit = async state => {
     const dialogRule = state.item;
-    const { error } = await delRule({
+    const now = new Date();
+    const when = scheduleDeleteDate >= now ? scheduleDeleteDate.getTime() : now.getTime() + 5000;
+    const { error } = Object.keys(dialogRule.required_signoffs).length === 0 ? await delRule({
       ruleId: dialogRule.rule_id,
       dataVersion: dialogRule.data_version,
+    }) : await scheduleDelRule({
+      change_type: 'delete',
+      when,
+      rule_id: dialogRule.rule_id,
+      data_version: dialogRule.data_version,
     });
 
     if (error) {
