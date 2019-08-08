@@ -10,6 +10,7 @@ import { getUsers } from '../../../services/users';
 import useAction from '../../../hooks/useAction';
 import UserCard from '../../../components/UserCard';
 import getUsersInfo from '../utils/getUsersInfo';
+import Link from '../../../utils/Link';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -40,33 +41,34 @@ function ListUsers() {
     });
   }, []);
 
-  const handleUserAdd = () => {};
-
   return (
     <Dashboard title="Users">
       {isLoading && <Spinner loading />}
       {error && <ErrorPanel fixed error={error} />}
       {!isLoading && users && (
         <Fragment>
-          {Object.keys(users).map(user => (
-            <UserCard
-              className={classes.userCard}
-              key={user}
-              username={user}
-              roles={users[user].roles}
-              permissions={users[user].permissions}
-              scheduledPermissions={users[user].scheduledPermissions}
-            />
-          ))}
-          <Tooltip title="Add User">
-            <Fab
-              color="primary"
-              className={classes.fab}
-              classes={{ root: classes.fab }}
-              onClick={handleUserAdd}>
-              <PlusIcon />
-            </Fab>
-          </Tooltip>
+          {Object.keys(users)
+            .sort()
+            .map(user => (
+              <UserCard
+                className={classes.userCard}
+                key={user}
+                username={user}
+                roles={users[user].roles}
+                permissions={users[user].permissions}
+                scheduledPermissions={users[user].scheduledPermissions}
+              />
+            ))}
+          <Link to="/users/create">
+            <Tooltip title="Add User">
+              <Fab
+                color="primary"
+                className={classes.fab}
+                classes={{ root: classes.fab }}>
+                <PlusIcon />
+              </Fab>
+            </Tooltip>
+          </Link>
         </Fragment>
       )}
     </Dashboard>

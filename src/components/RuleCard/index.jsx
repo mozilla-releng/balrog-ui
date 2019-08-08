@@ -21,7 +21,6 @@ import UpdateIcon from 'mdi-react/UpdateIcon';
 import PlusCircleIcon from 'mdi-react/PlusCircleIcon';
 import HistoryIcon from 'mdi-react/HistoryIcon';
 import { formatDistanceStrict } from 'date-fns';
-import 'react-diff-view/style/index.css';
 import Button from '../Button';
 import DiffRule from '../DiffRule';
 import SignoffSummary from '../SignoffSummary';
@@ -136,6 +135,8 @@ const useStyles = makeStyles(theme => ({
 function RuleCard({
   rule,
   onRuleDelete,
+  onSignoff,
+  onRevoke,
   user,
   readOnly,
   disableActions,
@@ -713,43 +714,51 @@ function RuleCard({
       </CardContent>
       {!readOnly && (
         <CardActions className={classes.cardActions}>
-          <Link
-            className={classes.link}
-            to={{
-              pathname: '/rules/create',
-              state: {
-                rule,
-              },
-            }}>
-            <Button color="secondary" disabled={disableActions}>
+          {user ? (
+            <Link
+              className={classes.link}
+              to={{
+                pathname: '/rules/create',
+                state: {
+                  rule,
+                },
+              }}>
+              <Button color="secondary">Duplicate</Button>
+            </Link>
+          ) : (
+            <Button color="secondary" disabled>
               Duplicate
             </Button>
-          </Link>
-          <Link
-            className={classes.link}
-            to={
-              rule.rule_id
-                ? `/rules/${rule.rule_id}`
-                : `/rules/create/${rule.scheduledChange.sc_id}`
-            }>
-            <Button color="secondary" disabled={disableActions}>
+          )}
+          {user ? (
+            <Link
+              className={classes.link}
+              to={
+                rule.rule_id
+                  ? `/rules/${rule.rule_id}`
+                  : `/rules/create/${rule.scheduledChange.sc_id}`
+              }>
+              <Button color="secondary">Update</Button>
+            </Link>
+          ) : (
+            <Button color="secondary" disabled>
               Update
             </Button>
-          </Link>
+          )}
           <Button
             color="secondary"
-            disabled={disableActions}
+            disabled={!user || disableActions}
             onClick={() => onRuleDelete(rule)}>
             Delete
           </Button>
           {requiresSignoff &&
             (user && user.email in rule.scheduledChange.signoffs ? (
-              <Button color="secondary" disabled={disableActions}>
+              <Button color="secondary" disabled={!user || disableActions} onClick={onRevoke}>
                 Revoke Signoff
               </Button>
             ) : (
-              <Button color="secondary" disabled={disableActions}>
-                Signoff as
+              <Button color="secondary" disabled={!user || disableActions} onClick={onSignoff}>
+                Signoff
               </Button>
             ))}
         </CardActions>
@@ -765,6 +774,9 @@ RuleCard.propTypes = {
   readOnly: bool,
   // If true, the card will disable all buttons
   disableActions: bool,
+  // These are required if readOnly is false
+  onSignoff: func,
+  onRevoke: func,
 };
 
 RuleCard.defaultProps = {
