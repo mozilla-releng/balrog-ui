@@ -772,8 +772,9 @@ RuleCard.propTypes = {
   onRuleDelete: func,
   // If true, the card will hide all buttons.
   readOnly: bool,
-  onSignoff: func.isRequired,
-  onRevoke: func.isRequired,
+  // These are required if readOnly is false
+  onSignoff: func,
+  onRevoke: func,
 };
 
 RuleCard.defaultProps = {
