@@ -58,6 +58,8 @@ export const DIALOG_ACTION_INITIAL_STATE = {
   handleComplete: Function.prototype,
 };
 export const EMPTY_MENU_ITEM_CHAR = '-';
+// product/action restrictions need to match the backend definitions from
+// https://github.com/mozilla/balrog/blob/master/auslib/db.py#L2144
 export const PERMISSION_RESTRICTION_MAPPINGS = {
   admin: {
     restrict_products: true,
@@ -91,16 +93,16 @@ export const PERMISSION_RESTRICTION_MAPPINGS = {
   },
   required_signoff: {
     restrict_products: true,
-    restrict_actions: true,
+    restrict_actions: false,
     supported_actions: ['create', 'modify', 'delete'],
   },
   permission: {
-    restrict_products: true,
+    restrict_products: false,
     restrict_actions: true,
     supported_actions: ['create', 'modify', 'delete'],
   },
   scheduled_change: {
-    restrict_products: true,
+    restrict_products: false,
     restrict_actions: true,
     supported_actions: ['enact'],
   },

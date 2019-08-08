@@ -172,18 +172,20 @@ function ListUsers({ user }) {
       {error && <ErrorPanel fixed error={error} />}
       {!isLoading && users && (
         <Fragment>
-          {Object.keys(users).map(user => (
-            <UserCard
-              className={classes.userCard}
-              key={user}
-              username={user}
-              roles={users[user].roles}
-              permissions={users[user].permissions}
-              scheduledPermissions={users[user].scheduledPermissions}
-              onSignoff={handleSignoff}
-              onRevoke={handleRevoke}
-            />
-          ))}
+          {Object.keys(users)
+            .sort()
+            .map(user => (
+              <UserCard
+                className={classes.userCard}
+                key={user}
+                username={user}
+                roles={users[user].roles}
+                permissions={users[user].permissions}
+                scheduledPermissions={users[user].scheduledPermissions}
+                onSignoff={handleSignoff}
+                onRevoke={handleRevoke}
+              />
+            ))}
           <Link to="/users/create">
             <Tooltip title="Add User">
               <Fab

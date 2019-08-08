@@ -195,23 +195,27 @@ function User(props) {
               <div className={classes.statusLabelDiv}>
                 <StatusLabel state={getStatus(details.change_type)} />
               </div>
-              <SignoffSummary
-                className={classes.signoffSummary}
-                requiredSignoffs={details.required_signoffs}
-                signoffs={details.signoffs}
-              />
-            </CardContent>
-            <CardActions className={classes.cardActions}>
-              {user && user.email in details.signoffs ? (
-                <Button color="secondary" onClick={() => onRevoke(details)}>
-                  Revoke Signoff
-                </Button>
-              ) : (
-                <Button color="secondary" onClick={() => onSignoff(details)}>
-                  Signoff
-                </Button>
+              {Object.keys(details.required_signoffs).length > 0 && (
+                <SignoffSummary
+                  className={classes.signoffSummary}
+                  requiredSignoffs={details.required_signoffs}
+                  signoffs={details.signoffs}
+                />
               )}
-            </CardActions>
+            </CardContent>
+            {Object.keys(details.required_signoffs).length > 0 && (
+              <CardActions className={classes.cardActions}>
+                {user && user.email in details.signoffs ? (
+                  <Button color="secondary" onClick={() => onRevoke(details)}>
+                    Revoke Signoff
+                  </Button>
+                ) : (
+                  <Button color="secondary" onClick={() => onSignoff(details)}>
+                    Signoff
+                  </Button>
+                )}
+              </CardActions>
+            )}
           </Fragment>
         ))}
     </Card>

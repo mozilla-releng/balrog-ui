@@ -86,7 +86,7 @@ function ViewUser({ isNewUser, ...props }) {
     },
   } = props;
   const classes = useStyles();
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(existingUsername);
   const [roles, setRoles] = useState([]);
   // eslint-disable-next-line no-unused-vars
   const [originalRoles, setOriginalRoles] = useState([]);
@@ -200,13 +200,12 @@ function ViewUser({ isNewUser, ...props }) {
         }
       });
 
-      if (permissions.length === 0) {
+      if (!isNewUser && permissions.length === 0) {
         setUserError('User does not exist!');
 
         return;
       }
 
-      setUsername(existingUsername);
       setRoles(roles);
       setOriginalRoles(clone(roles));
       setPermissions(permissions);
