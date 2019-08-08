@@ -1,4 +1,3 @@
-import { title } from 'change-case';
 import { NEW_LINES_REGEX } from './constants';
 
 export default (diffProperties, objectOne, objectTwo) => {
@@ -33,8 +32,8 @@ export default (diffProperties, objectOne, objectTwo) => {
       }
 
       return {
-        prev: `${title(prop)}: ${formatValue(prev)}`,
-        next: `${title(prop)}: ${formatValue(next)}`,
+        prev: `${prop}: ${formatValue(prev)}`,
+        next: `${prop}: ${formatValue(next)}`,
       };
     })
     .filter(Boolean)

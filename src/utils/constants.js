@@ -5,12 +5,6 @@ export const OBJECT_NAMES = {
   PERMISSIONS_REQUIRED_SIGNOFF: 'required_signoffs/permissions',
   PRODUCT_REQUIRED_SIGNOFF: 'required_signoffs/product',
 };
-export const GCS_CONFIG = {
-  NIGHTLY_HISTORY_BUCKET:
-    'https://www.googleapis.com/storage/v1/b/balrog-prod-nightly-history-v1/o',
-  RELEASES_HISTORY_BUCKET:
-    'https://www.googleapis.com/storage/v1/b/balrog-prod-release-history-v1/o',
-};
 export const LABELS = {
   PENDING: 'pending',
   PENDING_INSERT: 'pendingInsert',

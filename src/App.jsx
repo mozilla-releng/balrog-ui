@@ -10,25 +10,24 @@ import theme from './theme';
 import Main from './Main';
 
 axios.interceptors.request.use(config => {
-  if (config.url.startsWith('http')) {
-    return config;
-  }
-
   const result = config;
-  let accessToken = null;
 
-  result.baseURL = BASE_URL;
+  if (!config.url.startsWith('http')) {
+    let accessToken = null;
 
-  try {
-    ({ accessToken } = JSON.parse(
-      localStorage.getItem(USER_SESSION)
-    ).authResult);
-  } catch {
-    accessToken = null;
-  }
+    result.baseURL = BASE_URL;
 
-  if (accessToken) {
-    result.headers.Authorization = `Bearer ${accessToken}`;
+    try {
+      ({ accessToken } = JSON.parse(
+        localStorage.getItem(USER_SESSION)
+      ).authResult);
+    } catch {
+      accessToken = null;
+    }
+
+    if (accessToken) {
+      result.headers.Authorization = `Bearer ${accessToken}`;
+    }
   }
 
   return result;

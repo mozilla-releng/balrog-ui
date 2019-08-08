@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
+import axios from 'axios';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import Code from '@mozilla-frontend-infra/components/Code';
 import { makeStyles } from '@material-ui/styles';
@@ -14,11 +15,7 @@ import Dashboard from '../../../components/Dashboard';
 import Radio from '../../../components/Radio';
 import Button from '../../../components/Button';
 import useAction from '../../../hooks/useAction';
-import {
-  getRevisions,
-  getRelease,
-  getRevisionData,
-} from '../../../services/releases';
+import { getRevisions, getRelease } from '../../../services/releases';
 import { CONTENT_MAX_WIDTH } from '../../../utils/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -47,7 +44,7 @@ function ListReleaseRevisions(props) {
   const classes = useStyles();
   const [fetchedRevisions, fetchRevisions] = useAction(getRevisions);
   const [fetchedRelease, fetchRelease] = useAction(getRelease);
-  const [fetchedRevisionData, fetchRevisionData] = useAction(getRevisionData);
+  const [fetchedRevisionData, fetchRevisionData] = useAction(axios.get);
   const [drawerState, setDrawerState] = useState({ open: false, item: {} });
   const [leftRadioCheckedIndex, setLeftRadioCheckedIndex] = useState(1);
   const [leftRevisionData, setLeftRevisionData] = useState(null);
@@ -99,7 +96,7 @@ function ListReleaseRevisions(props) {
     const r = revisions[leftRadioCheckedIndex];
 
     if (r) {
-      getRevisionData(r.data_url).then(result => {
+      axios.get(r.data_url).then(result => {
         setLeftRevisionData(result.data || {});
       });
     }
@@ -109,7 +106,7 @@ function ListReleaseRevisions(props) {
     const r = revisions[rightRadioCheckedIndex];
 
     if (r) {
-      getRevisionData(r.data_url).then(result => {
+      axios.get(r.data_url).then(result => {
         setRightRevisionData(result.data || {});
       });
     }

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { GCS_CONFIG } from '../utils/constants';
 
 const getReleases = () => axios.get('/releases');
 const getRelease = name => axios.get(`/releases/${encodeURIComponent(name)}`);
@@ -9,8 +8,8 @@ const deleteRelease = ({ name, dataVersion }) =>
 const getRevisions = (name, product) => {
   const releases = [];
   const bucket = name.includes('nightly')
-    ? GCS_CONFIG.NIGHTLY_HISTORY_BUCKET
-    : GCS_CONFIG.RELEASES_HISTORY_BUCKET;
+    ? process.env.GCS_NIGHTLY_HISTORY_BUCKET
+    : process.env.GCS_RELEASES_HISTORY_BUCKET;
 
   function parseReleases(rawReleases) {
     if (rawReleases) {
@@ -41,8 +40,8 @@ const getRevisions = (name, product) => {
 
     parseReleases(response.data.items);
 
-    if (response.nextPageToken) {
-      return getReleases(url, response.nextPageToken);
+    if (response.data.nextPageToken) {
+      return getReleases(url, response.data.nextPageToken);
     }
 
     // descending sort, so newer versions appear first
@@ -52,8 +51,6 @@ const getRevisions = (name, product) => {
   return getReleases(`${bucket}?prefix=${name}/&delimeter=/`);
 };
 
-const getRevisionData = link => axios.get(link);
-
 // Releases factory
 // eslint-disable-next-line import/prefer-default-export
 export {
@@ -62,5 +59,4 @@ export {
   getReleaseNames,
   deleteRelease,
   getRevisions,
-  getRevisionData,
 };
