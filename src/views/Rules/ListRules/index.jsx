@@ -524,7 +524,7 @@ function ListRules(props) {
           disableActions={!!rewindDate}
         />
         ) : (
-        {/* todo: why is the current version of the rule showing up on the left side? */}
+        /* todo: why is the current version of the rule showing up on the left side? */
         <DiffRule firstRule={rule} secondRule={currentRule} />
         )}
       </div>
