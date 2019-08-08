@@ -148,6 +148,10 @@ function ListUsers({ user }) {
   };
 
   const handleDialogClose = () => {
+    setDialogState({...dialogState, open: false});
+  };
+
+  const handleDialogExited = () => {
     setDialogState(DIALOG_ACTION_INITIAL_STATE);
   };
 
@@ -208,6 +212,7 @@ function ListUsers({ user }) {
         error={dialogState.error}
         onComplete={handleDialogActionComplete}
         onClose={handleDialogClose}
+        onExited={handleDialogExited}
       />
     </Dashboard>
   );
