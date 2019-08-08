@@ -108,6 +108,7 @@ function ListRules(props) {
   const [dateTimePickerError, setDateTimePickerError] = useState(null);
   const [rewindDate, setRewindDate] = useState(null);
   const [rewindDateError, setRewindDateError] = useState(null);
+  const [showRewindDiff, setShowRewindDiff] = useState(false);
   const [scrollToRow, setScrollToRow] = useState(null);
   const [roles, setRoles] = useState([]);
   const [signoffRole, setSignoffRole] = useState('');
@@ -154,6 +155,8 @@ function ListRules(props) {
   const handleSnackbarOpen = ({ message, variant = 'success' }) => {
     setSnackbarState({ message, variant, open: true });
   };
+  const handleRewindDiffChange = ({ target: { checked: value } }) =>
+    setShowRewindDiff(value);
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -293,13 +296,8 @@ function ListRules(props) {
 
   const filteredRulesWithScheduledChanges = useMemo(
     () => {
-      // should be rulesWithScheduledChanges if rewoundRules.length is 0, or we're diffing
-      // rewound rules against current rules
-      // TODO: make this work without hardcodes :)
       // use this line for non-diff mode
-      //const rulesToShow = rewoundRules.length === 0 ? rulesWithScheduledChanges : rewoundRules;
-      // use this line for diff mode
-      const rulesToShow = rulesWithScheduledChanges;
+      const rulesToShow = rewoundRules.length === 0 ? rulesWithScheduledChanges : rewoundRules;
       return productChannelFilter === ALL
         ? rulesToShow
         : rulesToShow.filter(rule => {
@@ -656,6 +654,23 @@ function ListRules(props) {
     // if we're in rewind mode, rule is a historical rule, not the current one
     const rule = filteredRulesWithScheduledChanges[index];
 
+    const currentRule = rulesWithScheduledChanges.filter(r => r.rule_id == rule.rule_id);
+    if (rewoundRules.length !== 0) {
+      // horrible hack, need to fix this
+      // maybe add diffAgainst argument to RuleCard to control whether or not DiffRule is shown
+      if (showRewindDiff) {
+      rule.scheduledChange = currentRule[0];
+      rule.scheduledChange.change_type = 'update';
+      rule.scheduledChange.required_signoffs = {};
+      rule.scheduledChange.signoffs = {};
+      rule.scheduledChange.when = new Date();
+      } else {
+      if (rule.scheduledChange) {
+        delete rule.scheduledChange;
+      }
+      }
+    }
+
     return (
       <div
         key={
@@ -724,7 +739,7 @@ function ListRules(props) {
             />
             <FormControl>
               <FormLabel>Diff?</FormLabel>
-              <Checkbox disabled={!rewindDate} />
+              <Checkbox disabled={!rewindDate} checked={showRewindDiff} onChange={handleRewindDiffChange} />
             </FormControl>
 
             <TextField
