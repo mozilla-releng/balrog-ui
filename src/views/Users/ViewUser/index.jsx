@@ -86,7 +86,7 @@ function ViewUser({ isNewUser, ...props }) {
     },
   } = props;
   const classes = useStyles();
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(existingUsername);
   const [roles, setRoles] = useState([]);
   // eslint-disable-next-line no-unused-vars
   const [originalRoles, setOriginalRoles] = useState([]);
@@ -206,7 +206,6 @@ function ViewUser({ isNewUser, ...props }) {
         return;
       }
 
-      setUsername(existingUsername);
       setRoles(roles);
       setOriginalRoles(clone(roles));
       setPermissions(permissions);
