@@ -714,7 +714,7 @@ function RuleCard({
       </CardContent>
       {!readOnly && (
         <CardActions className={classes.cardActions}>
-          {user ? (
+          {user && !disableActions ? (
             <Link
               className={classes.link}
               to={{
@@ -730,7 +730,7 @@ function RuleCard({
               Duplicate
             </Button>
           )}
-          {user ? (
+          {user && !disableActions ? (
             <Link
               className={classes.link}
               to={
