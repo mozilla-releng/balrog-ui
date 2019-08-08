@@ -648,13 +648,16 @@ function ListRules(props) {
     // if we're in rewind mode, rule is a historical rule, not the current one
     const rule = filteredRulesWithScheduledChanges[index];
     const currentRule = rulesWithScheduledChanges.filter(
-      r => r.rule_id == rule.rule_id
+      r => r.rule_id === rule.rule_id
     );
 
     if (rewoundRules.length !== 0) {
       // horrible hack, need to fix this
-      // maybe add diffAgainst argument to RuleCard to control whether or not DiffRule is shown
+      // maybe add diffAgainst argument to RuleCard to control
+      // whether or not DiffRule is shown
       if (showRewindDiff) {
+        // because it's ugly when only destructuring one variable
+        // eslint-disable-next-line prefer-destructuring
         rule.scheduledChange = currentRule[0];
         rule.scheduledChange.change_type = 'update';
         rule.scheduledChange.required_signoffs = {};
