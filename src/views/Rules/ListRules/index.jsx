@@ -90,9 +90,7 @@ function ListRules(props) {
   const [rulesWithScheduledChanges, setRulesWithScheduledChanges] = useState(
     []
   );
-  const [rewoundRules, setRewoundRules] = useState(
-    []
-  );
+  const [rewoundRules, setRewoundRules] = useState([]);
   const [productChannelOptions, setProductChannelOptions] = useState([]);
   const searchQueries = query.product ? [query.product, query.channel] : null;
   const [productChannelFilter, setProductChannelFilter] = useState(
@@ -155,9 +153,9 @@ function ListRules(props) {
   const handleSnackbarOpen = ({ message, variant = 'success' }) => {
     setSnackbarState({ message, variant, open: true });
   };
+
   const handleRewindDiffChange = ({ target: { checked: value } }) =>
     setShowRewindDiff(value);
-
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -294,37 +292,33 @@ function ListRules(props) {
     }
   }, [username]);
 
-  const filteredRulesWithScheduledChanges = useMemo(
-    () => {
-      // use this line for non-diff mode
-      const rulesToShow = rewoundRules.length === 0 ? rulesWithScheduledChanges : rewoundRules;
-      return productChannelFilter === ALL
-        ? rulesToShow
-        : rulesToShow.filter(rule => {
-            const [productFilter, channelFilter] = searchQueries;
-            const ruleProduct =
-              rule.product ||
-              (rule.scheduledChange && rule.scheduledChange.product);
-            const ruleChannel =
-              rule.channel ||
-              (rule.scheduledChange && rule.scheduledChange.channel);
+  const filteredRulesWithScheduledChanges = useMemo(() => {
+    // use this line for non-diff mode
+    const rulesToShow =
+      rewoundRules.length === 0 ? rulesWithScheduledChanges : rewoundRules;
 
-            if (ruleProduct !== productFilter) {
-              return false;
-            }
+    return productChannelFilter === ALL
+      ? rulesToShow
+      : rulesToShow.filter(rule => {
+          const [productFilter, channelFilter] = searchQueries;
+          const ruleProduct =
+            rule.product ||
+            (rule.scheduledChange && rule.scheduledChange.product);
+          const ruleChannel =
+            rule.channel ||
+            (rule.scheduledChange && rule.scheduledChange.channel);
 
-            if (
-              channelFilter &&
-              ruleChannel.replace('*', '') !== channelFilter
-            ) {
-              return false;
-            }
+          if (ruleProduct !== productFilter) {
+            return false;
+          }
 
-            return true;
-          });
-    },
-    [productChannelFilter, rulesWithScheduledChanges, rewoundRules]
-  );
+          if (channelFilter && ruleChannel.replace('*', '') !== channelFilter) {
+            return false;
+          }
+
+          return true;
+        });
+  }, [productChannelFilter, rulesWithScheduledChanges, rewoundRules]);
   const handleDateTimePickerError = error => {
     setDateTimePickerError(error);
   };
@@ -653,21 +647,21 @@ function ListRules(props) {
   const Row = ({ index, style }) => {
     // if we're in rewind mode, rule is a historical rule, not the current one
     const rule = filteredRulesWithScheduledChanges[index];
+    const currentRule = rulesWithScheduledChanges.filter(
+      r => r.rule_id == rule.rule_id
+    );
 
-    const currentRule = rulesWithScheduledChanges.filter(r => r.rule_id == rule.rule_id);
     if (rewoundRules.length !== 0) {
       // horrible hack, need to fix this
       // maybe add diffAgainst argument to RuleCard to control whether or not DiffRule is shown
       if (showRewindDiff) {
-      rule.scheduledChange = currentRule[0];
-      rule.scheduledChange.change_type = 'update';
-      rule.scheduledChange.required_signoffs = {};
-      rule.scheduledChange.signoffs = {};
-      rule.scheduledChange.when = new Date();
-      } else {
-      if (rule.scheduledChange) {
+        rule.scheduledChange = currentRule[0];
+        rule.scheduledChange.change_type = 'update';
+        rule.scheduledChange.required_signoffs = {};
+        rule.scheduledChange.signoffs = {};
+        rule.scheduledChange.when = new Date();
+      } else if (rule.scheduledChange) {
         delete rule.scheduledChange;
-      }
       }
     }
 
@@ -739,7 +733,11 @@ function ListRules(props) {
             />
             <FormControl>
               <FormLabel>Diff?</FormLabel>
-              <Checkbox disabled={!rewindDate} checked={showRewindDiff} onChange={handleRewindDiffChange} />
+              <Checkbox
+                disabled={!rewindDate}
+                checked={showRewindDiff}
+                onChange={handleRewindDiffChange}
+              />
             </FormControl>
 
             <TextField

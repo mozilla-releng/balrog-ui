@@ -753,11 +753,17 @@ function RuleCard({
           </Button>
           {requiresSignoff &&
             (user && user.email in rule.scheduledChange.signoffs ? (
-              <Button color="secondary" disabled={!user || disableActions} onClick={onRevoke}>
+              <Button
+                color="secondary"
+                disabled={!user || disableActions}
+                onClick={onRevoke}>
                 Revoke Signoff
               </Button>
             ) : (
-              <Button color="secondary" disabled={!user || disableActions} onClick={onSignoff}>
+              <Button
+                color="secondary"
+                disabled={!user || disableActions}
+                onClick={onSignoff}>
                 Signoff
               </Button>
             ))}
