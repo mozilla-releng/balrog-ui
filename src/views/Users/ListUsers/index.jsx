@@ -148,7 +148,7 @@ function ListUsers({ user }) {
   };
 
   const handleDialogClose = () => {
-    setDialogState({...dialogState, open: false});
+    setDialogState({ ...dialogState, open: false });
   };
 
   const handleDialogExited = () => {
