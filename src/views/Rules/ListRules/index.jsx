@@ -20,7 +20,6 @@ import RuleCard from '../../../components/RuleCard';
 import DialogAction from '../../../components/DialogAction';
 import DateTimePicker from '../../../components/DateTimePicker';
 import VariableSizeList from '../../../components/VariableSizeList';
-import DiffRule from '../../../components/DiffRule';
 import Link from '../../../utils/Link';
 import getDiffedProperties from '../../../utils/getDiffedProperties';
 import useAction from '../../../hooks/useAction';
@@ -657,9 +656,6 @@ function ListRules(props) {
     // if we're in rewind mode, rule is a historical rule, not the current one
     const rule = filteredRulesWithScheduledChanges[index];
 
-    // this is always the current version
-    const currentRule = rulesWithScheduledChanges.filter(r => r.rule_id == rule.rule_id);
-
     return (
       <div
         key={
@@ -669,7 +665,6 @@ function ListRules(props) {
         }
         style={style}>
         {/* should we go read only mode if rewindDAte is set instead? */}
-        {rewoundRules === 0 ? (
         <RuleCard
           className={classes.ruleCard}
           key={rule.rule_id}
@@ -679,10 +674,6 @@ function ListRules(props) {
           onSignoff={() => handleSignoff(rule)}
           onRevoke={() => handleRevoke(rule)}
         />
-        ) : (
-        /* todo: why is the current version of the rule showing up on the left side? */
-        <DiffRule firstRule={rule} secondRule={currentRule} />
-        )}
       </div>
     );
   };
