@@ -1,42 +1,44 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import axios from 'axios';
+import { AutoSizer, Column, Table } from 'react-virtualized';
+import 'react-virtualized/styles.css';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import Code from '@mozilla-frontend-infra/components/Code';
 import { makeStyles } from '@material-ui/styles';
 import Drawer from '@material-ui/core/Drawer';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
 import Typography from '@material-ui/core/Typography';
 import { formatDistanceStrict } from 'date-fns';
 import ErrorPanel from '../../../components/ErrorPanel';
-import Diff from '../../../components/Diff';
-import DataTable from '../../../components/DataTable';
 import Dashboard from '../../../components/Dashboard';
 import Radio from '../../../components/Radio';
 import Button from '../../../components/Button';
 import useAction from '../../../hooks/useAction';
 import { getRevisions, getRelease } from '../../../services/releases';
 import { CONTENT_MAX_WIDTH } from '../../../utils/constants';
+import JsDiff from '../../../components/JsDiff';
 
 const useStyles = makeStyles(theme => ({
   radioCell: {
     paddingLeft: 0,
   },
-  tableWrapper: {
-    maxHeight: '50%',
-    overflowY: 'auto',
-  },
-  tableHeadCell: {
-    position: 'sticky',
-    top: 0,
-    backgroundColor: theme.palette.common.white,
-    zIndex: theme.zIndex.appBar,
-  },
   drawerPaper: {
     maxWidth: CONTENT_MAX_WIDTH,
     margin: '0 auto',
     padding: theme.spacing(1),
-    maxHeight: '60vh',
+    maxHeight: '80vh',
+  },
+  tableHeader: {
+    textTransform: 'none',
+    color: theme.palette.text.secondary,
+    fontSize: theme.typography.pxToRem(12),
+    lineHeight: theme.typography.pxToRem(21),
+    fontWeight: theme.typography.fontWeightMedium,
+    '& > [title="Compare"]': {
+      marginLeft: theme.spacing(2),
+    },
+  },
+  jsDiff: {
+    margin: `${theme.spacing(5)}px 0`,
   },
 }));
 
@@ -54,7 +56,6 @@ function ListReleaseRevisions(props) {
     fetchedRelease.error || fetchedRevisions.error || fetchedRevisionData.error;
   const isLoading = fetchedRelease.loading || fetchedRevisions.loading;
   const revisions = fetchedRevisions.data ? fetchedRevisions.data : [];
-  const headers = ['Revision Date', 'Changed By', 'Compare', ''];
   const { releaseName } = props.match.params;
 
   useEffect(() => {
@@ -114,36 +115,6 @@ function ListReleaseRevisions(props) {
 
   // TODO: Add logic to restore a revision
   const handleRestoreClick = () => {};
-  const renderRow = (row, index) => (
-    <TableRow key={row.timestamp}>
-      <TableCell title={new Date(row.timestamp)}>
-        {formatDistanceStrict(new Date(row.timestamp), new Date(), {
-          addSuffix: true,
-        })}
-      </TableCell>
-      <TableCell>{row.changed_by}</TableCell>
-      <TableCell className={classes.radioCell}>
-        <Radio
-          variant="red"
-          value={index}
-          disabled={index === 0}
-          checked={leftRadioCheckedIndex === index}
-          onChange={handleLeftRadioChange}
-        />
-        <Radio
-          variant="green"
-          value={index}
-          disabled={index === revisions.length - 1}
-          checked={rightRadioCheckedIndex === index}
-          onChange={handleRightRadioChange}
-        />
-      </TableCell>
-      <TableCell>
-        <Button onClick={handleViewClick(row)}>View</Button>
-        {index > 0 && <Button onClick={handleRestoreClick}>Restore</Button>}
-      </TableCell>
-    </TableRow>
-  );
 
   return (
     <Dashboard title={`Release ${releaseName} Revisions`}>
@@ -154,19 +125,69 @@ function ListReleaseRevisions(props) {
       )}
       {!isLoading && revisions.length > 1 && (
         <Fragment>
-          <div className={classes.tableWrapper}>
-            <DataTable
-              size="small"
-              headers={headers}
-              renderRow={renderRow}
-              items={revisions}
-              tableHeadCellProps={{ className: classes.tableHeadCell }}
-            />
-          </div>
-          <br />
-          <br />
+          <AutoSizer disableHeight>
+            {({ width }) => (
+              <Table
+                headerClassName={classes.tableHeader}
+                overscanRowCount={50}
+                width={width}
+                height={400}
+                headerHeight={20}
+                rowHeight={40}
+                rowCount={revisions.length}
+                rowGetter={({ index }) => revisions[index]}>
+                <Column
+                  label="Revision Date"
+                  dataKey="timestamp"
+                  cellRenderer={({ cellData }) =>
+                    formatDistanceStrict(new Date(cellData), new Date(), {
+                      addSuffix: true,
+                    })
+                  }
+                  width={250}
+                />
+                <Column width={250} label="Changed By" dataKey="changed_by" />
+                <Column
+                  label="Compare"
+                  dataKey="compare"
+                  width={250}
+                  cellRenderer={({ rowIndex }) => (
+                    <Fragment>
+                      <Radio
+                        variant="red"
+                        value={rowIndex}
+                        disabled={rowIndex === 0}
+                        checked={leftRadioCheckedIndex === rowIndex}
+                        onChange={handleLeftRadioChange}
+                      />
+                      <Radio
+                        variant="green"
+                        value={rowIndex}
+                        disabled={rowIndex === revisions.length - 1}
+                        checked={rightRadioCheckedIndex === rowIndex}
+                        onChange={handleRightRadioChange}
+                      />
+                    </Fragment>
+                  )}
+                />
+                <Column
+                  dataKey="actions"
+                  width={250}
+                  cellRenderer={({ rowData, rowIndex }) => (
+                    <Fragment>
+                      <Button onClick={handleViewClick(rowData)}>View</Button>
+                      {rowIndex > 0 && (
+                        <Button onClick={handleRestoreClick}>Restore</Button>
+                      )}
+                    </Fragment>
+                  )}
+                />
+              </Table>
+            )}
+          </AutoSizer>
           {leftRevisionData && rightRevisionData && (
-            <Diff
+            <JsDiff
+              className={classes.jsDiff}
               firstObject={leftRevisionData || {}}
               secondObject={rightRevisionData || {}}
             />

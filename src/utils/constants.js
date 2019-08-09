@@ -141,3 +141,7 @@ export const RULES_COMMON_FILTERS = [
     link: '/rules?product=Thunderbird&channel=beta',
   },
 ];
+export const DIFF_COLORS = {
+  ADDED: '#eaffee',
+  REMOVED: '#fdeff0',
+};
