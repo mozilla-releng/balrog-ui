@@ -206,11 +206,11 @@ function User(props) {
             {Object.keys(details.required_signoffs).length > 0 && (
               <CardActions className={classes.cardActions}>
                 {user && user.email in details.signoffs ? (
-                  <Button color="secondary" onClick={onRevoke}>
+                  <Button color="secondary" onClick={() => onRevoke(details)}>
                     Revoke Signoff
                   </Button>
                 ) : (
-                  <Button color="secondary" onClick={onSignoff}>
+                  <Button color="secondary" onClick={() => onSignoff(details)}>
                     Signoff
                   </Button>
                 )}
