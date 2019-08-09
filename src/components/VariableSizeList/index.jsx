@@ -5,7 +5,7 @@ import { APP_BAR_HEIGHT } from '../../utils/constants';
 
 function VariableSizeList(props) {
   const { scrollToRow, ...rest } = props;
-  const listRef = useRef(null);
+  const listRef = props.listRef ? props.listRef : useRef(null);
 
   useEffect(() => {
     const rowOffset = listRef.current.getOffsetForRow({ index: scrollToRow });

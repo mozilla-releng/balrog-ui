@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState, useMemo } from 'react';
+import React, { Fragment, useEffect, useState, useMemo, useRef } from 'react';
 import { stringify, parse } from 'qs';
 import { addSeconds } from 'date-fns';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
@@ -105,6 +105,7 @@ function ListRules(props) {
   const [scrollToRow, setScrollToRow] = useState(null);
   const [roles, setRoles] = useState([]);
   const [signoffRole, setSignoffRole] = useState('');
+  const ruleListRef = useRef(null);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
   const [rules, fetchRules] = useAction(getRules);
@@ -302,6 +303,7 @@ function ListRules(props) {
           }),
     [productChannelFilter, rulesWithScheduledChanges]
   );
+
   const handleDateTimePickerError = error => {
     setDateTimePickerError(error);
   };
@@ -348,6 +350,7 @@ function ListRules(props) {
           return newRule;
         })
       );
+      ruleListRef.current.recomputeRowHeights();
       handleSnackbarOpen({
         message: `Rule ${result.rule_id} successfully scheduled`,
       });
@@ -359,16 +362,22 @@ function ListRules(props) {
   const handleDeleteDialogSubmit = async state => {
     const dialogRule = state.item;
     const now = new Date();
-    const when = scheduleDeleteDate >= now ? scheduleDeleteDate.getTime() : now.getTime() + 5000;
-    const { error } = Object.keys(dialogRule.required_signoffs).length === 0 ? await delRule({
-      ruleId: dialogRule.rule_id,
-      dataVersion: dialogRule.data_version,
-    }) : await scheduleDelRule({
-      change_type: 'delete',
-      when,
-      rule_id: dialogRule.rule_id,
-      data_version: dialogRule.data_version,
-    });
+    const when =
+      scheduleDeleteDate >= now
+        ? scheduleDeleteDate.getTime()
+        : now.getTime() + 5000;
+    const { error } =
+      Object.keys(dialogRule.required_signoffs).length === 0
+        ? await delRule({
+            ruleId: dialogRule.rule_id,
+            dataVersion: dialogRule.data_version,
+          })
+        : await scheduleDelRule({
+            change_type: 'delete',
+            when,
+            rule_id: dialogRule.rule_id,
+            data_version: dialogRule.data_version,
+          });
 
     if (error) {
       throw error;
@@ -707,6 +716,7 @@ function ListRules(props) {
                 scrollToRow={scrollToRow}
                 rowHeight={getRowHeight}
                 rowCount={filteredRulesCount}
+                listRef={ruleListRef}
               />
             </Fragment>
           )}
