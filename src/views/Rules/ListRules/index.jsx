@@ -303,7 +303,6 @@ function ListRules(props) {
           }),
     [productChannelFilter, rulesWithScheduledChanges]
   );
-
   const handleDateTimePickerError = error => {
     setDateTimePickerError(error);
   };
