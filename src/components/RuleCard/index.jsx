@@ -108,6 +108,7 @@ const useStyles = makeStyles(theme => ({
   avatar: {
     height: theme.spacing(4),
     width: theme.spacing(4),
+    background: theme.palette.grey[500],
   },
   avatarText: {
     fontSize: 10,
