@@ -3,7 +3,7 @@ import { PERMISSION_RESTRICTION_MAPPINGS } from './constants';
 // TODO: use https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ListFormat
 // when it's available in Firefox
 const formatListToLanguage = array =>
-  array.concat(array.splice(-2, 2).join(' and ')).join(', ');
+  [].concat(array.slice(null, -2), array.slice(-2).join(' and ')).join(', ');
 const permissionStrings = (productStr, actionStr) => ({
   admin: `a full fledged administrator ${productStr}`,
   emergency_shutoff: `allowed to ${actionStr} Emergency Shutoffs ${productStr}`,
