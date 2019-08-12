@@ -145,3 +145,4 @@ export const DIFF_COLORS = {
   ADDED: '#eaffee',
   REMOVED: '#fdeff0',
 };
+export const INITIAL_JS_DIFF_SUMMARY = { added: 0, removed: 0 };
