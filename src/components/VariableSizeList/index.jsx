@@ -4,10 +4,11 @@ import React, {
   useImperativeHandle,
   forwardRef,
 } from 'react';
+import { number } from 'prop-types';
 import { AutoSizer, WindowScroller, List } from 'react-virtualized';
 import { APP_BAR_HEIGHT } from '../../utils/constants';
 
-function VariableSizeList(props, ref) {
+const WrappedComponent = forwardRef((props, ref) => {
   const { scrollToRow, ...rest } = props;
   const listRef = useRef(null);
 
@@ -44,6 +45,16 @@ function VariableSizeList(props, ref) {
       )}
     </WindowScroller>
   );
-}
+});
 
-export default forwardRef(VariableSizeList);
+WrappedComponent.displayName = 'VariableSizeList';
+
+WrappedComponent.propTypes = {
+  scrollToRow: number,
+};
+
+WrappedComponent.defaultProps = {
+  scrollToRow: null,
+};
+
+export default WrappedComponent;
