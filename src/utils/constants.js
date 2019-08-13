@@ -119,3 +119,25 @@ export const ALL_PERMISSIONS = [
   'scheduled_change',
 ];
 export const NEW_LINES_REGEX = /\r?\n|\r/g;
+export const RULES_COMMON_FILTERS = [
+  {
+    label: 'Firefox Release',
+    link: '/rules?product=Firefox&channel=release',
+  },
+  {
+    label: 'Firefox Beta',
+    link: '/rules?product=Firefox&channel=beta',
+  },
+  {
+    label: 'Firefox Aurora (DevEdition)',
+    link: '/rules?product=Firefox&channel=aurora',
+  },
+  {
+    label: 'Thunderbird Release',
+    link: '/rules?product=Thunderbird&channel=release',
+  },
+  {
+    label: 'Thunderbird Beta',
+    link: '/rules?product=Thunderbird&channel=beta',
+  },
+];

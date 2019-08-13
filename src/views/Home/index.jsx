@@ -8,9 +8,11 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import LinkIcon from 'mdi-react/LinkIcon';
 import Dashboard from '../../components/Dashboard';
+import Link from '../../utils/Link';
 import balrogSrc from '../../images/balrog.svg';
+import { RULES_COMMON_FILTERS } from '../../utils/constants';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   balrogImage: {
     width: 800,
     height: 800,
@@ -22,7 +24,10 @@ const useStyles = makeStyles({
   cardPaper: {
     background: 'rgba(255, 255, 255, 0.9)',
   },
-});
+  link: {
+    ...theme.mixins.link,
+  },
+}));
 
 function Home() {
   const classes = useStyles();
@@ -32,24 +37,18 @@ function Home() {
       <img alt="Balrog logo" className={classes.balrogImage} src={balrogSrc} />
       <Card className={classes.cardPaper}>
         <CardContent>
-          <Typography variant="h5">Rules Common Filters</Typography>
+          <Typography gutterBottom component="h2" variant="h5">
+            Rules Common Filters
+          </Typography>
           <List>
-            <ListItem button>
-              <ListItemText primary="Firefox Release" />
-              <LinkIcon />
-            </ListItem>
-            <ListItem button>
-              <ListItemText primary="Fennec Release" />
-              <LinkIcon />
-            </ListItem>
-            <ListItem button>
-              <ListItemText primary="Firefox Nightly Release" />
-              <LinkIcon />
-            </ListItem>
-            <ListItem button>
-              <ListItemText primary="Fennec Nightly Release" />
-              <LinkIcon />
-            </ListItem>
+            {RULES_COMMON_FILTERS.map(({ link, label }) => (
+              <Link className={classes.link} key={label} to={link}>
+                <ListItem button>
+                  <ListItemText primary={label} />
+                  <LinkIcon />
+                </ListItem>
+              </Link>
+            ))}
           </List>
         </CardContent>
       </Card>
