@@ -1,17 +1,21 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { number } from 'prop-types';
 import { AutoSizer, WindowScroller, List } from 'react-virtualized';
 import { APP_BAR_HEIGHT } from '../../utils/constants';
 
-function VariableSizeList(props) {
+function VariableSizeList(props, ref) {
   const { scrollToRow, ...rest } = props;
-  const listRef = props.listRef ? props.listRef : useRef(null);
+  const listRef = useRef(null);
 
   useEffect(() => {
     const rowOffset = listRef.current.getOffsetForRow({ index: scrollToRow });
 
     listRef.current.scrollToPosition(rowOffset - APP_BAR_HEIGHT);
   }, [scrollToRow]);
+
+  useImperativeHandle(ref, () => ({
+    recomputeRowHeights: index => listRef.current.recomputeRowHeights(index)
+  }));
 
   return (
     <WindowScroller>
@@ -36,14 +40,6 @@ function VariableSizeList(props) {
       )}
     </WindowScroller>
   );
-}
-
-VariableSizeList.propTypes = {
-  scrollToRow: number,
 };
 
-VariableSizeList.defaultProps = {
-  scrollToRow: null,
-};
-
-export default VariableSizeList;
+export default forwardRef(VariableSizeList);

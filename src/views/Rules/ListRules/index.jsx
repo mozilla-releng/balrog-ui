@@ -711,11 +711,11 @@ function ListRules(props) {
           {filteredRulesWithScheduledChanges && (
             <Fragment>
               <VariableSizeList
+                ref={ruleListRef}
                 rowRenderer={Row}
                 scrollToRow={scrollToRow}
                 rowHeight={getRowHeight}
                 rowCount={filteredRulesCount}
-                listRef={ruleListRef}
               />
             </Fragment>
           )}
