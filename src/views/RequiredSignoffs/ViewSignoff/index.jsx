@@ -335,7 +335,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
                 disabled={saveAction.loading}
                 icon={<DeleteIcon />}
                 tooltipOpen
-                tooltipTitle="Delete Signoff"
+                tooltipTitle="Delete Required Signoffs"
                 onClick={handleSignoffDelete}
               />
             </SpeedDial>
