@@ -8,7 +8,7 @@ import { number } from 'prop-types';
 import { AutoSizer, WindowScroller, List } from 'react-virtualized';
 import { APP_BAR_HEIGHT } from '../../utils/constants';
 
-const WrappedComponent = forwardRef((props, ref) => {
+const VariableSizeList = forwardRef((props, ref) => {
   const { scrollToRow, ...rest } = props;
   const listRef = useRef(null);
 
@@ -47,14 +47,14 @@ const WrappedComponent = forwardRef((props, ref) => {
   );
 });
 
-WrappedComponent.displayName = 'VariableSizeList';
+VariableSizeList.displayName = 'VariableSizeList';
 
-WrappedComponent.propTypes = {
+VariableSizeList.propTypes = {
   scrollToRow: number,
 };
 
-WrappedComponent.defaultProps = {
+VariableSizeList.defaultProps = {
   scrollToRow: null,
 };
 
-export default WrappedComponent;
+export default VariableSizeList;
