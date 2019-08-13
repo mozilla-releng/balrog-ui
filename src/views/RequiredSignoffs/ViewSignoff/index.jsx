@@ -165,8 +165,23 @@ function ViewSignoff({ isNewSignoff, ...props }) {
     }
   };
 
-  // TODO: Add delete logic
-  const handleSignoffDelete = () => {};
+  const handleSignoffDelete = async () => {
+    const { error } = await saveRS({
+      product: productTextValue,
+      channel: channelTextValue,
+      // pass nothing for current and additional roles
+      // to make sure all existing roles are scheduled
+      // for deletion.
+      roles: [],
+      originalRoles,
+      additionalRoles: [],
+      isNewSignoff,
+    });
+
+    if (!error) {
+      props.history.push('/required-signoffs');
+    }
+  };
 
   useEffect(() => {
     if (isNewSignoff) {
