@@ -1,5 +1,9 @@
-import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
-import { number } from 'prop-types';
+import React, {
+  useEffect,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+} from 'react';
 import { AutoSizer, WindowScroller, List } from 'react-virtualized';
 import { APP_BAR_HEIGHT } from '../../utils/constants';
 
@@ -14,7 +18,7 @@ function VariableSizeList(props, ref) {
   }, [scrollToRow]);
 
   useImperativeHandle(ref, () => ({
-    recomputeRowHeights: index => listRef.current.recomputeRowHeights(index)
+    recomputeRowHeights: index => listRef.current.recomputeRowHeights(index),
   }));
 
   return (
@@ -40,6 +44,6 @@ function VariableSizeList(props, ref) {
       )}
     </WindowScroller>
   );
-};
+}
 
 export default forwardRef(VariableSizeList);
