@@ -101,7 +101,7 @@ function ListRuleRevisions(props) {
     });
   };
 
-  const handleRestoreClick = async row => {
+  const handleRestoreClick = row => async () => {
     const rowData = clone(row);
 
     // We only want the actual rule data from the old revision,
@@ -147,7 +147,7 @@ function ListRuleRevisions(props) {
       <TableCell>
         <Button onClick={handleViewClick(row)}>View</Button>
         {index > 0 && (
-          <Button onClick={() => handleRestoreClick(row)}>Restore</Button>
+          <Button onClick={handleRestoreClick(row)}>Restore</Button>
         )}
       </TableCell>
     </TableRow>
