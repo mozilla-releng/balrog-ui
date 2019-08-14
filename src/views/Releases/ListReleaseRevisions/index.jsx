@@ -120,8 +120,6 @@ function ListReleaseRevisions(props) {
   const headerHeight = 20;
   const tableHeight = Math.min(revisionsCount * rowHeight + headerHeight, 300);
 
-  console.log('tableHeight: ', tableHeight);
-
   return (
     <Dashboard title={`Release ${releaseName} Revisions`}>
       {error && <ErrorPanel fixed error={error} />}

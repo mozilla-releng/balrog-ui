@@ -99,10 +99,11 @@ function JsDiff(props) {
     );
   };
 
-  const listHeight = Math.min(releaseLinesDiff.length * 20, 350);
+  const releaseLinesDiffCount = releaseLinesDiff.length;
+  const listHeight = Math.min(releaseLinesDiffCount * 20, 350);
 
   return (
-    Boolean(releaseLinesDiff.length) && (
+    Boolean(releaseLinesDiffCount) && (
       <Paper className={className}>
         <div className={classes.header}>
           <strong>
@@ -115,11 +116,10 @@ function JsDiff(props) {
         </div>
         <div className={classes.listWrapper}>
           <List
-            estimatedRowSize={20}
             height={listHeight}
             rowRenderer={handleRowRender}
             overscanRowCount={50}
-            rowCount={releaseLinesDiff.length}
+            rowCount={releaseLinesDiffCount}
             rowHeight={20}
             /* The only way I was able to make the list
             scrollable in the x-direction */
