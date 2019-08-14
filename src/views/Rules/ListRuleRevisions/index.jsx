@@ -104,6 +104,7 @@ function ListRuleRevisions(props) {
   // TODO: Add logic to restore a revision
   const handleRestoreClick = async row => {
     const rowData = clone(row);
+
     delete rowData.change_id;
     delete rowData.changed_by;
     delete rowData.timestamp;
@@ -145,7 +146,9 @@ function ListRuleRevisions(props) {
       </TableCell>
       <TableCell>
         <Button onClick={handleViewClick(row)}>View</Button>
-        {index > 0 && <Button onClick={() => handleRestoreClick(row)}>Restore</Button>}
+        {index > 0 && (
+          <Button onClick={() => handleRestoreClick(row)}>Restore</Button>
+        )}
       </TableCell>
     </TableRow>
   );
