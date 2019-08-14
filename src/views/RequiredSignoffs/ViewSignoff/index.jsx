@@ -374,6 +374,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
         title={dialogState.title}
         body={dialogBody}
         confirmText={dialogState.confirmText}
+        destructive
         onSubmit={handleDialogSubmit}
         onError={handleDialogError}
         error={dialogState.error}
