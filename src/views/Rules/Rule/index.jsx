@@ -147,11 +147,7 @@ export default function Rule({ isNewRule, ...props }) {
     });
 
     if (!error) {
-      if (rule.sc_id) {
-        props.history.push(`/rules#scId=${rule.rule_id}`);
-      } else {
-        props.history.push(`/rules#ruleId=${rule.rule_id}`);
-      }
+      props.history.push(`/rules#ruleId=${rule.rule_id}`);
     }
   };
 
