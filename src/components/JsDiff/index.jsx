@@ -4,11 +4,13 @@ import deepSortObject from 'deep-sort-object';
 import { string, object } from 'prop-types';
 import { createTwoFilesPatch } from 'diff';
 import { makeStyles } from '@material-ui/styles';
+import { List } from 'react-virtualized';
 import Paper from '@material-ui/core/Paper';
 import {
   NEW_LINES_REGEX,
   DIFF_COLORS,
   INITIAL_JS_DIFF_SUMMARY,
+  CONTENT_MAX_WIDTH,
 } from '../../utils/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -79,23 +81,25 @@ function JsDiff(props) {
     setDiffSummary(diffSummary);
   }, [firstFilename, secondFilename, firstObject, secondObject]);
 
-  const handleRowRender = (line, index) => {
+  const handleRowRender = ({ index, key, style }) => {
+    const line = releaseLinesDiff[index];
     // eslint-disable-next-line no-nested-ternary
     const backgroundColor = line.startsWith('+')
       ? DIFF_COLORS.ADDED
       : line.startsWith('-')
       ? DIFF_COLORS.REMOVED
       : 'unset';
-    const key = `${line}-${index}`;
 
     return (
-      <div key={key} style={{ backgroundColor }}>
+      <div key={key} style={{ ...style, backgroundColor }}>
         <pre style={{ backgroundColor }} className={classes.pre}>
           {line}
         </pre>
       </div>
     );
   };
+
+  const listHeight = Math.min(releaseLinesDiff.length * 20, 350);
 
   return (
     Boolean(releaseLinesDiff.length) && (
@@ -109,11 +113,19 @@ function JsDiff(props) {
             <span className={classes.redText}>-{diffSummary.removed}</span>
           </strong>
         </div>
-        {releaseLinesDiff.length && (
-          <div className={classes.listWrapper}>
-            {releaseLinesDiff.map(handleRowRender)}
-          </div>
-        )}
+        <div className={classes.listWrapper}>
+          <List
+            estimatedRowSize={20}
+            height={listHeight}
+            rowRenderer={handleRowRender}
+            overscanRowCount={50}
+            rowCount={releaseLinesDiff.length}
+            rowHeight={20}
+            /* The only way I was able to make the list
+            scrollable in the x-direction */
+            width={CONTENT_MAX_WIDTH + 1000}
+          />
+        </div>
       </Paper>
     )
   );

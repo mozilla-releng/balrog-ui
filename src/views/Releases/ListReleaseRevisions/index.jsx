@@ -115,6 +115,12 @@ function ListReleaseRevisions(props) {
 
   // TODO: Add logic to restore a revision
   const handleRestoreClick = () => {};
+  const revisionsCount = revisions.length;
+  const rowHeight = 40;
+  const headerHeight = 20;
+  const tableHeight = Math.min(revisionsCount * rowHeight + headerHeight, 300);
+
+  console.log('tableHeight: ', tableHeight);
 
   return (
     <Dashboard title={`Release ${releaseName} Revisions`}>
@@ -123,7 +129,7 @@ function ListReleaseRevisions(props) {
       {!isLoading && revisions.length === 1 && (
         <Typography>Role {releaseName} has no revisions</Typography>
       )}
-      {!isLoading && revisions.length > 1 && (
+      {!isLoading && revisionsCount > 1 && (
         <Fragment>
           <AutoSizer disableHeight>
             {({ width }) => (
@@ -131,10 +137,10 @@ function ListReleaseRevisions(props) {
                 headerClassName={classes.tableHeader}
                 overscanRowCount={50}
                 width={width}
-                height={400}
-                headerHeight={20}
-                rowHeight={40}
-                rowCount={revisions.length}
+                height={tableHeight}
+                headerHeight={headerHeight}
+                rowHeight={rowHeight}
+                rowCount={revisionsCount}
                 rowGetter={({ index }) => revisions[index]}>
                 <Column
                   label="Revision Date"
