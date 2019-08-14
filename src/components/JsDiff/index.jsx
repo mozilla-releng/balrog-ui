@@ -1,4 +1,5 @@
 import React, { memo, useState, useEffect } from 'react';
+import { clone } from 'ramda';
 import deepSortObject from 'deep-sort-object';
 import { string, object } from 'prop-types';
 import { createTwoFilesPatch } from 'diff';
@@ -72,22 +73,23 @@ function JsDiff(props) {
       }
 
       return acc;
-    }, INITIAL_JS_DIFF_SUMMARY);
+    }, clone(INITIAL_JS_DIFF_SUMMARY));
 
     setReleaseDiffLines(lines);
     setDiffSummary(diffSummary);
   }, [firstFilename, secondFilename, firstObject, secondObject]);
 
-  const handleRowRender = line => {
+  const handleRowRender = (line, index) => {
     // eslint-disable-next-line no-nested-ternary
     const backgroundColor = line.startsWith('+')
       ? DIFF_COLORS.ADDED
       : line.startsWith('-')
       ? DIFF_COLORS.REMOVED
       : 'unset';
+    const key = `${line}-${index}`;
 
     return (
-      <div key={line} style={{ backgroundColor }}>
+      <div key={key} style={{ backgroundColor }}>
         <pre style={{ backgroundColor }} className={classes.pre}>
           {line}
         </pre>
