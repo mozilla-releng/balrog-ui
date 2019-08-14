@@ -11,13 +11,17 @@ import Drawer from '@material-ui/core/Drawer';
 import { formatDistanceStrict } from 'date-fns';
 import Dashboard from '../../../components/Dashboard';
 import DataTable from '../../../components/DataTable';
+import DialogAction from '../../../components/DialogAction';
 import ErrorPanel from '../../../components/ErrorPanel';
 import RuleCard from '../../../components/RuleCard';
 import Button from '../../../components/Button';
 import DiffRule from '../../../components/DiffRule';
 import useAction from '../../../hooks/useAction';
 import { getRevisions, addScheduledChange } from '../../../services/rules';
-import { CONTENT_MAX_WIDTH } from '../../../utils/constants';
+import {
+  CONTENT_MAX_WIDTH,
+  DIALOG_ACTION_INITIAL_STATE,
+} from '../../../utils/constants';
 
 const useStyles = makeStyles(theme => ({
   radioCell: {
@@ -63,11 +67,12 @@ function ListRuleRevisions(props) {
   const [drawerState, setDrawerState] = useState({ open: false, item: {} });
   const [leftRadioCheckedIndex, setLeftRadioCheckedIndex] = useState(1);
   const [rightRadioCheckedIndex, setRightRadioCheckedIndex] = useState(0);
+  const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [fetchedRevisions, fetchRevisions] = useAction(getRevisions);
-  const [addSCAction, addSC] = useAction(addScheduledChange);
+  const addSC = useAction(addScheduledChange)[1];
   const { ruleId } = props.match.params;
   // eslint-disable-next-line prefer-destructuring
-  const error = fetchedRevisions.error || addSCAction.error;
+  const error = fetchedRevisions.error;
   const isLoading = fetchedRevisions.loading;
   const revisions = fetchedRevisions.data
     ? fetchedRevisions.data.data.rules
@@ -101,8 +106,19 @@ function ListRuleRevisions(props) {
     });
   };
 
-  const handleRestoreClick = row => async () => {
-    const rowData = clone(row);
+  const handleRestoreClick = rule => () =>
+    setDialogState({
+      ...dialogState,
+      open: true,
+      body: `Rule ${
+        rule.alias ? rule.alias : rule.rule_id
+      } will be reverted to data version ${rule.data_version}.`,
+      title: 'Revert rule?',
+      confirmText: 'Revert',
+      item: rule,
+    });
+  const handleDialogSubmit = async () => {
+    const rowData = clone(dialogState.item);
 
     // We only want the actual rule data from the old revision,
     // not the metadata.
@@ -117,11 +133,17 @@ function ListRuleRevisions(props) {
       ...rowData,
     });
 
-    if (!error) {
-      props.history.push(`/rules#scId=${data.data.sc_id}`);
+    if (error) {
+      throw error;
     }
+
+    return data.data.sc_id;
   };
 
+  const handleDialogClose = () => setDialogState(DIALOG_ACTION_INITIAL_STATE);
+  const handleDialogActionComplete = scId =>
+    props.history.push(`/rules#scId=${scId}`);
+  const handleDialogError = error => setDialogState({ ...dialogState, error });
   const renderRow = (row, index) => (
     <TableRow key={row.timestamp}>
       <TableCell title={new Date(row.timestamp)}>
@@ -193,6 +215,17 @@ function ListRuleRevisions(props) {
           </Drawer>
         </Fragment>
       )}
+      <DialogAction
+        open={dialogState.open}
+        title={dialogState.title}
+        body={dialogState.body}
+        confirmText={dialogState.confirmText}
+        onSubmit={handleDialogSubmit}
+        onError={handleDialogError}
+        error={dialogState.error}
+        onComplete={handleDialogActionComplete}
+        onClose={handleDialogClose}
+      />
     </Dashboard>
   );
 }
