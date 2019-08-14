@@ -122,7 +122,7 @@ JsDiff.propTypes = {
   secondObject: object.isRequired,
   firstFilename: string.isRequired,
   secondFilename: string.isRequired,
-  className: object,
+  className: string,
 };
 
 JsDiff.defaultProps = {
