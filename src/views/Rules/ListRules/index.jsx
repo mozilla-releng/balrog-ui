@@ -28,6 +28,7 @@ import {
   getScheduledChanges,
   getScheduledChangeByRuleId,
   addScheduledChange,
+  deleteScheduledChange,
   deleteRule,
 } from '../../../services/rules';
 import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
@@ -115,6 +116,7 @@ function ListRules(props) {
   const fetchRequiredSignoffs = useAction(getRequiredSignoffs)[1];
   const delRule = useAction(deleteRule)[1];
   const scheduleDelRule = useAction(addScheduledChange)[1];
+  const delSC = useAction(deleteScheduledChange)[1];
   const [signoffAction, signoff] = useAction(props =>
     makeSignoff({ type: 'rules', ...props })
   );
@@ -157,6 +159,8 @@ function ListRules(props) {
     setSnackbarState(SNACKBAR_INITIAL_STATE);
   };
 
+  const isScheduledInsert = rule =>
+    rule.scheduledChange && rule.scheduledChange.change_type === 'insert';
   const pairExists = (product, channel) =>
     rules.data &&
     rules.data.data.rules.some(
@@ -325,15 +329,7 @@ function ListRules(props) {
   };
 
   const handleDeleteDialogComplete = result => {
-    if (typeof result === 'number') {
-      // The rule was directly deleted, just remove it.
-      setRulesWithScheduledChanges(
-        rulesWithScheduledChanges.filter(i => i.rule_id !== result)
-      );
-      handleSnackbarOpen({
-        message: `Rule ${result} deleted`,
-      });
-    } else {
+    if (result.change_type === 'delete') {
       // A change was scheduled, we need to update the card
       // to reflect that.
       setRulesWithScheduledChanges(
@@ -353,6 +349,23 @@ function ListRules(props) {
       handleSnackbarOpen({
         message: `Rule ${result.rule_id} successfully scheduled`,
       });
+    } else if (result.rule_id) {
+      // The rule was directly deleted, just remove it.
+      setRulesWithScheduledChanges(
+        rulesWithScheduledChanges.filter(i => i.rule_id !== result.rule_id)
+      );
+      handleSnackbarOpen({
+        message: `Rule ${result.rule_id} deleted`,
+      });
+    } else {
+      setRulesWithScheduledChanges(
+        rulesWithScheduledChanges.filter(
+          i => !i.scheduledChange || i.scheduledChange.sc_id !== result.sc_id
+        )
+      );
+      handleSnackbarOpen({
+        message: `Scheduled Rule deleted`,
+      });
     }
 
     handleDialogClose();
@@ -365,29 +378,43 @@ function ListRules(props) {
       scheduleDeleteDate >= now
         ? scheduleDeleteDate.getTime()
         : now.getTime() + 5000;
-    const { error } =
-      Object.keys(dialogRule.required_signoffs).length === 0
-        ? await delRule({
-            ruleId: dialogRule.rule_id,
-            dataVersion: dialogRule.data_version,
-          })
-        : await scheduleDelRule({
-            change_type: 'delete',
-            when,
-            rule_id: dialogRule.rule_id,
-            data_version: dialogRule.data_version,
-          });
+    let error = null;
+    let ret = null;
+
+    // removing a scheduled insert
+    if (isScheduledInsert(dialogRule)) {
+      ({ error } = await delSC({
+        scId: dialogRule.scheduledChange.sc_id,
+        scDataVersion: dialogRule.scheduledChange.sc_data_version,
+      }));
+      ret = { sc_id: dialogRule.scheduledChange.sc_id };
+    }
+    // directly deleting a rule that doesn't require signoff
+    else if (Object.keys(dialogRule.required_signoffs).length === 0) {
+      ({ error } = await delRule({
+        ruleId: dialogRule.rule_id,
+        dataVersion: dialogRule.data_version,
+      }));
+      ret = { rule_id: dialogRule.rule_id };
+    }
+    // scheduling deletion of a rule that requires signoff
+    else {
+      ({ error } = await scheduleDelRule({
+        change_type: 'delete',
+        when,
+        rule_id: dialogRule.rule_id,
+        data_version: dialogRule.data_version,
+      }));
+      // eslint-disable-next-line prefer-destructuring
+      ret = (await getScheduledChangeByRuleId(dialogRule.rule_id)).data
+        .scheduled_changes[0];
+    }
 
     if (error) {
       throw error;
     }
 
-    if (Object.keys(dialogRule.required_signoffs).length > 0) {
-      return (await getScheduledChangeByRuleId(dialogRule.rule_id)).data
-        .scheduled_changes[0];
-    }
-
-    return dialogRule.rule_id;
+    return ret;
   };
 
   const signoffDialogBody = (
@@ -496,7 +523,8 @@ function ListRules(props) {
 
   const deleteDialogBody =
     dialogState.item &&
-    (Object.keys(dialogState.item.required_signoffs).length > 0 ? (
+    (!isScheduledInsert(dialogState.item) &&
+    Object.keys(dialogState.item.required_signoffs).length > 0 ? (
       <DateTimePicker
         disablePast
         inputVariant="outlined"
@@ -511,7 +539,11 @@ function ListRules(props) {
         value={scheduleDeleteDate}
       />
     ) : (
-      `This will delete rule ${dialogState.item.rule_id}.`
+      `This will delete ${
+        isScheduledInsert(dialogState.item)
+          ? 'the scheduled rule'
+          : `rule ${dialogState.item.rule_id}`
+      }.`
     ));
   const handleRuleDelete = rule => {
     setDialogMode('delete');
