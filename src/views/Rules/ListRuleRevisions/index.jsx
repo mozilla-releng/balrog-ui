@@ -101,17 +101,17 @@ function ListRuleRevisions(props) {
     });
   };
 
-  // TODO: Add logic to restore a revision
   const handleRestoreClick = async row => {
     const rowData = clone(row);
 
+    // We only want the actual rule data from the old revision,
+    // not the metadata.
     delete rowData.change_id;
     delete rowData.changed_by;
     delete rowData.timestamp;
     delete rowData.data_version;
     const { error, data } = await addSC({
       change_type: 'update',
-      // todo: should we allow a user to select a time?
       when: new Date().getTime() + 5000,
       data_version: revisions[0].data_version,
       ...rowData,
