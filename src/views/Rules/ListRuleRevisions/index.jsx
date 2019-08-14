@@ -1,4 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react';
+import { clone } from 'ramda';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { makeStyles, withStyles } from '@material-ui/styles';
 import { red, green } from '@material-ui/core/colors';
@@ -15,7 +16,7 @@ import RuleCard from '../../../components/RuleCard';
 import Button from '../../../components/Button';
 import DiffRule from '../../../components/DiffRule';
 import useAction from '../../../hooks/useAction';
-import { getRevisions } from '../../../services/rules';
+import { getRevisions, addScheduledChange } from '../../../services/rules';
 import { CONTENT_MAX_WIDTH } from '../../../utils/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -63,9 +64,10 @@ function ListRuleRevisions(props) {
   const [leftRadioCheckedIndex, setLeftRadioCheckedIndex] = useState(1);
   const [rightRadioCheckedIndex, setRightRadioCheckedIndex] = useState(0);
   const [fetchedRevisions, fetchRevisions] = useAction(getRevisions);
+  const [addSCAction, addSC] = useAction(addScheduledChange);
   const { ruleId } = props.match.params;
   // eslint-disable-next-line prefer-destructuring
-  const error = fetchedRevisions.error;
+  const error = fetchedRevisions.error || addSCAction.error;
   const isLoading = fetchedRevisions.loading;
   const revisions = fetchedRevisions.data
     ? fetchedRevisions.data.data.rules
@@ -100,7 +102,25 @@ function ListRuleRevisions(props) {
   };
 
   // TODO: Add logic to restore a revision
-  const handleRestoreClick = () => {};
+  const handleRestoreClick = async row => {
+    const rowData = clone(row);
+    delete rowData.change_id;
+    delete rowData.changed_by;
+    delete rowData.timestamp;
+    delete rowData.data_version;
+    const { error, data } = await addSC({
+      change_type: 'update',
+      // todo: should we allow a user to select a time?
+      when: new Date().getTime() + 5000,
+      data_version: revisions[0].data_version,
+      ...rowData,
+    });
+
+    if (!error) {
+      props.history.push(`/rules#scId=${data.data.sc_id}`);
+    }
+  };
+
   const renderRow = (row, index) => (
     <TableRow key={row.timestamp}>
       <TableCell title={new Date(row.timestamp)}>
@@ -125,7 +145,7 @@ function ListRuleRevisions(props) {
       </TableCell>
       <TableCell>
         <Button onClick={handleViewClick(row)}>View</Button>
-        {index > 0 && <Button onClick={handleRestoreClick}>Restore</Button>}
+        {index > 0 && <Button onClick={() => handleRestoreClick(row)}>Restore</Button>}
       </TableCell>
     </TableRow>
   );
