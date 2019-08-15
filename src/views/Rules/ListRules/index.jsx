@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useState, useMemo, useRef } from 'react';
+import classNames from 'classnames';
 import { stringify, parse } from 'qs';
 import { addSeconds } from 'date-fns';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
@@ -67,6 +68,9 @@ const useStyles = makeStyles(theme => ({
   },
   ruleCard: {
     margin: theme.spacing(1),
+  },
+  ruleCardSelected: {
+    border: `2px solid ${theme.palette.primary.light}`,
   },
 }));
 
@@ -680,7 +684,9 @@ function ListRules(props) {
         }
         style={style}>
         <RuleCard
-          className={classes.ruleCard}
+          className={classNames(classes.ruleCard, {
+            [classes.ruleCardSelected]: index === scrollToRow,
+          })}
           key={rule.rule_id}
           rule={rule}
           onRuleDelete={handleRuleDelete}
