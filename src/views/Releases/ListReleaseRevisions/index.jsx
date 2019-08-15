@@ -15,7 +15,7 @@ import Button from '../../../components/Button';
 import useAction from '../../../hooks/useAction';
 import { getRevisions, getRelease } from '../../../services/releases';
 import { CONTENT_MAX_WIDTH } from '../../../utils/constants';
-import JsDiff from '../../../components/JsDiff';
+import DiffRelease from '../../../components/DiffRelease';
 
 const useStyles = makeStyles(theme => ({
   radioCell: {
@@ -190,7 +190,7 @@ function ListReleaseRevisions(props) {
             )}
           </AutoSizer>
           {leftRevisionData && rightRevisionData && (
-            <JsDiff
+            <DiffRelease
               className={classes.jsDiff}
               firstFilename={`Revision Version ${
                 revisions[leftRadioCheckedIndex].data_version
@@ -198,8 +198,8 @@ function ListReleaseRevisions(props) {
               secondFilename={`Revision Version ${
                 revisions[rightRadioCheckedIndex].data_version
               }`}
-              firstObject={leftRevisionData || {}}
-              secondObject={rightRevisionData || {}}
+              firstRelease={leftRevisionData || {}}
+              secondRelease={rightRevisionData || {}}
             />
           )}
           <Drawer

@@ -45,10 +45,10 @@ const useStyles = makeStyles(theme => ({
  * A component to display a diff in a similar fashion as `git diff`.
  * Useful when comparing JSON.
  */
-function JsDiff(props) {
+function DiffRelease(props) {
   const {
-    firstObject,
-    secondObject,
+    firstRelease,
+    secondRelease,
     firstFilename,
     secondFilename,
     className,
@@ -61,8 +61,8 @@ function JsDiff(props) {
     const releaseDiff = createTwoFilesPatch(
       firstFilename,
       secondFilename,
-      JSON.stringify(deepSortObject(firstObject), null, 2),
-      JSON.stringify(deepSortObject(secondObject), null, 2)
+      JSON.stringify(deepSortObject(firstRelease), null, 2),
+      JSON.stringify(deepSortObject(secondRelease), null, 2)
     );
     const lines = releaseDiff.split(NEW_LINES_REGEX);
     const diffSummary = lines.reduce((acc, curr) => {
@@ -79,7 +79,7 @@ function JsDiff(props) {
 
     setReleaseDiffLines(lines);
     setDiffSummary(diffSummary);
-  }, [firstFilename, secondFilename, firstObject, secondObject]);
+  }, [firstFilename, secondFilename, firstRelease, secondRelease]);
 
   const handleRowRender = ({ index, key, style }) => {
     const line = releaseLinesDiff[index];
@@ -131,16 +131,16 @@ function JsDiff(props) {
   );
 }
 
-JsDiff.propTypes = {
-  firstObject: object.isRequired,
-  secondObject: object.isRequired,
+DiffRelease.propTypes = {
+  firstRelease: object.isRequired,
+  secondRelease: object.isRequired,
   firstFilename: string.isRequired,
   secondFilename: string.isRequired,
   className: string,
 };
 
-JsDiff.defaultProps = {
+DiffRelease.defaultProps = {
   className: null,
 };
 
-export default memo(JsDiff);
+export default memo(DiffRelease);
