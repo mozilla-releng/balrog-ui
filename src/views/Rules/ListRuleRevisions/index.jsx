@@ -1,17 +1,16 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
-import { makeStyles, withStyles } from '@material-ui/styles';
-import { red, green } from '@material-ui/core/colors';
+import { makeStyles } from '@material-ui/styles';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
-import Radio from '@material-ui/core/Radio';
 import Drawer from '@material-ui/core/Drawer';
 import { formatDistanceStrict } from 'date-fns';
 import Dashboard from '../../../components/Dashboard';
 import DataTable from '../../../components/DataTable';
 import ErrorPanel from '../../../components/ErrorPanel';
 import RuleCard from '../../../components/RuleCard';
+import Radio from '../../../components/Radio';
 import Button from '../../../components/Button';
 import DiffRule from '../../../components/DiffRule';
 import useAction from '../../../hooks/useAction';
@@ -40,22 +39,6 @@ const useStyles = makeStyles(theme => ({
     margin: '0 auto',
   },
 }));
-const GreenRadio = withStyles({
-  root: {
-    '&$checked': {
-      color: green[600],
-    },
-  },
-  checked: {},
-})(props => <Radio color="default" {...props} />);
-const RedRadio = withStyles({
-  root: {
-    '&$checked': {
-      color: red[600],
-    },
-  },
-  checked: {},
-})(props => <Radio color="default" {...props} />);
 
 function ListRuleRevisions(props) {
   const classes = useStyles();
@@ -110,13 +93,15 @@ function ListRuleRevisions(props) {
       </TableCell>
       <TableCell>{row.changed_by}</TableCell>
       <TableCell className={classes.radioCell}>
-        <RedRadio
+        <Radio
+          variant="red"
           value={index}
           disabled={index === 0}
           checked={leftRadioCheckedIndex === index}
           onChange={handleLeftRadioChange}
         />
-        <GreenRadio
+        <Radio
+          variant="green"
           value={index}
           disabled={index === revisions.length - 1}
           checked={rightRadioCheckedIndex === index}

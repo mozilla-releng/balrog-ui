@@ -56,6 +56,8 @@ module.exports = {
           AUTH0_RESPONSE_TYPE: 'token id_token',
           AUTH0_SCOPE: 'full-user-credentials openid profile email',
           AUTH0_REDIRECT_URI: `http://localhost:${port}/login`,
+          GCS_NIGHTLY_HISTORY_BUCKET: 'https://www.googleapis.com/storage/v1/b/balrog-prod-nightly-history-v1/o',
+          GCS_RELEASES_HISTORY_BUCKET: 'https://www.googleapis.com/storage/v1/b/balrog-prod-release-history-v1/o',
         },
       }
     ],
