@@ -12,7 +12,7 @@ import ErrorPanel from '../../../components/ErrorPanel';
 import RuleCard from '../../../components/RuleCard';
 import Radio from '../../../components/Radio';
 import Button from '../../../components/Button';
-import Diff from '../../../components/Diff';
+import DiffRule from '../../../components/DiffRule';
 import useAction from '../../../hooks/useAction';
 import { getRevisions } from '../../../services/rules';
 import { CONTENT_MAX_WIDTH } from '../../../utils/constants';
@@ -137,10 +137,9 @@ function ListRuleRevisions(props) {
           <br />
           {revisions[leftRadioCheckedIndex] &&
             revisions[rightRadioCheckedIndex] && (
-              <Diff
-                type="rule"
-                firstObject={revisions[leftRadioCheckedIndex]}
-                secondObject={revisions[rightRadioCheckedIndex]}
+              <DiffRule
+                firstRule={revisions[leftRadioCheckedIndex]}
+                secondRule={revisions[rightRadioCheckedIndex]}
               />
             )}
           <Drawer

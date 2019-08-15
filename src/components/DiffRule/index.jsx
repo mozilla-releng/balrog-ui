@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
-import { object, oneOf } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import { diffLines, formatLines } from 'unidiff';
-import { Diff as ReactDiff, Hunk, parseDiff } from 'react-diff-view';
+import { Diff, Hunk, parseDiff } from 'react-diff-view';
 import 'react-diff-view/style/index.css';
 import getDiff from '../../utils/diff';
 import getDiffedProperties from '../../utils/getDiffedProperties';
+import { rule } from '../../utils/prop-types';
 import { RULE_DIFF_PROPERTIES } from '../../utils/constants';
 
 const useStyles = makeStyles(theme => ({
@@ -23,62 +23,38 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function Diff(props) {
+function DiffRule(props) {
   const classes = useStyles();
-  const { type, firstObject, secondObject } = props;
-  const diffProperties = type => {
-    switch (type) {
-      case 'rule': {
-        return RULE_DIFF_PROPERTIES;
-      }
-
-      default: {
-        return Array.from(
-          new Set([...Object.keys(firstObject), ...Object.keys(secondObject)])
-        );
-      }
-    }
-  };
-
+  const { firstRule, secondRule } = props;
   const diffedProperties = getDiffedProperties(
-    diffProperties(type),
-    firstObject,
-    secondObject
+    RULE_DIFF_PROPERTIES,
+    firstRule,
+    secondRule
   );
   const diff = useMemo(() => {
-    const [oldText, newText] = getDiff(
-      diffedProperties,
-      firstObject,
-      secondObject
-    );
+    const [oldText, newText] = getDiff(diffedProperties, firstRule, secondRule);
     const diffText = formatLines(diffLines(oldText, newText), {
       context: 0,
     });
     const [diff] = parseDiff(diffText, { nearbySequences: 'zip' });
 
     return diff;
-  }, [firstObject, secondObject]);
+  }, [firstRule, secondRule]);
 
   return diff && diff.type ? (
-    <ReactDiff
+    <Diff
       className={classes.diff}
       viewType="split"
       diffType={diff.type}
       hunks={diff.hunks || []}>
       {hunks => hunks.map(hunk => <Hunk key={hunk.content} hunk={hunk} />)}
-    </ReactDiff>
+    </Diff>
   ) : null;
 }
 
-Diff.propTypes = {
-  firstObject: object.isRequired,
-  secondObject: object.isRequired,
-  // If type is not defined, then all object keys will be used when diffing
-  type: oneOf(['rule']),
+DiffRule.propTypes = {
+  firstRule: rule.isRequired,
+  secondRule: rule.isRequired,
 };
 
-Diff.defaultProps = {
-  type: null,
-};
-
-export default Diff;
+export default DiffRule;
