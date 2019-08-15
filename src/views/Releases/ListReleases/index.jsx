@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import classNames from 'classnames';
 import PlusIcon from 'mdi-react/PlusIcon';
 import { makeStyles, useTheme } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
@@ -26,6 +27,9 @@ const useStyles = makeStyles(theme => ({
   },
   releaseCard: {
     margin: 2,
+  },
+  releaseCardSelected: {
+    border: `2px solid ${theme.palette.primary.light}`,
   },
 }));
 
@@ -196,7 +200,9 @@ function ListReleases(props) {
     return (
       <div key={release.name} style={style}>
         <ReleaseCard
-          className={classes.releaseCard}
+          className={classNames(classes.releaseCard, {
+            [classes.releaseCardSelected]: index === scrollToRow,
+          })}
           release={release}
           onAccessChange={handleAccessChange}
           onReleaseDelete={handleDelete}
