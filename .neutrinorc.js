@@ -64,6 +64,13 @@ module.exports = {
     (neutrino) => {
       neutrino.config.resolve.alias
         .set('react-dom', '@hot-loader/react-dom');
+
+      neutrino.config.output.set('globalObject', 'this');
+      neutrino.config.module
+        .rule('worker')
+          .test(/\.worker\.js$/)
+          .use('worker')
+            .loader(require.resolve('worker-loader'));
     },
     '@neutrinojs/jest'
   ]

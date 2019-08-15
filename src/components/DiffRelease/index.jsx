@@ -2,7 +2,6 @@ import React, { memo, useState, useEffect } from 'react';
 import { clone } from 'ramda';
 import deepSortObject from 'deep-sort-object';
 import { string, object } from 'prop-types';
-import { createTwoFilesPatch } from 'diff';
 import { makeStyles } from '@material-ui/styles';
 import { List } from 'react-virtualized';
 import Paper from '@material-ui/core/Paper';
@@ -12,6 +11,7 @@ import {
   INITIAL_JS_DIFF_SUMMARY,
   CONTENT_MAX_WIDTH,
 } from '../../utils/constants';
+import DiffWorker from './diff.worker';
 
 const useStyles = makeStyles(theme => ({
   pre: {
@@ -56,14 +56,10 @@ function DiffRelease(props) {
   const classes = useStyles();
   const [releaseLinesDiff, setReleaseDiffLines] = useState([]);
   const [diffSummary, setDiffSummary] = useState(INITIAL_JS_DIFF_SUMMARY);
+  const diffWorker = new DiffWorker();
 
-  useEffect(() => {
-    const releaseDiff = createTwoFilesPatch(
-      firstFilename,
-      secondFilename,
-      JSON.stringify(deepSortObject(firstRelease), null, 2),
-      JSON.stringify(deepSortObject(secondRelease), null, 2)
-    );
+  diffWorker.onmessage = e => {
+    const releaseDiff = e.data;
     const lines = releaseDiff.split(NEW_LINES_REGEX);
     const diffSummary = lines.reduce((acc, curr) => {
       if (curr.startsWith('+') && !curr.startsWith('+++')) {
@@ -79,6 +75,15 @@ function DiffRelease(props) {
 
     setReleaseDiffLines(lines);
     setDiffSummary(diffSummary);
+  };
+
+  useEffect(() => {
+    diffWorker.postMessage([
+      firstFilename,
+      secondFilename,
+      JSON.stringify(deepSortObject(firstRelease), null, 2),
+      JSON.stringify(deepSortObject(secondRelease), null, 2),
+    ]);
   }, [firstFilename, secondFilename, firstRelease, secondRelease]);
 
   const handleRowRender = ({ index, key, style }) => {
