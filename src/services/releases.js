@@ -24,7 +24,7 @@ const getRevisions = (name, product) => {
           product,
           data_version: Number(dataVersion) ? dataVersion : parts[0],
           timestamp: parseInt(parts[1], 10),
-          changed_by: parts[2],
+          changed_by: parts.slice(2).join('-'),
           data_url: r.mediaLink,
         };
 
