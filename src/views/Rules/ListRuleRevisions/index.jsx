@@ -89,31 +89,31 @@ function ListRuleRevisions(props) {
     });
   };
 
-  const handleRestoreClick = rule => () =>
+  const handleRestoreClick = revision => () =>
     setDialogState({
       ...dialogState,
       open: true,
       body: `Rule ${
-        rule.alias ? rule.alias : rule.rule_id
-      } will be reverted to data version ${rule.data_version}.`,
+        revision.alias ? revision.alias : revision.rule_id
+      } will be reverted to data version ${revision.data_version}.`,
       title: 'Revert rule?',
       confirmText: 'Revert',
-      item: rule,
+      item: revision,
     });
   const handleDialogSubmit = async () => {
-    const rowData = clone(dialogState.item);
+    const ruleData = clone(dialogState.item);
 
     // We only want the actual rule data from the old revision,
     // not the metadata.
-    delete rowData.change_id;
-    delete rowData.changed_by;
-    delete rowData.timestamp;
-    delete rowData.data_version;
+    delete ruleData.change_id;
+    delete ruleData.changed_by;
+    delete ruleData.timestamp;
+    delete ruleData.data_version;
     const { error, data } = await addSC({
       change_type: 'update',
       when: new Date().getTime() + 5000,
       data_version: revisions[0].data_version,
-      ...rowData,
+      ...ruleData,
     });
 
     if (error) {
