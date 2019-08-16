@@ -29,10 +29,11 @@ function RevisionsTable(props) {
       {({ width }) => (
         <Table
           headerClassName={classes.tableHeader}
-          overscanRowCount={50}
+          overscanRowCount={100}
           width={width}
           height={tableHeight}
           headerHeight={headerHeight}
+          estimatedRowSize={40}
           rowHeight={rowHeight}
           rowCount={rowCount}
           rowGetter={rowGetter}>

@@ -117,6 +117,7 @@ function ListReleaseRevisions(props) {
   // TODO: Add logic to restore a revision
   const handleRestoreClick = () => {};
   const revisionsCount = revisions.length;
+  const columnWidth = CONTENT_MAX_WIDTH / 4;
 
   return (
     <Dashboard title={`Release ${releaseName} Revisions`}>
@@ -138,13 +139,17 @@ function ListReleaseRevisions(props) {
                   addSuffix: true,
                 })
               }
-              width={250}
+              width={columnWidth}
             />
-            <Column width={250} label="Changed By" dataKey="changed_by" />
+            <Column
+              width={columnWidth}
+              label="Changed By"
+              dataKey="changed_by"
+            />
             <Column
               label="Compare"
               dataKey="compare"
-              width={250}
+              width={columnWidth}
               cellRenderer={({ rowIndex }) => (
                 <Fragment>
                   <Radio
@@ -166,7 +171,7 @@ function ListReleaseRevisions(props) {
             />
             <Column
               dataKey="actions"
-              width={250}
+              width={columnWidth}
               cellRenderer={({ rowData, rowIndex }) => (
                 <Fragment>
                   <Button onClick={handleViewClick(rowData)}>View</Button>

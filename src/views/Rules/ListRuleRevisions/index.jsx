@@ -46,7 +46,7 @@ function ListRuleRevisions(props) {
 
   useEffect(() => {
     fetchRevisions(ruleId);
-  }, []);
+  }, [ruleId]);
 
   const handleLeftRadioChange = ({ target: { value } }) => {
     setLeftRadioCheckedIndex(Number(value));
@@ -73,6 +73,7 @@ function ListRuleRevisions(props) {
 
   // TODO: Add logic to restore a revision
   const handleRestoreClick = () => {};
+  const columnWidth = CONTENT_MAX_WIDTH / 4;
 
   return (
     <Dashboard title={`Rule ${ruleId} Revisions`}>
@@ -94,13 +95,17 @@ function ListRuleRevisions(props) {
                   addSuffix: true,
                 })
               }
-              width={250}
+              width={columnWidth}
             />
-            <Column width={250} label="Changed By" dataKey="changed_by" />
+            <Column
+              width={columnWidth}
+              label="Changed By"
+              dataKey="changed_by"
+            />
             <Column
               label="Compare"
               dataKey="compare"
-              width={250}
+              width={columnWidth}
               cellRenderer={({ rowIndex }) => (
                 <Fragment>
                   <Radio
@@ -122,7 +127,7 @@ function ListRuleRevisions(props) {
             />
             <Column
               dataKey="actions"
-              width={250}
+              width={columnWidth}
               cellRenderer={({ rowData, rowIndex }) => (
                 <Fragment>
                   <Button onClick={handleViewClick(rowData)}>View</Button>
