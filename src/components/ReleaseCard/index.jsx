@@ -138,11 +138,15 @@ function ReleaseCard(props) {
                 }
               />
             </Paper>
-            <Tooltip title="History">
-              <IconButton>
-                <HistoryIcon />
-              </IconButton>
-            </Tooltip>
+            <Link
+              className={classes.link}
+              to={`/releases/${release.name}/revisions`}>
+              <Tooltip title="Revisions">
+                <IconButton>
+                  <HistoryIcon />
+                </IconButton>
+              </Tooltip>
+            </Link>
           </div>
         }
       />
