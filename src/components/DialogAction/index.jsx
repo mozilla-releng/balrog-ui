@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { oneOfType, object, node, string, func, bool } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -44,6 +44,12 @@ function DialogAction(props) {
     destructive,
     ...rest
   } = props;
+  let cancelled = false;
+
+  // Set this so we can avoid calling setActionExecuting if the caller
+  // decides to do something that unmounts us in onComplete.
+  useEffect(() => () => (cancelled = true));
+
   const handleSubmit = async () => {
     setActionExecuting(true);
 
@@ -63,7 +69,9 @@ function DialogAction(props) {
       onComplete(result);
     }
 
-    setActionExecuting(false);
+    if (!cancelled) {
+      setActionExecuting(false);
+    }
   };
 
   return (
