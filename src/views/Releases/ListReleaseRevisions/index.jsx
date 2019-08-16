@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import axios from 'axios';
-import { AutoSizer, Column, Table } from 'react-virtualized';
+import { Column } from 'react-virtualized';
 import 'react-virtualized/styles.css';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import Code from '@mozilla-frontend-infra/components/Code';
@@ -16,6 +16,7 @@ import useAction from '../../../hooks/useAction';
 import { getRevisions, getRelease } from '../../../services/releases';
 import { CONTENT_MAX_WIDTH } from '../../../utils/constants';
 import DiffRelease from '../../../components/DiffRelease';
+import RevisionsTable from '../../../components/RevisionsTable';
 
 const useStyles = makeStyles(theme => ({
   radioCell: {
@@ -116,9 +117,7 @@ function ListReleaseRevisions(props) {
   // TODO: Add logic to restore a revision
   const handleRestoreClick = () => {};
   const revisionsCount = revisions.length;
-  const rowHeight = 40;
-  const headerHeight = 20;
-  const tableHeight = Math.min(revisionsCount * rowHeight + headerHeight, 300);
+  const columnWidth = CONTENT_MAX_WIDTH / 4;
 
   return (
     <Dashboard title={`Release ${releaseName} Revisions`}>
@@ -129,66 +128,60 @@ function ListReleaseRevisions(props) {
       )}
       {!isLoading && revisionsCount > 1 && (
         <Fragment>
-          <AutoSizer disableHeight>
-            {({ width }) => (
-              <Table
-                headerClassName={classes.tableHeader}
-                overscanRowCount={50}
-                width={width}
-                height={tableHeight}
-                headerHeight={headerHeight}
-                rowHeight={rowHeight}
-                rowCount={revisionsCount}
-                rowGetter={({ index }) => revisions[index]}>
-                <Column
-                  label="Revision Date"
-                  dataKey="timestamp"
-                  cellRenderer={({ cellData }) =>
-                    formatDistanceStrict(new Date(cellData), new Date(), {
-                      addSuffix: true,
-                    })
-                  }
-                  width={250}
-                />
-                <Column width={250} label="Changed By" dataKey="changed_by" />
-                <Column
-                  label="Compare"
-                  dataKey="compare"
-                  width={250}
-                  cellRenderer={({ rowIndex }) => (
-                    <Fragment>
-                      <Radio
-                        variant="red"
-                        value={rowIndex}
-                        disabled={rowIndex === 0}
-                        checked={leftRadioCheckedIndex === rowIndex}
-                        onChange={handleLeftRadioChange}
-                      />
-                      <Radio
-                        variant="green"
-                        value={rowIndex}
-                        disabled={rowIndex === revisions.length - 1}
-                        checked={rightRadioCheckedIndex === rowIndex}
-                        onChange={handleRightRadioChange}
-                      />
-                    </Fragment>
+          <RevisionsTable
+            rowCount={revisionsCount}
+            rowGetter={({ index }) => revisions[index]}>
+            <Column
+              label="Revision Date"
+              dataKey="timestamp"
+              cellRenderer={({ cellData }) =>
+                formatDistanceStrict(new Date(cellData), new Date(), {
+                  addSuffix: true,
+                })
+              }
+              width={columnWidth}
+            />
+            <Column
+              width={columnWidth}
+              label="Changed By"
+              dataKey="changed_by"
+            />
+            <Column
+              label="Compare"
+              dataKey="compare"
+              width={columnWidth}
+              cellRenderer={({ rowIndex }) => (
+                <Fragment>
+                  <Radio
+                    variant="red"
+                    value={rowIndex}
+                    disabled={rowIndex === 0}
+                    checked={leftRadioCheckedIndex === rowIndex}
+                    onChange={handleLeftRadioChange}
+                  />
+                  <Radio
+                    variant="green"
+                    value={rowIndex}
+                    disabled={rowIndex === revisions.length - 1}
+                    checked={rightRadioCheckedIndex === rowIndex}
+                    onChange={handleRightRadioChange}
+                  />
+                </Fragment>
+              )}
+            />
+            <Column
+              dataKey="actions"
+              width={columnWidth}
+              cellRenderer={({ rowData, rowIndex }) => (
+                <Fragment>
+                  <Button onClick={handleViewClick(rowData)}>View</Button>
+                  {rowIndex > 0 && (
+                    <Button onClick={handleRestoreClick}>Restore</Button>
                   )}
-                />
-                <Column
-                  dataKey="actions"
-                  width={250}
-                  cellRenderer={({ rowData, rowIndex }) => (
-                    <Fragment>
-                      <Button onClick={handleViewClick(rowData)}>View</Button>
-                      {rowIndex > 0 && (
-                        <Button onClick={handleRestoreClick}>Restore</Button>
-                      )}
-                    </Fragment>
-                  )}
-                />
-              </Table>
-            )}
-          </AutoSizer>
+                </Fragment>
+              )}
+            />
+          </RevisionsTable>
           {leftRevisionData && rightRevisionData && (
             <DiffRelease
               className={classes.jsDiff}
