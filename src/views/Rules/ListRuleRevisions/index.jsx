@@ -84,9 +84,9 @@ function ListRuleRevisions(props) {
       open: true,
       body: `Rule ${
         revision.alias ? revision.alias : revision.rule_id
-      } will be reverted to data version ${revision.data_version}.`,
-      title: 'Revert rule?',
-      confirmText: 'Revert',
+      } will be restored to data version ${revision.data_version}.`,
+      title: 'Restore rule?',
+      confirmText: 'Restore',
       item: revision,
     });
   const handleDialogSubmit = async () => {
