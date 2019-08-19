@@ -85,7 +85,7 @@ function ListRuleRevisions(props) {
       body: `Rule ${
         revision.alias ? revision.alias : revision.rule_id
       } will be restored to data version ${revision.data_version}.`,
-      title: 'Restore rule?',
+      title: 'Restore Rule?',
       confirmText: 'Restore',
       item: revision,
     });
