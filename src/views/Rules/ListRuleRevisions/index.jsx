@@ -1,11 +1,13 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Column } from 'react-virtualized';
+import { clone } from 'ramda';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { makeStyles } from '@material-ui/styles';
 import Typography from '@material-ui/core/Typography';
 import Drawer from '@material-ui/core/Drawer';
 import { formatDistanceStrict } from 'date-fns';
 import Dashboard from '../../../components/Dashboard';
+import DialogAction from '../../../components/DialogAction';
 import ErrorPanel from '../../../components/ErrorPanel';
 import RuleCard from '../../../components/RuleCard';
 import Radio from '../../../components/Radio';
@@ -13,8 +15,11 @@ import Button from '../../../components/Button';
 import DiffRule from '../../../components/DiffRule';
 import RevisionsTable from '../../../components/RevisionsTable';
 import useAction from '../../../hooks/useAction';
-import { getRevisions } from '../../../services/rules';
-import { CONTENT_MAX_WIDTH } from '../../../utils/constants';
+import { getRevisions, addScheduledChange } from '../../../services/rules';
+import {
+  CONTENT_MAX_WIDTH,
+  DIALOG_ACTION_INITIAL_STATE,
+} from '../../../utils/constants';
 
 const useStyles = makeStyles({
   radioCell: {
@@ -34,7 +39,9 @@ function ListRuleRevisions(props) {
   const [drawerState, setDrawerState] = useState({ open: false, item: {} });
   const [leftRadioCheckedIndex, setLeftRadioCheckedIndex] = useState(1);
   const [rightRadioCheckedIndex, setRightRadioCheckedIndex] = useState(0);
+  const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [fetchedRevisions, fetchRevisions] = useAction(getRevisions);
+  const addSC = useAction(addScheduledChange)[1];
   const { ruleId } = props.match.params;
   // eslint-disable-next-line prefer-destructuring
   const error = fetchedRevisions.error;
@@ -71,8 +78,44 @@ function ListRuleRevisions(props) {
     });
   };
 
-  // TODO: Add logic to restore a revision
-  const handleRestoreClick = () => {};
+  const handleRestoreClick = revision => () =>
+    setDialogState({
+      ...dialogState,
+      open: true,
+      body: `Rule ${
+        revision.alias ? revision.alias : revision.rule_id
+      } will be restored to data version ${revision.data_version}.`,
+      title: 'Restore Rule?',
+      confirmText: 'Restore',
+      item: revision,
+    });
+  const handleDialogSubmit = async () => {
+    const ruleData = clone(dialogState.item);
+
+    // We only want the actual rule data from the old revision,
+    // not the metadata.
+    delete ruleData.change_id;
+    delete ruleData.changed_by;
+    delete ruleData.timestamp;
+    delete ruleData.data_version;
+    const { error, data } = await addSC({
+      change_type: 'update',
+      when: new Date().getTime() + 5000,
+      data_version: revisions[0].data_version,
+      ...ruleData,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data.data.sc_id;
+  };
+
+  const handleDialogClose = () => setDialogState(DIALOG_ACTION_INITIAL_STATE);
+  const handleDialogActionComplete = scId =>
+    props.history.push(`/rules#scId=${scId}`);
+  const handleDialogError = error => setDialogState({ ...dialogState, error });
   const columnWidth = CONTENT_MAX_WIDTH / 4;
 
   return (
@@ -132,7 +175,9 @@ function ListRuleRevisions(props) {
                 <Fragment>
                   <Button onClick={handleViewClick(rowData)}>View</Button>
                   {rowIndex > 0 && (
-                    <Button onClick={handleRestoreClick}>Restore</Button>
+                    <Button onClick={handleRestoreClick(rowData)}>
+                      Restore
+                    </Button>
                   )}
                 </Fragment>
               )}
@@ -160,6 +205,17 @@ function ListRuleRevisions(props) {
           </Drawer>
         </Fragment>
       )}
+      <DialogAction
+        open={dialogState.open}
+        title={dialogState.title}
+        body={dialogState.body}
+        confirmText={dialogState.confirmText}
+        onSubmit={handleDialogSubmit}
+        onError={handleDialogError}
+        error={dialogState.error}
+        onComplete={handleDialogActionComplete}
+        onClose={handleDialogClose}
+      />
     </Dashboard>
   );
 }
