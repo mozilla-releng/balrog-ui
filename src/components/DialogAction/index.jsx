@@ -48,9 +48,7 @@ function DialogAction(props) {
 
   // Set this so we can avoid calling setActionExecuting if the caller
   // decides to do something that unmounts us in onComplete or onError.
-  useEffect(() => () => {
-    cancelled.current = true;
-  }, []);
+  useEffect(() => () => (cancelled.current = true), []);
 
   const handleSubmit = async () => {
     if (cancelled.current === false) {

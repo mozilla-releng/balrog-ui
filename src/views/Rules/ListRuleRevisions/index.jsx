@@ -1,20 +1,19 @@
 import React, { Fragment, useState, useEffect } from 'react';
+import { Column } from 'react-virtualized';
 import { clone } from 'ramda';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { makeStyles } from '@material-ui/styles';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
 import Typography from '@material-ui/core/Typography';
 import Drawer from '@material-ui/core/Drawer';
 import { formatDistanceStrict } from 'date-fns';
 import Dashboard from '../../../components/Dashboard';
-import DataTable from '../../../components/DataTable';
 import DialogAction from '../../../components/DialogAction';
 import ErrorPanel from '../../../components/ErrorPanel';
 import RuleCard from '../../../components/RuleCard';
 import Radio from '../../../components/Radio';
 import Button from '../../../components/Button';
 import DiffRule from '../../../components/DiffRule';
+import RevisionsTable from '../../../components/RevisionsTable';
 import useAction from '../../../hooks/useAction';
 import { getRevisions, addScheduledChange } from '../../../services/rules';
 import {
@@ -22,28 +21,18 @@ import {
   DIALOG_ACTION_INITIAL_STATE,
 } from '../../../utils/constants';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
   radioCell: {
     paddingLeft: 0,
   },
   ruleCard: {
     boxShadow: 'unset',
   },
-  tableWrapper: {
-    maxHeight: '50%',
-    overflowY: 'auto',
-  },
-  tableHeadCell: {
-    position: 'sticky',
-    top: 0,
-    backgroundColor: theme.palette.common.white,
-    zIndex: theme.zIndex.appBar,
-  },
   drawerPaper: {
     maxWidth: CONTENT_MAX_WIDTH,
     margin: '0 auto',
   },
-}));
+});
 
 function ListRuleRevisions(props) {
   const classes = useStyles();
@@ -60,11 +49,11 @@ function ListRuleRevisions(props) {
   const revisions = fetchedRevisions.data
     ? fetchedRevisions.data.data.rules
     : [];
-  const headers = ['Revision Date', 'Changed By', 'Compare', ''];
+  const revisionsCount = revisions.length;
 
   useEffect(() => {
     fetchRevisions(ruleId);
-  }, []);
+  }, [ruleId]);
 
   const handleLeftRadioChange = ({ target: { value } }) => {
     setLeftRadioCheckedIndex(Number(value));
@@ -127,38 +116,7 @@ function ListRuleRevisions(props) {
   const handleDialogActionComplete = scId =>
     props.history.push(`/rules#scId=${scId}`);
   const handleDialogError = error => setDialogState({ ...dialogState, error });
-  const renderRow = (row, index) => (
-    <TableRow key={row.timestamp}>
-      <TableCell title={new Date(row.timestamp)}>
-        {formatDistanceStrict(new Date(row.timestamp), new Date(), {
-          addSuffix: true,
-        })}
-      </TableCell>
-      <TableCell>{row.changed_by}</TableCell>
-      <TableCell className={classes.radioCell}>
-        <Radio
-          variant="red"
-          value={index}
-          disabled={index === 0}
-          checked={leftRadioCheckedIndex === index}
-          onChange={handleLeftRadioChange}
-        />
-        <Radio
-          variant="green"
-          value={index}
-          disabled={index === revisions.length - 1}
-          checked={rightRadioCheckedIndex === index}
-          onChange={handleRightRadioChange}
-        />
-      </TableCell>
-      <TableCell>
-        <Button onClick={handleViewClick(row)}>View</Button>
-        {index > 0 && (
-          <Button onClick={handleRestoreClick(row)}>Restore</Button>
-        )}
-      </TableCell>
-    </TableRow>
-  );
+  const columnWidth = CONTENT_MAX_WIDTH / 4;
 
   return (
     <Dashboard title={`Rule ${ruleId} Revisions`}>
@@ -167,17 +125,64 @@ function ListRuleRevisions(props) {
       {!isLoading && revisions.length === 1 && (
         <Typography>Rule {ruleId} has no revisions</Typography>
       )}
-      {!isLoading && revisions.length > 1 && (
+      {!isLoading && revisionsCount > 1 && (
         <Fragment>
-          <div className={classes.tableWrapper}>
-            <DataTable
-              size="small"
-              headers={headers}
-              renderRow={renderRow}
-              items={revisions}
-              tableHeadCellProps={{ className: classes.tableHeadCell }}
+          <RevisionsTable
+            rowCount={revisionsCount}
+            rowGetter={({ index }) => revisions[index]}>
+            <Column
+              label="Revision Date"
+              dataKey="timestamp"
+              cellRenderer={({ cellData }) =>
+                formatDistanceStrict(new Date(cellData), new Date(), {
+                  addSuffix: true,
+                })
+              }
+              width={columnWidth}
             />
-          </div>
+            <Column
+              width={columnWidth}
+              label="Changed By"
+              dataKey="changed_by"
+            />
+            <Column
+              label="Compare"
+              dataKey="compare"
+              width={columnWidth}
+              cellRenderer={({ rowIndex }) => (
+                <Fragment>
+                  <Radio
+                    variant="red"
+                    value={rowIndex}
+                    disabled={rowIndex === 0}
+                    checked={leftRadioCheckedIndex === rowIndex}
+                    onChange={handleLeftRadioChange}
+                  />
+                  <Radio
+                    variant="green"
+                    value={rowIndex}
+                    disabled={rowIndex === revisions.length - 1}
+                    checked={rightRadioCheckedIndex === rowIndex}
+                    onChange={handleRightRadioChange}
+                  />
+                </Fragment>
+              )}
+            />
+            <Column
+              dataKey="actions"
+              width={columnWidth}
+              cellRenderer={({ rowData, rowIndex }) => (
+                <Fragment>
+                  <Button onClick={handleViewClick(rowData)}>View</Button>
+                  {rowIndex > 0 && (
+                    <Button onClick={handleRestoreClick(rowData)}>
+                      Restore
+                    </Button>
+                  )}
+                </Fragment>
+              )}
+            />
+          </RevisionsTable>
           <br />
           <br />
           {revisions[leftRadioCheckedIndex] &&
