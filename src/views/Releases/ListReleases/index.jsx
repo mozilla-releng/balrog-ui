@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { clone } from 'ramda';
 import classNames from 'classnames';
 import PlusIcon from 'mdi-react/PlusIcon';
 import { makeStyles, useTheme } from '@material-ui/styles';
@@ -10,7 +11,11 @@ import ErrorPanel from '../../../components/ErrorPanel';
 import ReleaseCard from '../../../components/ReleaseCard';
 import useAction from '../../../hooks/useAction';
 import Link from '../../../utils/Link';
-import { getReleases, deleteRelease } from '../../../services/releases';
+import {
+  getReleases,
+  deleteRelease,
+  setReadOnly,
+} from '../../../services/releases';
 import VariableSizeList from '../../../components/VariableSizeList';
 import SearchBar from '../../../components/SearchBar';
 import DialogAction from '../../../components/DialogAction';
@@ -51,6 +56,7 @@ function ListReleases(props) {
   const [releases, setReleases] = useState([]);
   const [releasesAction, fetchReleases] = useAction(getReleases);
   const delRelease = useAction(deleteRelease)[1];
+  const setReadOnlyFlag = useAction(setReadOnly)[1];
   const isLoading = releasesAction.loading;
   // eslint-disable-next-line prefer-destructuring
   const error = releasesAction.error;
@@ -106,8 +112,21 @@ function ListReleases(props) {
     setSearchValue(value);
   };
 
-  // TODO Add mutation
-  const handleReadOnlySubmit = () => {};
+  const handleReadOnlySubmit = async state => {
+    const release = state.item;
+    const { error, data } = await setReadOnlyFlag({
+      name: release.name,
+      readOnly: !release.read_only,
+      dataVersion: release.data_version,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return { name: release.name, new_data_version: data.data.new_data_version };
+  };
+
   const handleReadOnlyClose = state => {
     setDialogState({
       ...state,
@@ -120,6 +139,25 @@ function ListReleases(props) {
       ...state,
       error,
     });
+  };
+
+  const handleReadOnlyComplete = (state, result) => {
+    setReleases(
+      releases.map(r => {
+        if (r.name !== result.name) {
+          return r;
+        }
+
+        const ret = clone(r);
+
+        ret.read_only = !r.read_only;
+        ret.data_version = result.new_data_version;
+
+        return ret;
+      })
+    );
+
+    handleReadOnlyClose(state);
   };
 
   const handleDeleteSubmit = async state => {
@@ -175,7 +213,7 @@ function ListReleases(props) {
       handleSubmit: handleReadOnlySubmit,
       handleClose: handleReadOnlyClose,
       handleError: handleReadOnlyError,
-      handleComplete: handleReadOnlyClose,
+      handleComplete: handleReadOnlyComplete,
     });
   };
 
