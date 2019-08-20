@@ -14,7 +14,7 @@ import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import CodeEditor from '../../../components/CodeEditor';
 import useAction from '../../../hooks/useAction';
-import { getReleases, getRelease, createRelease, deleteRelease } from '../../../services/releases';
+import { getReleases, getRelease, createRelease, deleteRelease, addScheduledChange } from '../../../services/releases';
 import { getProducts } from '../../../services/rules';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 
@@ -49,12 +49,13 @@ export default function Release(props) {
   const [release, fetchRelease] = useAction(getRelease);
   const [createRelAction, createRel] = useAction(createRelease);
   const [delReleaseAction, delRelease] = useAction(deleteRelease);
+  const [addSCAction, addSC] = useAction(addScheduledChange);
   const fetchReleases = useAction(getReleases)[1];
   const [products, fetchProducts] = useAction(getProducts);
   const isLoading = release.loading || products.loading;
   // TODO: Fill actionLoading when hooking up mutations
-  const actionLoading = createRelAction.loading || delReleaseAction.loading;
-  const error = release.error || products.error || createRelAction.error || delReleaseAction.error;
+  const actionLoading = createRelAction.loading || delReleaseAction.loading || addSCAction.loading;
+  const error = release.error || products.error || createRelAction.error || delReleaseAction.error || addSCAction.error;
 
   useEffect(() => {
     if (releaseName) {
@@ -71,6 +72,7 @@ export default function Release(props) {
               r => r.name === releaseName
             );
 
+            // TODO: uset he value from a scheduled change, if present
             setProductTextValue(r.product);
             setDataVersion(r.data_version);
             setHasRules(r.rule_ids.length > 0);
@@ -101,8 +103,22 @@ export default function Release(props) {
       props.history.push(`/releases#${releaseNameValue}`);
     }
   };
-  // TODO: should we make it possible to direct updates, or always schedule?
-  const handleReleaseUpdate = () => {};
+  const handleReleaseUpdate = async () => {
+    // todo: handle updating an existing scheduled change
+    const when = (new Date()).getTime() + 5000;
+    const { error } = await addSC({
+      change_type: 'update',
+      when,
+      name: releaseNameValue,
+      product: productTextValue,
+      data: releaseEditorValue,
+      data_version: dataVersion,
+    });
+
+    if (!error) {
+      props.history.push(`/releases#${releaseNameValue}`);
+    }
+  };
   const handleReleaseDelete = async () => {
     const { error } = await delRelease({
       name: releaseNameValue,

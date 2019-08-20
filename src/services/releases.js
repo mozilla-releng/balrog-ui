@@ -53,6 +53,7 @@ const getRevisions = (name, product) => {
 
 const createRelease = (name, product, blob) =>
   axios.post(`/releases`, { name, product, blob });
+const addScheduledChange = data => axios.post('/scheduled_changes/releases', data);
 
 // Releases factory
 // eslint-disable-next-line import/prefer-default-export
@@ -63,4 +64,5 @@ export {
   deleteRelease,
   getRevisions,
   createRelease,
+  addScheduledChange,
 };
