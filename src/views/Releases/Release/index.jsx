@@ -99,6 +99,7 @@ export default function Release(props) {
       {!isLoading && (
         <Fragment>
           <TextField
+            disabled={!isNewRelease}
             fullWidth
             label="Release"
             onChange={handleReleaseNameChange}
@@ -114,10 +115,10 @@ export default function Release(props) {
             }
             label="Product"
             required
+            disabled={!isNewRelease}
             inputProps={{
               autoFocus: true,
               fullWidth: true,
-              disabled: !isNewRelease,
             }}
           />
           <br />
