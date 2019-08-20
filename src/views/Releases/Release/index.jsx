@@ -14,7 +14,7 @@ import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import CodeEditor from '../../../components/CodeEditor';
 import useAction from '../../../hooks/useAction';
-import { getReleases, getRelease, createRelease } from '../../../services/releases';
+import { getReleases, getRelease, createRelease, deleteRelease } from '../../../services/releases';
 import { getProducts } from '../../../services/rules';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 
@@ -44,14 +44,17 @@ export default function Release(props) {
   const [releaseNameValue, setReleaseNameValue] = useState(releaseName || '');
   const [productTextValue, setProductTextValue] = useState('');
   const [releaseEditorValue, setReleaseEditorValue] = useState('{}');
+  const [dataVersion, setDataVersion] = useState(null);
+  const [hasRules, setHasRules] = useState(false);
   const [release, fetchRelease] = useAction(getRelease);
   const [createRelAction, createRel] = useAction(createRelease);
+  const [delReleaseAction, delRelease] = useAction(deleteRelease);
   const fetchReleases = useAction(getReleases)[1];
   const [products, fetchProducts] = useAction(getProducts);
   const isLoading = release.loading || products.loading;
   // TODO: Fill actionLoading when hooking up mutations
-  const actionLoading = createRelAction.loading;
-  const error = release.error || products.error || createRelAction.error;
+  const actionLoading = createRelAction.loading || delReleaseAction.loading;
+  const error = release.error || products.error || createRelAction.error || delReleaseAction.error;
 
   useEffect(() => {
     if (releaseName) {
@@ -69,6 +72,8 @@ export default function Release(props) {
             );
 
             setProductTextValue(r.product);
+            setDataVersion(r.data_version);
+            setHasRules(r.rule_ids.length > 0);
           }
         }
       );
@@ -96,8 +101,18 @@ export default function Release(props) {
       props.history.push(`/releases#${releaseNameValue}`);
     }
   };
+  // TODO: should we make it possible to direct updates, or always schedule?
   const handleReleaseUpdate = () => {};
-  const handleReleaseDelete = () => {};
+  const handleReleaseDelete = async () => {
+    const { error } = await delRelease({
+      name: releaseNameValue,
+      dataVersion,
+    });
+
+    if (!error) {
+      props.history.push('/releases');
+    };
+  };
 
   return (
     <Dashboard
@@ -155,7 +170,7 @@ export default function Release(props) {
             {!isNewRelease && (
               <SpeedDial ariaLabel="Secondary Actions">
                 <SpeedDialAction
-                  disabled={actionLoading}
+                  disabled={actionLoading || hasRules}
                   icon={<DeleteIcon />}
                   tooltipOpen
                   tooltipTitle="Delete Release"
