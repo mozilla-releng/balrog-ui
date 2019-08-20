@@ -1,6 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import classNames from 'classnames';
-import CodeEditor from '@mozilla-frontend-infra/components/CodeEditor';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -13,8 +12,9 @@ import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
 import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
+import CodeEditor from '../../../components/CodeEditor';
 import useAction from '../../../hooks/useAction';
-import { getRelease } from '../../../services/releases';
+import { getReleases, getRelease } from '../../../services/releases';
 import { getProducts } from '../../../services/rules';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 
@@ -45,6 +45,7 @@ export default function Release(props) {
   const [productTextValue, setProductTextValue] = useState('');
   const [releaseEditorValue, setReleaseEditorValue] = useState('{}');
   const [release, fetchRelease] = useAction(getRelease);
+  const fetchReleases = useAction(getReleases)[1];
   const [products, fetchProducts] = useAction(getProducts);
   const isLoading = release.loading || products.loading;
   // TODO: Fill actionLoading when hooking up mutations
@@ -53,15 +54,24 @@ export default function Release(props) {
 
   useEffect(() => {
     if (releaseName) {
-      fetchRelease(releaseName).then(({ data }) => {
-        if (data) {
-          setReleaseEditorValue(JSON.stringify(data.data, null, 2));
-          setProductTextValue(data.data.product);
+      Promise.all([fetchRelease(releaseName), fetchReleases()]).then(
+        ([fetchedRelease, fetchedReleases]) => {
+          if (fetchedRelease.data) {
+            setReleaseEditorValue(JSON.stringify(fetchedRelease.data, null, 2));
+          }
+
+          if (fetchedReleases.data) {
+            const r = fetchedReleases.data.data.releases.find(
+              r => r.name === releaseName
+            );
+
+            setProductTextValue(r.product);
+          }
         }
-      });
-    } else {
-      fetchProducts();
+      );
     }
+
+    fetchProducts();
   }, [releaseName]);
 
   const handleProductChange = value => {
@@ -113,7 +123,6 @@ export default function Release(props) {
           <br />
           <br />
           <CodeEditor
-            mode="json"
             onChange={handleReleaseEditorChange}
             value={releaseEditorValue}
           />
