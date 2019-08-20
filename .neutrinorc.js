@@ -35,12 +35,15 @@ module.exports = {
                            https://balrog-localdev.auth0.com for authentication.
                            note: this is different in stage/prod
               frame-src: https://balrog-localdev.auth0.com for background token refreshes
+              frame-ancestors: 'none' because nobody should be embedding this UI.
+              base-uri: 'none' because we don't have a <base> tag
+              form-action: 'none' because we don't submit forms
             */
-            'Content-Security-Policy': "default-src 'none'; script-src 'self' 'unsafe-eval'; img-src 'self' https://*.gravatar.com https://*.githubusercontent.com https://i1.wp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://localhost:8010 'self' https://balrog-localdev.auth0.com https://www.googleapis.com/; frame-src https://balrog-localdev.auth0.com",
+            'Content-Security-Policy': "default-src 'none'; script-src 'self' 'unsafe-eval'; img-src 'self' https://*.gravatar.com https://*.githubusercontent.com https://i1.wp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://localhost:8010 'self' https://balrog-localdev.auth0.com https://www.googleapis.com/; frame-src https://balrog-localdev.auth0.com; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
             'X-Frame-Options': 'SAMEORIGIN',
             'X-Content-Type-Options': 'nosniff',
             'X-XSS-Protection': '1; mode=block',
-            'Referrer-Policy': 'origin',
+            'Referrer-Policy': 'no-referrer',
             'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; always;',
           },
         },
