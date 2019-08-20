@@ -14,7 +14,7 @@ import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import CodeEditor from '../../../components/CodeEditor';
 import useAction from '../../../hooks/useAction';
-import { getReleases, getRelease, createRelease, deleteRelease, addScheduledChange, updateScheduledChange, getScheduledChangeByName, getScheduledChangeByScId } from '../../../services/releases';
+import { getReleases, getRelease, createRelease, addScheduledChange, updateScheduledChange, deleteScheduledChange, getScheduledChangeByName, getScheduledChangeByScId } from '../../../services/releases';
 import { getProducts } from '../../../services/rules';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 
@@ -50,9 +50,9 @@ export default function Release(props) {
   const [hasRules, setHasRules] = useState(false);
   const [release, fetchRelease] = useAction(getRelease);
   const [createRelAction, createRel] = useAction(createRelease);
-  const [delReleaseAction, delRelease] = useAction(deleteRelease);
   const [addSCAction, addSC] = useAction(addScheduledChange);
   const [updateSCAction, updateSC] = useAction(updateScheduledChange);
+  const [deleteSCAction, deleteSC] = useAction(deleteScheduledChange);
   const [scheduledChangeActionName, fetchScheduledChangeByName] = useAction(
     getScheduledChangeByName
   );
@@ -63,8 +63,8 @@ export default function Release(props) {
   const [products, fetchProducts] = useAction(getProducts);
   const isLoading = release.loading || products.loading || scheduledChangeActionName.loading || scheduledChangeActionScId.loading;
   // TODO: Fill actionLoading when hooking up mutations
-  const actionLoading = createRelAction.loading || delReleaseAction.loading || addSCAction.loading || updateSCAction.loading;
-  const error = release.error || products.error || createRelAction.error || delReleaseAction.error || addSCAction.error || updateSCAction.error || scheduledChangeActionName.error || scheduledChangeActionScId.error;
+  const actionLoading = createRelAction.loading || addSCAction.loading || updateSCAction.loading || deleteSCAction.loading;
+  const error = release.error || products.error || createRelAction.error || addSCAction.error || updateSCAction.error || deleteSCAction.error || scheduledChangeActionName.error || scheduledChangeActionScId.error;
 
   useEffect(() => {
     if (releaseName) {
@@ -158,14 +158,14 @@ export default function Release(props) {
       props.history.push(`/releases#${releaseNameValue}`);
     }
   };
-  const handleReleaseDelete = async () => {
-    const { error } = await delRelease({
-      name: releaseNameValue,
-      dataVersion,
+  const handleScheduledChangeDelete = async () => {
+    const { error } = await deleteSC({
+      scId,
+      scDataVersion,
     });
 
     if (!error) {
-      props.history.push('/releases');
+      props.history.push(`/releases#${releaseNameValue}`);
     };
   };
 
@@ -222,14 +222,14 @@ export default function Release(props) {
                 <ContentSaveIcon />
               </Fab>
             </Tooltip>
-            {!isNewRelease && (
+            {!isNewRelease && scId && (
               <SpeedDial ariaLabel="Secondary Actions">
                 <SpeedDialAction
-                  disabled={actionLoading || hasRules}
+                  disabled={actionLoading}
                   icon={<DeleteIcon />}
                   tooltipOpen
-                  tooltipTitle="Delete Release"
-                  onClick={handleReleaseDelete}
+                  tooltipTitle="Cancel Pending Change"
+                  onClick={handleScheduledChangeDelete}
                 />
               </SpeedDial>
             )}
