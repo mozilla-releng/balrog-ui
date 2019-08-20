@@ -14,10 +14,15 @@ export default path => [
   {
     component: Release,
     path: `${path}/create`,
+    isNewRelease: true,
   },
   {
     component: ListReleaseRevisions,
     path: `${path}/:releaseName/revisions`,
+  },
+  {
+    component: Release,
+    path: `${path}/:releaseName`,
   },
   {
     component: ListReleases,
