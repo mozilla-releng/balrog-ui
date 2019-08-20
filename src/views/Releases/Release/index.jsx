@@ -14,7 +14,15 @@ import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import CodeEditor from '../../../components/CodeEditor';
 import useAction from '../../../hooks/useAction';
-import { getReleases, getRelease, createRelease, addScheduledChange, updateScheduledChange, deleteScheduledChange, getScheduledChangeByName } from '../../../services/releases';
+import {
+  getReleases,
+  getRelease,
+  createRelease,
+  addScheduledChange,
+  updateScheduledChange,
+  deleteScheduledChange,
+  getScheduledChangeByName,
+} from '../../../services/releases';
 import { getProducts } from '../../../services/rules';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 
@@ -47,7 +55,6 @@ export default function Release(props) {
   const [scId, setScId] = useState(null);
   const [dataVersion, setDataVersion] = useState(null);
   const [scDataVersion, setScDataVersion] = useState(null);
-  const [hasRules, setHasRules] = useState(false);
   const [release, fetchRelease] = useAction(getRelease);
   const [createRelAction, createRel] = useAction(createRelease);
   const [addSCAction, addSC] = useAction(addScheduledChange);
@@ -58,9 +65,21 @@ export default function Release(props) {
   );
   const fetchReleases = useAction(getReleases)[1];
   const [products, fetchProducts] = useAction(getProducts);
-  const isLoading = release.loading || products.loading || scheduledChangeActionName.loading;
-  const actionLoading = createRelAction.loading || addSCAction.loading || updateSCAction.loading || deleteSCAction.loading;
-  const error = release.error || products.error || createRelAction.error || addSCAction.error || updateSCAction.error || deleteSCAction.error || scheduledChangeActionName.error;
+  const isLoading =
+    release.loading || products.loading || scheduledChangeActionName.loading;
+  const actionLoading =
+    createRelAction.loading ||
+    addSCAction.loading ||
+    updateSCAction.loading ||
+    deleteSCAction.loading;
+  const error =
+    release.error ||
+    products.error ||
+    createRelAction.error ||
+    addSCAction.error ||
+    updateSCAction.error ||
+    deleteSCAction.error ||
+    scheduledChangeActionName.error;
 
   useEffect(() => {
     if (releaseName) {
@@ -68,41 +87,30 @@ export default function Release(props) {
         fetchRelease(releaseName),
         fetchScheduledChangeByName(releaseName),
         fetchReleases(),
-      ]).then(
-        ([fetchedRelease, fetchedSC, fetchedReleases]) => {
-          if (fetchedSC.data.data.count > 0) {
-            const sc = fetchedSC.data.data.scheduled_changes[0];
-            setReleaseEditorValue(
-              JSON.stringify(sc.data, null, 2)
-            );
-            setProductTextValue(sc.product);
-            setDataVersion(sc.data_version);
-            setScId(sc.sc_id);
-            setScDataVersion(sc.sc_data_version);
-            if (sc.change_type !== 'insert' && fetchedReleases.data) {
-              const r = fetchedReleases.data.data.releases.find(
-                r => r.name === releaseName
-              );
+      ]).then(([fetchedRelease, fetchedSC, fetchedReleases]) => {
+        if (fetchedSC.data.data.count > 0) {
+          const sc = fetchedSC.data.data.scheduled_changes[0];
 
-              setHasRules(r.rule_ids.length > 0);
-            } 
-          } else {
-            setReleaseEditorValue(
-              JSON.stringify(fetchedRelease.data.data, null, 2)
+          setReleaseEditorValue(JSON.stringify(sc.data, null, 2));
+          setProductTextValue(sc.product);
+          setDataVersion(sc.data_version);
+          setScId(sc.sc_id);
+          setScDataVersion(sc.sc_data_version);
+        } else {
+          setReleaseEditorValue(
+            JSON.stringify(fetchedRelease.data.data, null, 2)
+          );
+
+          if (fetchedReleases.data) {
+            const r = fetchedReleases.data.data.releases.find(
+              r => r.name === releaseName
             );
 
-            if (fetchedReleases.data) {
-              const r = fetchedReleases.data.data.releases.find(
-                r => r.name === releaseName
-              );
-  
-              setProductTextValue(r.product);
-              setDataVersion(r.data_version);
-              setHasRules(r.rule_ids.length > 0);
-            }
+            setProductTextValue(r.product);
+            setDataVersion(r.data_version);
           }
         }
-      );
+      });
     }
 
     fetchProducts();
@@ -121,39 +129,46 @@ export default function Release(props) {
   };
 
   const handleReleaseCreate = async () => {
-    const { error } = await createRel(releaseNameValue, productTextValue, releaseEditorValue);
+    const { error } = await createRel(
+      releaseNameValue,
+      productTextValue,
+      releaseEditorValue
+    );
 
     if (!error) {
       props.history.push(`/releases#${releaseNameValue}`);
     }
   };
+
   const handleReleaseUpdate = async () => {
     // todo: handle updating an existing scheduled change
-    const when = (new Date()).getTime() + 5000;
+    const when = new Date().getTime() + 5000;
+    let error = null;
 
     if (scId) {
-      const { error } = await updateSC({
+      ({ error } = await updateSC({
         scId,
         when,
         sc_data_version: scDataVersion,
         data_version: dataVersion,
         data: releaseEditorValue,
-      });
+      }));
     } else {
-      const { error } = await addSC({
+      ({ error } = await addSC({
         change_type: 'update',
         when,
         name: releaseNameValue,
         product: productTextValue,
         data: releaseEditorValue,
         data_version: dataVersion,
-      });
+      }));
     }
 
     if (!error) {
       props.history.push(`/releases#${releaseNameValue}`);
     }
   };
+
   const handleScheduledChangeDelete = async () => {
     const { error } = await deleteSC({
       scId,
@@ -162,7 +177,7 @@ export default function Release(props) {
 
     if (!error) {
       props.history.push(`/releases#${releaseNameValue}`);
-    };
+    }
   };
 
   return (
