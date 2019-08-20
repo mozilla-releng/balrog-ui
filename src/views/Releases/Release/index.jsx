@@ -55,6 +55,7 @@ export default function Release(props) {
   const [scId, setScId] = useState(null);
   const [dataVersion, setDataVersion] = useState(null);
   const [scDataVersion, setScDataVersion] = useState(null);
+  const [isReadOnly, setIsReadOnly] = useState(false);
   const [release, fetchRelease] = useAction(getRelease);
   const [createRelAction, createRel] = useAction(createRelease);
   const [addSCAction, addSC] = useAction(addScheduledChange);
@@ -108,6 +109,7 @@ export default function Release(props) {
 
             setProductTextValue(r.product);
             setDataVersion(r.data_version);
+            setIsReadOnly(r.read_only);
           }
         }
       });
@@ -215,13 +217,14 @@ export default function Release(props) {
           <CodeEditor
             onChange={handleReleaseEditorChange}
             value={releaseEditorValue}
+            readOnly={isReadOnly}
           />
           <br />
           <br />
           <Fragment>
             <Tooltip title={isNewRelease ? 'Create Release' : 'Update Release'}>
               <Fab
-                disabled={actionLoading}
+                disabled={actionLoading || isReadOnly}
                 onClick={
                   isNewRelease ? handleReleaseCreate : handleReleaseUpdate
                 }
@@ -236,7 +239,7 @@ export default function Release(props) {
             {!isNewRelease && scId && (
               <SpeedDial ariaLabel="Secondary Actions">
                 <SpeedDialAction
-                  disabled={actionLoading}
+                  disabled={actionLoading || isReadOnly}
                   icon={<DeleteIcon />}
                   tooltipOpen
                   tooltipTitle="Cancel Pending Change"

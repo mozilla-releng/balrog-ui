@@ -4,7 +4,7 @@ import { Controlled as CodeMirror } from 'react-codemirror2';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
 
-function CodeEditor({ onChange, value, ...rest }) {
+function CodeEditor({ onChange, value, readOnly, ...rest }) {
   return (
     <CodeMirror
       value={value}
@@ -16,6 +16,7 @@ function CodeEditor({ onChange, value, ...rest }) {
         theme: 'material',
         indentWithTabs: false,
         lineNumbers: true,
+        readOnly,
       }}
       {...rest}
     />
