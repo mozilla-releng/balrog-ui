@@ -14,7 +14,7 @@ import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import CodeEditor from '../../../components/CodeEditor';
 import useAction from '../../../hooks/useAction';
-import { getReleases, getRelease, createRelease, deleteRelease, addScheduledChange } from '../../../services/releases';
+import { getReleases, getRelease, createRelease, deleteRelease, addScheduledChange, getScheduledChangeByName, getScheduledChangeByScId } from '../../../services/releases';
 import { getProducts } from '../../../services/rules';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 
@@ -45,37 +45,63 @@ export default function Release(props) {
   const [productTextValue, setProductTextValue] = useState('');
   const [releaseEditorValue, setReleaseEditorValue] = useState('{}');
   const [dataVersion, setDataVersion] = useState(null);
+  const [scDataVersion, setScDataVersion] = useState(null);
   const [hasRules, setHasRules] = useState(false);
+  const [hasScheduledChange, setHasScheduledChange] = useState(false);
   const [release, fetchRelease] = useAction(getRelease);
   const [createRelAction, createRel] = useAction(createRelease);
   const [delReleaseAction, delRelease] = useAction(deleteRelease);
   const [addSCAction, addSC] = useAction(addScheduledChange);
+  const [scheduledChangeActionName, fetchScheduledChangeByName] = useAction(
+    getScheduledChangeByName
+  );
+  const [scheduledChangeActionScId, fetchScheduledChangeByScId] = useAction(
+    getScheduledChangeByScId
+  );
   const fetchReleases = useAction(getReleases)[1];
   const [products, fetchProducts] = useAction(getProducts);
-  const isLoading = release.loading || products.loading;
+  const isLoading = release.loading || products.loading || scheduledChangeActionName.loading || scheduledChangeActionScId.loading;
   // TODO: Fill actionLoading when hooking up mutations
   const actionLoading = createRelAction.loading || delReleaseAction.loading || addSCAction.loading;
-  const error = release.error || products.error || createRelAction.error || delReleaseAction.error || addSCAction.error;
+  const error = release.error || products.error || createRelAction.error || delReleaseAction.error || addSCAction.error || scheduledChangeActionName.error || scheduledChangeActionScId.error;
 
   useEffect(() => {
     if (releaseName) {
-      Promise.all([fetchRelease(releaseName), fetchReleases()]).then(
-        ([fetchedRelease, fetchedReleases]) => {
-          if (fetchedRelease.data) {
+      Promise.all([
+        fetchRelease(releaseName),
+        fetchScheduledChangeByName(releaseName),
+        fetchReleases(),
+      ]).then(
+        ([fetchedRelease, fetchedSC, fetchedReleases]) => {
+          if (fetchedSC.data.data.count > 0) {
+            const sc = fetchedSC.data.data.scheduled_changes[0];
+            setReleaseEditorValue(
+              JSON.stringify(sc.data, null, 2)
+            );
+            setProductTextValue(sc.product);
+            setScDataVersion(sc.data_version);
+            setHasScheduledChange(true);
+            if (sc.change_type !== 'insert' && fetchedReleases.data) {
+              const r = fetchedReleases.data.data.releases.find(
+                r => r.name === releaseName
+              );
+
+              setHasRules(r.rule_ids.length > 0);
+            } 
+          } else {
             setReleaseEditorValue(
               JSON.stringify(fetchedRelease.data.data, null, 2)
             );
-          }
 
-          if (fetchedReleases.data) {
-            const r = fetchedReleases.data.data.releases.find(
-              r => r.name === releaseName
-            );
-
-            // TODO: uset he value from a scheduled change, if present
-            setProductTextValue(r.product);
-            setDataVersion(r.data_version);
-            setHasRules(r.rule_ids.length > 0);
+            if (fetchedReleases.data) {
+              const r = fetchedReleases.data.data.releases.find(
+                r => r.name === releaseName
+              );
+  
+              setProductTextValue(r.product);
+              setDataVersion(r.data_version);
+              setHasRules(r.rule_ids.length > 0);
+            }
           }
         }
       );

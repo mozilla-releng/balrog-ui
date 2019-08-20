@@ -51,6 +51,10 @@ const getRevisions = (name, product) => {
   return getReleases(`${bucket}?prefix=${name}/&delimeter=/`);
 };
 
+const getScheduledChangeByName = name =>
+  axios.get(`/scheduled_changes/releases?name=${name}`);
+const getScheduledChangeByScId = scId =>
+  axios.get(`/scheduled_changes/releases/${scId}`);
 const createRelease = (name, product, blob) =>
   axios.post(`/releases`, { name, product, blob });
 const addScheduledChange = data => axios.post('/scheduled_changes/releases', data);
@@ -63,6 +67,8 @@ export {
   getReleaseNames,
   deleteRelease,
   getRevisions,
+  getScheduledChangeByName,
+  getScheduledChangeByScId,
   createRelease,
   addScheduledChange,
 };
