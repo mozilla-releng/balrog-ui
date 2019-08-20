@@ -51,6 +51,9 @@ const getRevisions = (name, product) => {
   return getReleases(`${bucket}?prefix=${name}/&delimeter=/`);
 };
 
+const createRelease = (name, product, blob) =>
+  axios.post(`/releases`, { name, product, blob });
+
 // Releases factory
 // eslint-disable-next-line import/prefer-default-export
 export {
@@ -59,4 +62,5 @@ export {
   getReleaseNames,
   deleteRelease,
   getRevisions,
+  createRelease,
 };

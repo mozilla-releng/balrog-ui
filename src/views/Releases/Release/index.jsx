@@ -14,7 +14,7 @@ import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import CodeEditor from '../../../components/CodeEditor';
 import useAction from '../../../hooks/useAction';
-import { getReleases, getRelease } from '../../../services/releases';
+import { getReleases, getRelease, createRelease } from '../../../services/releases';
 import { getProducts } from '../../../services/rules';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 
@@ -45,12 +45,13 @@ export default function Release(props) {
   const [productTextValue, setProductTextValue] = useState('');
   const [releaseEditorValue, setReleaseEditorValue] = useState('{}');
   const [release, fetchRelease] = useAction(getRelease);
+  const [createRelAction, createRel] = useAction(createRelease);
   const fetchReleases = useAction(getReleases)[1];
   const [products, fetchProducts] = useAction(getProducts);
   const isLoading = release.loading || products.loading;
   // TODO: Fill actionLoading when hooking up mutations
-  const actionLoading = false;
-  const error = release.error || products.error;
+  const actionLoading = createRelAction.loading;
+  const error = release.error || products.error || createRelAction.error;
 
   useEffect(() => {
     if (releaseName) {
@@ -88,8 +89,13 @@ export default function Release(props) {
     setReleaseEditorValue(value);
   };
 
-  // TODO: Add mutations
-  const handleReleaseCreate = () => {};
+  const handleReleaseCreate = async () => {
+    const { error } = await createRel(releaseNameValue, productTextValue, releaseEditorValue);
+
+    if (!error) {
+      props.history.push(`/releases#${releaseNameValue}`);
+    }
+  };
   const handleReleaseUpdate = () => {};
   const handleReleaseDelete = () => {};
 
