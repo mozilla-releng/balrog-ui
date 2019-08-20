@@ -57,7 +57,9 @@ export default function Release(props) {
       Promise.all([fetchRelease(releaseName), fetchReleases()]).then(
         ([fetchedRelease, fetchedReleases]) => {
           if (fetchedRelease.data) {
-            setReleaseEditorValue(JSON.stringify(fetchedRelease.data, null, 2));
+            setReleaseEditorValue(
+              JSON.stringify(fetchedRelease.data.data, null, 2)
+            );
           }
 
           if (fetchedReleases.data) {
