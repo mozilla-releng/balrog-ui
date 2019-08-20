@@ -58,6 +58,8 @@ const getScheduledChangeByScId = scId =>
 const createRelease = (name, product, blob) =>
   axios.post(`/releases`, { name, product, blob });
 const addScheduledChange = data => axios.post('/scheduled_changes/releases', data);
+const updateScheduledChange = ({ scId, ...data }) =>
+  axios.post(`/scheduled_changes/releases/${scId}`, data);
 
 // Releases factory
 // eslint-disable-next-line import/prefer-default-export
@@ -71,4 +73,5 @@ export {
   getScheduledChangeByScId,
   createRelease,
   addScheduledChange,
+  updateScheduledChange,
 };
