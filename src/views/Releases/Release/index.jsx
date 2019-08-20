@@ -14,7 +14,7 @@ import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import CodeEditor from '../../../components/CodeEditor';
 import useAction from '../../../hooks/useAction';
-import { getReleases, getRelease, createRelease, addScheduledChange, updateScheduledChange, deleteScheduledChange, getScheduledChangeByName, getScheduledChangeByScId } from '../../../services/releases';
+import { getReleases, getRelease, createRelease, addScheduledChange, updateScheduledChange, deleteScheduledChange, getScheduledChangeByName } from '../../../services/releases';
 import { getProducts } from '../../../services/rules';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 
@@ -56,15 +56,11 @@ export default function Release(props) {
   const [scheduledChangeActionName, fetchScheduledChangeByName] = useAction(
     getScheduledChangeByName
   );
-  const [scheduledChangeActionScId, fetchScheduledChangeByScId] = useAction(
-    getScheduledChangeByScId
-  );
   const fetchReleases = useAction(getReleases)[1];
   const [products, fetchProducts] = useAction(getProducts);
-  const isLoading = release.loading || products.loading || scheduledChangeActionName.loading || scheduledChangeActionScId.loading;
-  // TODO: Fill actionLoading when hooking up mutations
+  const isLoading = release.loading || products.loading || scheduledChangeActionName.loading;
   const actionLoading = createRelAction.loading || addSCAction.loading || updateSCAction.loading || deleteSCAction.loading;
-  const error = release.error || products.error || createRelAction.error || addSCAction.error || updateSCAction.error || deleteSCAction.error || scheduledChangeActionName.error || scheduledChangeActionScId.error;
+  const error = release.error || products.error || createRelAction.error || addSCAction.error || updateSCAction.error || deleteSCAction.error || scheduledChangeActionName.error;
 
   useEffect(() => {
     if (releaseName) {
