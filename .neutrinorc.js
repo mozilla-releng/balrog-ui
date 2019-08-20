@@ -26,6 +26,8 @@ module.exports = {
               img-src: gravatar & githubusercontent & i1.wp.com for user avatars
                        (which can't be locked down to a specific path due to CSP format)
               style-src: https://fonts.googleapis.com for dynamically loaded fonts
+                         'unsafe-inline' because styled components need them
+                         TODO: we should look into using a nonce or hash to avoid this
               font-src: https://fonts.gstatic.com for fonts!
               connect-src: https://localhost:8010 for the backend api
                            https://www.googleapis.com/ for releases history
