@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { func } from 'prop-types';
+import { func, bool } from 'prop-types';
 import { formatDistanceStrict } from 'date-fns';
 import { makeStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
@@ -22,6 +22,8 @@ import Divider from '@material-ui/core/Divider';
 import HistoryIcon from 'mdi-react/HistoryIcon';
 import LinkIcon from 'mdi-react/LinkIcon';
 import Button from '../Button';
+import SignoffSummary from '../SignoffSummary';
+import { withUser } from '../../utils/AuthContext';
 import Link from '../../utils/Link';
 import { release } from '../../utils/prop-types';
 
@@ -110,18 +112,28 @@ const useStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(1),
     marginBottom: 1,
   },
+  space: {
+    paddingTop: theme.spacing(2),
+  },
 }));
 
 function ReleaseCard(props) {
   const {
     release,
+    user,
+    readOnly,
     onAccessChange,
     onReleaseDelete,
     onViewScheduledChangeDiff,
+    onAuthorize,
+    onUnauthorize,
     ...rest
   } = props;
   const classes = useStyles();
   const hasRulesPointingAtRevision = release.rule_ids.length > 0;
+  const requiresSignoff =
+    release.scheduledChange &&
+    Object.keys(release.scheduledChange.required_signoffs).length > 0;
   const handleAccessChange = ({ target: { checked } }) => {
     onAccessChange({ release, checked });
   };
@@ -249,6 +261,13 @@ function ReleaseCard(props) {
             </Button>
           </Fragment>
         )}
+        {!readOnly && requiresSignoff && (
+          <SignoffSummary
+            requiredSignoffs={release.scheduledChange.required_signoffs}
+            signoffs={release.scheduledChange.signoffs}
+            className={classes.space}
+          />
+        )}
       </CardContent>
       <CardActions className={classes.cardActions}>
         <Link className={classes.link} to={`/releases/${release.name}`}>
@@ -273,6 +292,11 @@ ReleaseCard.propTypes = {
   release: release.isRequired,
   onAccessChange: func.isRequired,
   onViewScheduledChangeDiff: func.isRequired,
+  readOnly: bool,
 };
 
-export default ReleaseCard;
+ReleaseCard.defaultProps = {
+  readOnly: false,
+};
+
+export default withUser(ReleaseCard);
