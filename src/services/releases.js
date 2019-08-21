@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { stringify } from 'qs';
 
 const getReleases = () => axios.get('/releases');
 const getRelease = name => axios.get(`/releases/${encodeURIComponent(name)}`);
@@ -56,6 +57,14 @@ const getRevisions = (name, product) => {
   return getReleases(`${bucket}?prefix=${name}/&delimeter=/`);
 };
 
+const getScheduledChanges = all => {
+  if (all === true) {
+    return axios.get(`/scheduled_changes/releases?${stringify({ all: 1 })}`);
+  }
+
+  return axios.get('/scheduled_changes/releases');
+};
+
 // Releases factory
 // eslint-disable-next-line import/prefer-default-export
 export {
@@ -65,4 +74,5 @@ export {
   deleteRelease,
   setReadOnly,
   getRevisions,
+  getScheduledChanges,
 };

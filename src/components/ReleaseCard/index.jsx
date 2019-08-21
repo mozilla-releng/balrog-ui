@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { func } from 'prop-types';
+import { formatDistanceStrict } from 'date-fns';
 import { makeStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -10,12 +11,14 @@ import CardHeader from '@material-ui/core/CardHeader';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Chip from '@material-ui/core/Chip';
+import UpdateIcon from 'mdi-react/UpdateIcon';
 import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
+import Divider from '@material-ui/core/Divider';
 import HistoryIcon from 'mdi-react/HistoryIcon';
 import LinkIcon from 'mdi-react/LinkIcon';
 import Button from '../Button';
@@ -89,6 +92,23 @@ const useStyles = makeStyles(theme => ({
   },
   link: {
     ...theme.mixins.link,
+  },
+  divider: {
+    margin: `${theme.spacing(1)}px`,
+  },
+  scheduledChangesHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  scheduledChangesTitle: {
+    padding: `0 ${theme.spacing(1)}px`,
+  },
+  changeTimeChip: {
+    height: theme.spacing(3),
+  },
+  changeTimeChipIcon: {
+    marginLeft: theme.spacing(1),
+    marginBottom: 1,
   },
 }));
 
@@ -191,6 +211,28 @@ function ReleaseCard(props) {
             </Grid>
           </Grid>
         </List>
+        {release.scheduledChange && (
+          <Fragment>
+            <Divider className={classes.divider} />
+            <div className={classes.scheduledChangesHeader}>
+              <Typography
+                className={classes.scheduledChangesTitle}
+                component="h4"
+                variant="subtitle1">
+                Scheduled Changes
+              </Typography>
+              <Chip
+                className={classes.changeTimeChip}
+                icon={<UpdateIcon className={classes.changeTimeChipIcon} size={16} />}
+                label={`${formatDistanceStrict(
+                  release.scheduledChange.when,
+                  new Date(),
+                  { addSuffix: true }
+                )} (${release.scheduledChange.change_type})`}
+              />
+            </div>
+          </Fragment>
+        )}
       </CardContent>
       <CardActions className={classes.cardActions}>
         <Link className={classes.link} to={`/releases/${release.name}`}>

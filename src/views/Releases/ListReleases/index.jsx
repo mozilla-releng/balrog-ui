@@ -15,6 +15,7 @@ import {
   getReleases,
   deleteRelease,
   setReadOnly,
+  getScheduledChanges,
 } from '../../../services/releases';
 import VariableSizeList from '../../../components/VariableSizeList';
 import SearchBar from '../../../components/SearchBar';
@@ -55,11 +56,14 @@ function ListReleases(props) {
   const [snackbarState, setSnackbarState] = useState(SNACKBAR_INITIAL_STATE);
   const [releases, setReleases] = useState([]);
   const [releasesAction, fetchReleases] = useAction(getReleases);
+  const [scheduledChangesAction, fetchScheduledChanges] = useAction(
+    getScheduledChanges
+  );
   const delRelease = useAction(deleteRelease)[1];
   const setReadOnlyFlag = useAction(setReadOnly)[1];
-  const isLoading = releasesAction.loading;
+  const isLoading = releasesAction.loading || scheduledChangesAction.loading;
   // eslint-disable-next-line prefer-destructuring
-  const error = releasesAction.error;
+  const error = releasesAction.error || scheduledChangesAction.error;
   const filteredReleases = useMemo(() => {
     if (!releases) {
       return [];
@@ -76,8 +80,26 @@ function ListReleases(props) {
   const filteredReleasesCount = filteredReleases.length;
 
   useEffect(() => {
-    fetchReleases().then(r => {
-      setReleases(r.data.data.releases);
+    Promise.all([
+      fetchReleases(),
+      fetchScheduledChanges(),
+    ]).then(([relData, scData]) => {
+      setReleases(relData.data.data.releases.map(r => {
+        const sc = scData.data.data.scheduled_changes.find(sc => r.name === sc.name);
+        const release = clone(r);
+
+        if (sc) {
+          release.scheduledChange = sc;
+          release.scheduledChange.when = new Date(
+            release.scheduledChange.when
+          );
+        }
+
+        // todo: set these
+        release.required_signoffs = {};
+
+        return release;
+      }));
     });
   }, []);
 
@@ -273,6 +295,9 @@ function ListReleases(props) {
     height += buttonHeight + theme.spacing(2);
     // space below the card (margin)
     height += theme.spacing(6);
+
+    // TODO: proper calculations for scheduled changes
+    height += theme.spacing(20);
 
     return height;
   };
