@@ -5,6 +5,11 @@ const getRelease = name => axios.get(`/releases/${encodeURIComponent(name)}`);
 const getReleaseNames = () => axios.get(`/releases?names_only=1`);
 const deleteRelease = ({ name, dataVersion }) =>
   axios.delete(`/releases/${name}`, { params: { data_version: dataVersion } });
+const setReadOnly = ({ name, readOnly, dataVersion }) =>
+  axios.put(`/releases/${name}/read_only`, {
+    read_only: readOnly,
+    data_version: dataVersion,
+  });
 const getRevisions = (name, product) => {
   const releases = [];
   const bucket = name.includes('nightly')
@@ -72,6 +77,7 @@ export {
   getRelease,
   getReleaseNames,
   deleteRelease,
+  setReadOnly,
   getRevisions,
   getScheduledChangeByName,
   createRelease,
