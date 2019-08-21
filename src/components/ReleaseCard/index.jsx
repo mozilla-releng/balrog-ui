@@ -194,8 +194,8 @@ function ReleaseCard(props) {
       </CardContent>
       <CardActions className={classes.cardActions}>
         <Link className={classes.link} to={`/releases/${release.name}`}>
-          <Button disabled={release.read_only} color="secondary">
-            Update
+          <Button color="secondary">
+            {release.read_only ? 'View' : 'Update'}
           </Button>
         </Link>
         {!hasRulesPointingAtRevision && (

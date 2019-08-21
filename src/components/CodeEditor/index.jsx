@@ -1,10 +1,10 @@
 import React from 'react';
-import { string, func } from 'prop-types';
+import { string, func, bool } from 'prop-types';
 import { Controlled as CodeMirror } from 'react-codemirror2';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
 
-function CodeEditor({ onChange, value, ...rest }) {
+function CodeEditor({ onChange, value, readOnly, ...rest }) {
   return (
     <CodeMirror
       value={value}
@@ -16,6 +16,7 @@ function CodeEditor({ onChange, value, ...rest }) {
         theme: 'material',
         indentWithTabs: false,
         lineNumbers: true,
+        readOnly: readOnly ? 'nocursor' : false,
       }}
       {...rest}
     />
@@ -25,6 +26,11 @@ function CodeEditor({ onChange, value, ...rest }) {
 CodeEditor.propTypes = {
   onChange: func.isRequired,
   value: string.isRequired,
+  readOnly: bool,
+};
+
+CodeEditor.defaultProps = {
+  readOnly: false,
 };
 
 export default CodeEditor;

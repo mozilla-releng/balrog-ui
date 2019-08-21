@@ -44,6 +44,7 @@ export default function Release(props) {
   const [releaseNameValue, setReleaseNameValue] = useState(releaseName || '');
   const [productTextValue, setProductTextValue] = useState('');
   const [releaseEditorValue, setReleaseEditorValue] = useState('{}');
+  const [isReadOnly, setIsReadOnly] = useState(false);
   const [release, fetchRelease] = useAction(getRelease);
   const fetchReleases = useAction(getReleases)[1];
   const [products, fetchProducts] = useAction(getProducts);
@@ -68,6 +69,7 @@ export default function Release(props) {
             );
 
             setProductTextValue(r.product);
+            setIsReadOnly(r.read_only);
           }
         }
       );
@@ -128,13 +130,14 @@ export default function Release(props) {
           <CodeEditor
             onChange={handleReleaseEditorChange}
             value={releaseEditorValue}
+            readOnly={isReadOnly}
           />
           <br />
           <br />
           <Fragment>
             <Tooltip title={isNewRelease ? 'Create Release' : 'Update Release'}>
               <Fab
-                disabled={actionLoading}
+                disabled={actionLoading || isReadOnly}
                 onClick={
                   isNewRelease ? handleReleaseCreate : handleReleaseUpdate
                 }
@@ -149,7 +152,7 @@ export default function Release(props) {
             {!isNewRelease && (
               <SpeedDial ariaLabel="Secondary Actions">
                 <SpeedDialAction
-                  disabled={actionLoading}
+                  disabled={actionLoading || isReadOnly}
                   icon={<DeleteIcon />}
                   tooltipOpen
                   tooltipTitle="Delete Release"
