@@ -113,7 +113,13 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function ReleaseCard(props) {
-  const { release, onAccessChange, onReleaseDelete, ...rest } = props;
+  const {
+    release,
+    onAccessChange,
+    onReleaseDelete,
+    onViewScheduledChangeDiff,
+    ...rest
+  } = props;
   const classes = useStyles();
   const hasRulesPointingAtRevision = release.rule_ids.length > 0;
   const handleAccessChange = ({ target: { checked } }) => {
@@ -223,7 +229,12 @@ function ReleaseCard(props) {
               </Typography>
               <Chip
                 className={classes.changeTimeChip}
-                icon={<UpdateIcon className={classes.changeTimeChipIcon} size={16} />}
+                icon={
+                  <UpdateIcon
+                    className={classes.changeTimeChipIcon}
+                    size={16}
+                  />
+                }
                 label={`${formatDistanceStrict(
                   release.scheduledChange.when,
                   new Date(),
@@ -231,6 +242,11 @@ function ReleaseCard(props) {
                 )} (${release.scheduledChange.change_type})`}
               />
             </div>
+            <Button
+              color="secondary"
+              onClick={() => onViewScheduledChangeDiff(release)}>
+              View Diff
+            </Button>
           </Fragment>
         )}
       </CardContent>
@@ -256,6 +272,7 @@ function ReleaseCard(props) {
 ReleaseCard.propTypes = {
   release: release.isRequired,
   onAccessChange: func.isRequired,
+  onViewScheduledChangeDiff: func.isRequired,
 };
 
 export default ReleaseCard;

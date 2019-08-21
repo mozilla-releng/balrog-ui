@@ -5,6 +5,7 @@ import PlusIcon from 'mdi-react/PlusIcon';
 import { makeStyles, useTheme } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
+import Drawer from '@material-ui/core/Drawer';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
@@ -13,6 +14,7 @@ import useAction from '../../../hooks/useAction';
 import Link from '../../../utils/Link';
 import {
   getReleases,
+  getRelease,
   deleteRelease,
   setReadOnly,
   getScheduledChanges,
@@ -20,8 +22,10 @@ import {
 import VariableSizeList from '../../../components/VariableSizeList';
 import SearchBar from '../../../components/SearchBar';
 import DialogAction from '../../../components/DialogAction';
+import DiffRelease from '../../../components/DiffRelease';
 import Snackbar from '../../../components/Snackbar';
 import {
+  CONTENT_MAX_WIDTH,
   DIALOG_ACTION_INITIAL_STATE,
   SNACKBAR_INITIAL_STATE,
 } from '../../../utils/constants';
@@ -36,6 +40,12 @@ const useStyles = makeStyles(theme => ({
   },
   releaseCardSelected: {
     border: `2px solid ${theme.palette.primary.light}`,
+  },
+  drawerPaper: {
+    maxWidth: CONTENT_MAX_WIDTH,
+    margin: '0 auto',
+    padding: theme.spacing(1),
+    maxHeight: '80vh',
   },
 }));
 
@@ -55,7 +65,9 @@ function ListReleases(props) {
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [snackbarState, setSnackbarState] = useState(SNACKBAR_INITIAL_STATE);
   const [releases, setReleases] = useState([]);
+  const [drawerState, setDrawerState] = useState({ open: false, item: {} });
   const [releasesAction, fetchReleases] = useAction(getReleases);
+  const [releaseAction, fetchRelease] = useAction(getRelease);
   const [scheduledChangesAction, fetchScheduledChanges] = useAction(
     getScheduledChanges
   );
@@ -63,7 +75,8 @@ function ListReleases(props) {
   const setReadOnlyFlag = useAction(setReadOnly)[1];
   const isLoading = releasesAction.loading || scheduledChangesAction.loading;
   // eslint-disable-next-line prefer-destructuring
-  const error = releasesAction.error || scheduledChangesAction.error;
+  const error =
+    releasesAction.error || scheduledChangesAction.error || releaseAction.error;
   const filteredReleases = useMemo(() => {
     if (!releases) {
       return [];
@@ -80,27 +93,30 @@ function ListReleases(props) {
   const filteredReleasesCount = filteredReleases.length;
 
   useEffect(() => {
-    Promise.all([
-      fetchReleases(),
-      fetchScheduledChanges(),
-    ]).then(([relData, scData]) => {
-      setReleases(relData.data.data.releases.map(r => {
-        const sc = scData.data.data.scheduled_changes.find(sc => r.name === sc.name);
-        const release = clone(r);
+    Promise.all([fetchReleases(), fetchScheduledChanges()]).then(
+      ([relData, scData]) => {
+        setReleases(
+          relData.data.data.releases.map(r => {
+            const sc = scData.data.data.scheduled_changes.find(
+              sc => r.name === sc.name
+            );
+            const release = clone(r);
 
-        if (sc) {
-          release.scheduledChange = sc;
-          release.scheduledChange.when = new Date(
-            release.scheduledChange.when
-          );
-        }
+            if (sc) {
+              release.scheduledChange = sc;
+              release.scheduledChange.when = new Date(
+                release.scheduledChange.when
+              );
+            }
 
-        // todo: set these
-        release.required_signoffs = {};
+            // todo: set these
+            release.required_signoffs = {};
 
-        return release;
-      }));
-    });
+            return release;
+          })
+        );
+      }
+    );
   }, []);
 
   useEffect(() => {
@@ -117,6 +133,13 @@ function ListReleases(props) {
       }
     }
   }, [hash, filteredReleases]);
+
+  const handleDrawerClose = () => {
+    setDrawerState({
+      ...drawerState,
+      open: false,
+    });
+  };
 
   const handleSnackbarOpen = ({ message, variant = 'success' }) => {
     setSnackbarState({ message, variant, open: true });
@@ -254,6 +277,21 @@ function ListReleases(props) {
     });
   };
 
+  const handleViewScheduledChangeDiff = async release => {
+    const result = await fetchRelease(release.name);
+
+    setDrawerState({
+      ...drawerState,
+      item: {
+        firstRelease: result.data.data,
+        secondRelease: release.scheduledChange.data,
+        firstFilename: `Data Version: ${release.data_version}`,
+        secondFilename: 'Scheduled Change',
+      },
+      open: true,
+    });
+  };
+
   const Row = ({ index, style }) => {
     const release = filteredReleases[index];
 
@@ -266,6 +304,7 @@ function ListReleases(props) {
           release={release}
           onAccessChange={handleAccessChange}
           onReleaseDelete={handleDelete}
+          onViewScheduledChangeDiff={handleViewScheduledChangeDiff}
         />
       </div>
     );
@@ -330,6 +369,18 @@ function ListReleases(props) {
         onError={error => dialogState.handleError(dialogState, error)}
         onComplete={name => dialogState.handleComplete(dialogState, name)}
       />
+      <Drawer
+        classes={{ paper: classes.drawerPaper }}
+        anchor="bottom"
+        open={drawerState.open}
+        onClose={handleDrawerClose}>
+        <DiffRelease
+          firstRelease={drawerState.item.firstRelease}
+          secondRelease={drawerState.item.secondRelease}
+          firstFilename={drawerState.item.firstFilename}
+          secondFilename={drawerState.item.secondFilename}
+        />
+      </Drawer>
       <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
       {!isLoading && (
         <Link to="/releases/create">
