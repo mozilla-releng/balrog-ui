@@ -6,6 +6,10 @@ import { makeStyles, useTheme } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
 import Drawer from '@material-ui/core/Drawer';
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControl from '@material-ui/core/FormControl';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
@@ -19,6 +23,8 @@ import {
   setReadOnly,
   getScheduledChanges,
 } from '../../../services/releases';
+import { getUserInfo } from '../../../services/users';
+import { makeSignoff, revokeSignoff } from '../../../services/signoffs';
 import VariableSizeList from '../../../components/VariableSizeList';
 import SearchBar from '../../../components/SearchBar';
 import DialogAction from '../../../components/DialogAction';
@@ -29,6 +35,7 @@ import {
   DIALOG_ACTION_INITIAL_STATE,
   SNACKBAR_INITIAL_STATE,
 } from '../../../utils/constants';
+import { withUser } from '../../../utils/AuthContext';
 import elementsHeight from '../../../utils/elementsHeight';
 
 const useStyles = makeStyles(theme => ({
@@ -52,6 +59,7 @@ const useStyles = makeStyles(theme => ({
 function ListReleases(props) {
   const classes = useStyles();
   const theme = useTheme();
+  const username = (props.user && props.user.email) || '';
   const {
     buttonHeight,
     body1TextHeight,
@@ -65,6 +73,8 @@ function ListReleases(props) {
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [snackbarState, setSnackbarState] = useState(SNACKBAR_INITIAL_STATE);
   const [releases, setReleases] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [signoffRole, setSignoffRole] = useState('');
   const [drawerState, setDrawerState] = useState({ open: false, item: {} });
   const [releasesAction, fetchReleases] = useAction(getReleases);
   const [releaseAction, fetchRelease] = useAction(getRelease);
@@ -73,10 +83,22 @@ function ListReleases(props) {
   );
   const delRelease = useAction(deleteRelease)[1];
   const setReadOnlyFlag = useAction(setReadOnly)[1];
+  const [signoffAction, signoff] = useAction(props =>
+    makeSignoff({ type: 'releases', ...props })
+  );
+  const [revokeAction, revoke] = useAction(props =>
+    revokeSignoff({ type: 'releases', ...props })
+  );
+  const [rolesAction, fetchRoles] = useAction(getUserInfo);
   const isLoading = releasesAction.loading || scheduledChangesAction.loading;
   // eslint-disable-next-line prefer-destructuring
   const error =
-    releasesAction.error || scheduledChangesAction.error || releaseAction.error;
+    releasesAction.error ||
+    scheduledChangesAction.error ||
+    rolesAction.error ||
+    releaseAction.error ||
+    revokeAction.error ||
+    (roles.length === 1 && signoffAction.error);
   const filteredReleases = useMemo(() => {
     if (!releases) {
       return [];
@@ -91,6 +113,8 @@ function ListReleases(props) {
     );
   }, [releases, searchValue]);
   const filteredReleasesCount = filteredReleases.length;
+  const handleSignoffRoleChange = ({ target: { value } }) =>
+    setSignoffRole(value);
 
   useEffect(() => {
     Promise.all([fetchReleases(), fetchScheduledChanges()]).then(
@@ -118,6 +142,21 @@ function ListReleases(props) {
       }
     );
   }, []);
+
+  useEffect(() => {
+    if (username) {
+      fetchRoles(username).then(userInfo => {
+        const roleList =
+          (userInfo.data && Object.keys(userInfo.data.data.roles)) || [];
+
+        setRoles(roleList);
+
+        if (roleList.length > 0) {
+          setSignoffRole(roleList[0]);
+        }
+      });
+    }
+  }, [username]);
 
   useEffect(() => {
     if (hash !== releaseNameHash && filteredReleasesCount) {
@@ -157,6 +196,23 @@ function ListReleases(props) {
     setSearchValue(value);
   };
 
+  // Setting state like this ends up with an error in the console:
+  // Failed prop type: The prop `confirmText` is marked as required
+  // in `DialogAction`, but its value is `undefined`
+  const handleDialogClose = state => {
+    setDialogState({
+      ...state,
+      open: false,
+    });
+  };
+
+  const handleDialogError = (state, error) => {
+    setDialogState({
+      ...state,
+      error,
+    });
+  };
+
   const handleReadOnlySubmit = async state => {
     const release = state.item;
     const { error, data } = await setReadOnlyFlag({
@@ -170,20 +226,6 @@ function ListReleases(props) {
     }
 
     return { name: release.name, new_data_version: data.data.new_data_version };
-  };
-
-  const handleReadOnlyClose = state => {
-    setDialogState({
-      ...state,
-      open: false,
-    });
-  };
-
-  const handleReadOnlyError = (state, error) => {
-    setDialogState({
-      ...state,
-      error,
-    });
   };
 
   const handleReadOnlyComplete = (state, result) => {
@@ -202,7 +244,7 @@ function ListReleases(props) {
       })
     );
 
-    handleReadOnlyClose(state);
+    handleDialogClose(state);
   };
 
   const handleDeleteSubmit = async state => {
@@ -219,30 +261,56 @@ function ListReleases(props) {
     return release.name;
   };
 
-  // Setting state like this ends up with an error in the console:
-  // Failed prop type: The prop `confirmText` is marked as required
-  // in `DialogAction`, but its value is `undefined`
-  const handleDeleteClose = state => {
-    setDialogState({
-      ...state,
-      open: false,
-    });
-  };
-
   const handleDeleteComplete = (state, name) => {
     setReleases(releases.filter(r => r.name !== name));
     handleSnackbarOpen({
       message: `${name} deleted`,
     });
 
-    handleDeleteClose(state);
+    handleDialogClose(state);
   };
 
-  const handleDeleteError = (state, error) => {
-    setDialogState({
-      ...state,
-      error,
+  const updateSignoffs = ({ signoffRole, release }) => {
+    setReleases(
+      releases.map(r => {
+        if (
+          !r.scheduledChange ||
+          r.scheduledChange.sc_id !== release.scheduledChange.sc_id
+        ) {
+          return r;
+        }
+
+        const newRelease = { ...r };
+
+        newRelease.scheduledChange.signoffs[username] = signoffRole;
+
+        return newRelease;
+      })
+    );
+  };
+
+  const doSignoff = async (signoffRole, release) => {
+    const { error } = await signoff({
+      scId: release.scheduledChange.sc_id,
+      role: signoffRole,
     });
+
+    return { error, result: { signoffRole, release } };
+  };
+
+  const handleSignoffDialogSubmit = async state => {
+    const { error, result } = await doSignoff(signoffRole, state.item);
+
+    if (error) {
+      throw error;
+    }
+
+    return result;
+  };
+
+  const handleSignoffDialogComplete = result => {
+    updateSignoffs(result);
+    handleDialogClose();
   };
 
   const handleAccessChange = ({ release, checked }) => {
@@ -256,8 +324,6 @@ function ListReleases(props) {
       destructive: false,
       item: release,
       handleSubmit: handleReadOnlySubmit,
-      handleClose: handleReadOnlyClose,
-      handleError: handleReadOnlyError,
       handleComplete: handleReadOnlyComplete,
     });
   };
@@ -271,10 +337,72 @@ function ListReleases(props) {
       item: release,
       destructive: true,
       handleSubmit: handleDeleteSubmit,
-      handleClose: handleDeleteClose,
-      handleError: handleDeleteError,
       handleComplete: handleDeleteComplete,
     });
+  };
+
+  const handleSignoff = async release => {
+    if (roles.length === 1) {
+      const { error, result } = await doSignoff(roles[0], release);
+
+      if (!error) {
+        updateSignoffs(result);
+      }
+    } else {
+      setDialogState({
+        ...dialogState,
+        open: true,
+        title: 'Signoff as…',
+        confirmText: 'Sign off',
+        body: (
+          <FormControl component="fieldset">
+            <RadioGroup
+              aria-label="Role"
+              name="role"
+              value={signoffRole}
+              onChange={handleSignoffRoleChange}>
+              {roles.map(r => (
+                <FormControlLabel
+                  key={r}
+                  value={r}
+                  label={r}
+                  control={<Radio />}
+                />
+              ))}
+            </RadioGroup>
+          </FormControl>
+        ),
+        item: release,
+        handleSubmit: handleSignoffDialogSubmit,
+        handleComplete: handleSignoffDialogComplete,
+      });
+    }
+  };
+
+  const handleRevoke = async release => {
+    const { error } = await revoke({
+      scId: release.scheduledChange.sc_id,
+      role: signoffRole,
+    });
+
+    if (!error) {
+      setReleases(
+        releases.map(r => {
+          if (
+            !r.scheduledChange ||
+            r.scheduledChange.sc_id !== release.scheduledChange.sc_id
+          ) {
+            return r;
+          }
+
+          const newRelease = { ...r };
+
+          delete newRelease.scheduledChange.signoffs[username];
+
+          return newRelease;
+        })
+      );
+    }
   };
 
   const handleViewScheduledChangeDiff = async release => {
@@ -305,6 +433,8 @@ function ListReleases(props) {
           onAccessChange={handleAccessChange}
           onReleaseDelete={handleDelete}
           onViewScheduledChangeDiff={handleViewScheduledChangeDiff}
+          onSignoff={() => handleSignoff(release)}
+          onRevoke={() => handleRevoke(release)}
         />
       </div>
     );
@@ -359,14 +489,15 @@ function ListReleases(props) {
         />
       )}
       <DialogAction
-        title={dialogState.title}
-        body={dialogState.body}
         open={dialogState.open}
+        title={dialogState.title}
+        destructive={dialogState.destructive}
+        body={dialogState.body}
         error={dialogState.error}
         confirmText={dialogState.confirmText}
         onSubmit={() => dialogState.handleSubmit(dialogState)}
-        onClose={() => dialogState.handleClose(dialogState)}
-        onError={error => dialogState.handleError(dialogState, error)}
+        onClose={() => handleDialogClose(dialogState)}
+        onError={error => handleDialogError(dialogState, error)}
         onComplete={name => dialogState.handleComplete(dialogState, name)}
       />
       <Drawer
@@ -395,4 +526,4 @@ function ListReleases(props) {
   );
 }
 
-export default ListReleases;
+export default withUser(ListReleases);
