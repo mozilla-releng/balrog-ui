@@ -61,13 +61,13 @@ export default function Release(props) {
   const [addSCAction, addSC] = useAction(addScheduledChange);
   const [updateSCAction, updateSC] = useAction(updateScheduledChange);
   const [deleteSCAction, deleteSC] = useAction(deleteScheduledChange);
-  const [scheduledChangeActionName, fetchScheduledChangeByName] = useAction(
+  const [scheduledChangeNameAction, fetchScheduledChangeByName] = useAction(
     getScheduledChangeByName
   );
   const fetchReleases = useAction(getReleases)[1];
   const [products, fetchProducts] = useAction(getProducts);
   const isLoading =
-    release.loading || products.loading || scheduledChangeActionName.loading;
+    release.loading || products.loading || scheduledChangeNameAction.loading;
   const actionLoading =
     createRelAction.loading ||
     addSCAction.loading ||
@@ -80,7 +80,7 @@ export default function Release(props) {
     addSCAction.error ||
     updateSCAction.error ||
     deleteSCAction.error ||
-    scheduledChangeActionName.error;
+    scheduledChangeNameAction.error;
 
   useEffect(() => {
     if (releaseName) {
@@ -131,6 +131,8 @@ export default function Release(props) {
   };
 
   const handleReleaseCreate = async () => {
+    // Newly created Releases never need signoff, so we can always
+    // safely create them directly instead of using Scheduled Changes.
     const { error } = await createRel(
       releaseNameValue,
       productTextValue,
@@ -143,7 +145,12 @@ export default function Release(props) {
   };
 
   const handleReleaseUpdate = async () => {
-    // todo: handle updating an existing scheduled change
+    // Updates to Releases require signoff in some circumstances,
+    // but we don't have a need to schedule them for specific times.
+    // Because of this, we always schedule them for slightly in the future,
+    // which means that changes that don't require signoff will happen
+    // almost immediately, and changes that do require signoff will wait
+    // until those are completed.
     const when = new Date().getTime() + 5000;
     let error = null;
 
