@@ -243,10 +243,10 @@ export default function Release(props) {
                 <ContentSaveIcon />
               </Fab>
             </Tooltip>
-            {!isNewRelease && scId && (
+            {!isNewRelease && (
               <SpeedDial ariaLabel="Secondary Actions">
                 <SpeedDialAction
-                  disabled={actionLoading || isReadOnly}
+                  disabled={actionLoading || isReadOnly || !scId}
                   icon={<DeleteIcon />}
                   tooltipOpen
                   tooltipTitle="Cancel Pending Change"
