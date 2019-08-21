@@ -122,6 +122,8 @@ function ReleaseCard(props) {
     release,
     user,
     readOnly,
+    onSignoff,
+    onRevoke,
     onAccessChange,
     onReleaseDelete,
     onViewScheduledChangeDiff,
@@ -283,6 +285,16 @@ function ReleaseCard(props) {
             Delete
           </Button>
         )}
+        {requiresSignoff &&
+          (user && user.email in release.scheduledChange.signoffs ? (
+            <Button color="secondary" disabled={!user} onClick={onRevoke}>
+              Revoke Signoff
+            </Button>
+          ) : (
+            <Button color="secondary" disabled={!user} onClick={onSignoff}>
+              Signoff
+            </Button>
+          ))}
       </CardActions>
     </Card>
   );
@@ -290,8 +302,11 @@ function ReleaseCard(props) {
 
 ReleaseCard.propTypes = {
   release: release.isRequired,
-  onAccessChange: func.isRequired,
   onViewScheduledChangeDiff: func.isRequired,
+  // These are required if readOnly is false
+  onAccessChange: func,
+  onSignoff: func,
+  onRevoke: func,
   readOnly: bool,
 };
 
