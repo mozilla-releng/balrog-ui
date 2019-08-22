@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { func, bool } from 'prop-types';
+import { func } from 'prop-types';
 import { formatDistanceStrict } from 'date-fns';
 import { makeStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
@@ -121,7 +121,6 @@ function ReleaseCard(props) {
   const {
     release,
     user,
-    readOnly,
     onSignoff,
     onRevoke,
     onAccessChange,
@@ -263,7 +262,7 @@ function ReleaseCard(props) {
             </Button>
           </Fragment>
         )}
-        {!readOnly && requiresSignoff && (
+        {requiresSignoff && (
           <SignoffSummary
             requiredSignoffs={release.scheduledChange.required_signoffs}
             signoffs={release.scheduledChange.signoffs}
@@ -307,11 +306,6 @@ ReleaseCard.propTypes = {
   onAccessChange: func,
   onSignoff: func,
   onRevoke: func,
-  readOnly: bool,
-};
-
-ReleaseCard.defaultProps = {
-  readOnly: false,
 };
 
 export default withUser(ReleaseCard);
