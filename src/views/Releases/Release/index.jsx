@@ -14,7 +14,15 @@ import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import CodeEditor from '../../../components/CodeEditor';
 import useAction from '../../../hooks/useAction';
-import { getReleases, getRelease } from '../../../services/releases';
+import {
+  getReleases,
+  getRelease,
+  createRelease,
+  addScheduledChange,
+  updateScheduledChange,
+  deleteScheduledChange,
+  getScheduledChangeByName,
+} from '../../../services/releases';
 import { getProducts } from '../../../services/rules';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 
@@ -44,24 +52,55 @@ export default function Release(props) {
   const [releaseNameValue, setReleaseNameValue] = useState(releaseName || '');
   const [productTextValue, setProductTextValue] = useState('');
   const [releaseEditorValue, setReleaseEditorValue] = useState('{}');
+  const [scId, setScId] = useState(null);
+  const [dataVersion, setDataVersion] = useState(null);
+  const [scDataVersion, setScDataVersion] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [release, fetchRelease] = useAction(getRelease);
+  const [createRelAction, createRel] = useAction(createRelease);
+  const [addSCAction, addSC] = useAction(addScheduledChange);
+  const [updateSCAction, updateSC] = useAction(updateScheduledChange);
+  const [deleteSCAction, deleteSC] = useAction(deleteScheduledChange);
+  const [scheduledChangeNameAction, fetchScheduledChangeByName] = useAction(
+    getScheduledChangeByName
+  );
   const fetchReleases = useAction(getReleases)[1];
   const [products, fetchProducts] = useAction(getProducts);
-  const isLoading = release.loading || products.loading;
-  // TODO: Fill actionLoading when hooking up mutations
-  const actionLoading = false;
-  const error = release.error || products.error;
+  const isLoading =
+    release.loading || products.loading || scheduledChangeNameAction.loading;
+  const actionLoading =
+    createRelAction.loading ||
+    addSCAction.loading ||
+    updateSCAction.loading ||
+    deleteSCAction.loading;
+  const error =
+    release.error ||
+    products.error ||
+    createRelAction.error ||
+    addSCAction.error ||
+    updateSCAction.error ||
+    deleteSCAction.error ||
+    scheduledChangeNameAction.error;
 
   useEffect(() => {
     if (releaseName) {
-      Promise.all([fetchRelease(releaseName), fetchReleases()]).then(
-        ([fetchedRelease, fetchedReleases]) => {
-          if (fetchedRelease.data) {
-            setReleaseEditorValue(
-              JSON.stringify(fetchedRelease.data.data, null, 2)
-            );
-          }
+      Promise.all([
+        fetchRelease(releaseName),
+        fetchScheduledChangeByName(releaseName),
+        fetchReleases(),
+      ]).then(([fetchedRelease, fetchedSC, fetchedReleases]) => {
+        if (fetchedSC.data.data.count > 0) {
+          const sc = fetchedSC.data.data.scheduled_changes[0];
+
+          setReleaseEditorValue(JSON.stringify(sc.data, null, 2));
+          setProductTextValue(sc.product);
+          setDataVersion(sc.data_version);
+          setScId(sc.sc_id);
+          setScDataVersion(sc.sc_data_version);
+        } else {
+          setReleaseEditorValue(
+            JSON.stringify(fetchedRelease.data.data, null, 2)
+          );
 
           if (fetchedReleases.data) {
             const r = fetchedReleases.data.data.releases.find(
@@ -69,10 +108,11 @@ export default function Release(props) {
             );
 
             setProductTextValue(r.product);
+            setDataVersion(r.data_version);
             setIsReadOnly(r.read_only);
           }
         }
-      );
+      });
     }
 
     fetchProducts();
@@ -90,10 +130,64 @@ export default function Release(props) {
     setReleaseEditorValue(value);
   };
 
-  // TODO: Add mutations
-  const handleReleaseCreate = () => {};
-  const handleReleaseUpdate = () => {};
-  const handleReleaseDelete = () => {};
+  const handleReleaseCreate = async () => {
+    // Newly created Releases never need signoff, so we can always
+    // safely create them directly instead of using Scheduled Changes.
+    const { error } = await createRel(
+      releaseNameValue,
+      productTextValue,
+      releaseEditorValue
+    );
+
+    if (!error) {
+      props.history.push(`/releases#${releaseNameValue}`);
+    }
+  };
+
+  const handleReleaseUpdate = async () => {
+    // Updates to Releases require signoff in some circumstances,
+    // but we don't have a need to schedule them for specific times.
+    // Because of this, we always schedule them for slightly in the future,
+    // which means that changes that don't require signoff will happen
+    // almost immediately, and changes that do require signoff will wait
+    // until those are completed.
+    const when = new Date().getTime() + 5000;
+    let error = null;
+
+    if (scId) {
+      ({ error } = await updateSC({
+        scId,
+        when,
+        sc_data_version: scDataVersion,
+        data_version: dataVersion,
+        data: releaseEditorValue,
+      }));
+    } else {
+      ({ error } = await addSC({
+        change_type: 'update',
+        when,
+        name: releaseNameValue,
+        product: productTextValue,
+        data: releaseEditorValue,
+        data_version: dataVersion,
+      }));
+    }
+
+    if (!error) {
+      props.history.push(`/releases#${releaseNameValue}`);
+    }
+  };
+
+  const handleScheduledChangeDelete = async () => {
+    const { error } = await deleteSC({
+      scId,
+      scDataVersion,
+    });
+
+    if (!error) {
+      props.history.push(`/releases#${releaseNameValue}`);
+    }
+  };
 
   return (
     <Dashboard
@@ -152,11 +246,11 @@ export default function Release(props) {
             {!isNewRelease && (
               <SpeedDial ariaLabel="Secondary Actions">
                 <SpeedDialAction
-                  disabled={actionLoading || isReadOnly}
+                  disabled={actionLoading || isReadOnly || !scId}
                   icon={<DeleteIcon />}
                   tooltipOpen
-                  tooltipTitle="Delete Release"
-                  onClick={handleReleaseDelete}
+                  tooltipTitle="Cancel Pending Change"
+                  onClick={handleScheduledChangeDelete}
                 />
               </SpeedDial>
             )}

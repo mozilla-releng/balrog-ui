@@ -56,6 +56,20 @@ const getRevisions = (name, product) => {
   return getReleases(`${bucket}?prefix=${name}/&delimeter=/`);
 };
 
+const getScheduledChangeByName = name =>
+  axios.get(`/scheduled_changes/releases?name=${name}`);
+const createRelease = (name, product, blob) =>
+  axios.post(`/releases`, { name, product, blob });
+const addScheduledChange = data =>
+  axios.post('/scheduled_changes/releases', data);
+const updateScheduledChange = ({ scId, ...data }) =>
+  axios.post(`/scheduled_changes/releases/${scId}`, data);
+const deleteScheduledChange = ({ scId, scDataVersion }) =>
+  // The backend wants sc_data_version, but calls it data_version.
+  axios.delete(`/scheduled_changes/releases/${scId}`, {
+    params: { data_version: scDataVersion },
+  });
+
 // Releases factory
 // eslint-disable-next-line import/prefer-default-export
 export {
@@ -65,4 +79,9 @@ export {
   deleteRelease,
   setReadOnly,
   getRevisions,
+  getScheduledChangeByName,
+  createRelease,
+  addScheduledChange,
+  updateScheduledChange,
+  deleteScheduledChange,
 };
