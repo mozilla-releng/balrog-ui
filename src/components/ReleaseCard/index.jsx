@@ -276,14 +276,12 @@ function ReleaseCard(props) {
             {release.read_only ? 'View' : 'Update'}
           </Button>
         </Link>
-        {!hasRulesPointingAtRevision && (
-          <Button
-            disabled={release.read_only}
-            color="secondary"
-            onClick={() => onReleaseDelete(release)}>
-            Delete
-          </Button>
-        )}
+        <Button
+          disabled={release.read_only || hasRulesPointingAtRevision}
+          color="secondary"
+          onClick={() => onReleaseDelete(release)}>
+          Delete
+        </Button>
         {requiresSignoff &&
           (user && user.email in release.scheduledChange.signoffs ? (
             <Button color="secondary" disabled={!user} onClick={onRevoke}>
