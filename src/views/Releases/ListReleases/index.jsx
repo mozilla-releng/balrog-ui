@@ -312,9 +312,11 @@ function ListReleases(props) {
     handleDialogClose();
   };
 
-  const accessChangeDialogBody = dialogState.item && `This would make ${dialogState.item.name} ${
-        dialogState.item.read_only ? 'writable' : 'read only'
-      }.`;
+  const accessChangeDialogBody =
+    dialogState.item &&
+    `This would make ${dialogState.item.name} ${
+      dialogState.item.read_only ? 'writable' : 'read only'
+    }.`;
   const handleAccessChange = ({ release, checked }) => {
     setDialogMode('accessChange');
     setDialogState({
@@ -329,7 +331,8 @@ function ListReleases(props) {
     });
   };
 
-  const deleteDialogBody = dialogState.item && `This will delete ${dialogState.item.name}`;
+  const deleteDialogBody =
+    dialogState.item && `This will delete ${dialogState.item.name}`;
   const handleDelete = release => {
     setDialogMode('delete');
     setDialogState({
@@ -345,23 +348,18 @@ function ListReleases(props) {
   };
 
   const signoffDialogBody = (
-          <FormControl component="fieldset">
-            <RadioGroup
-              aria-label="Role"
-              name="role"
-              value={signoffRole}
-              onChange={handleSignoffRoleChange}>
-              {roles.map(r => (
-                <FormControlLabel
-                  key={r}
-                  value={r}
-                  label={r}
-                  control={<Radio />}
-                />
-              ))}
-            </RadioGroup>
-          </FormControl>
-        );
+    <FormControl component="fieldset">
+      <RadioGroup
+        aria-label="Role"
+        name="role"
+        value={signoffRole}
+        onChange={handleSignoffRoleChange}>
+        {roles.map(r => (
+          <FormControlLabel key={r} value={r} label={r} control={<Radio />} />
+        ))}
+      </RadioGroup>
+    </FormControl>
+  );
   const handleSignoff = async release => {
     if (roles.length === 1) {
       const { error, result } = await doSignoff(roles[0], release);
@@ -502,6 +500,18 @@ function ListReleases(props) {
     return height;
   };
 
+  const getDialogBody = () => {
+    if (dialogMode === 'delete') {
+      return deleteDialogBody;
+    }
+
+    if (dialogMode === 'signoff') {
+      return signoffDialogBody;
+    }
+
+    return accessChangeDialogBody;
+  };
+
   return (
     <Dashboard title="Releases">
       <SearchBar
@@ -523,7 +533,7 @@ function ListReleases(props) {
         open={dialogState.open}
         title={dialogState.title}
         destructive={dialogState.destructive}
-        body={dialogMode === 'delete' ? deleteDialogBody : dialogMode === 'signoff' ? signoffDialogBody : accessChangeDialogBody}
+        body={getDialogBody()}
         error={dialogState.error}
         confirmText={dialogState.confirmText}
         onSubmit={() => dialogState.handleSubmit(dialogState, signoffRole)}
