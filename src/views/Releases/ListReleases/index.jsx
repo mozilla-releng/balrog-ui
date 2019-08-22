@@ -269,7 +269,7 @@ function ListReleases(props) {
     handleDialogClose(state);
   };
 
-  const updateSignoffs = ({ signoffRole, release }) => {
+  const updateSignoffs = ({ roleToSignoffWith, release }) => {
     setReleases(
       releases.map(r => {
         if (
@@ -281,24 +281,24 @@ function ListReleases(props) {
 
         const newRelease = { ...r };
 
-        newRelease.scheduledChange.signoffs[username] = signoffRole;
+        newRelease.scheduledChange.signoffs[username] = roleToSignoffWith;
 
         return newRelease;
       })
     );
   };
 
-  const doSignoff = async (signoffRole, release) => {
+  const doSignoff = async (roleToSignoffWith, release) => {
     const { error } = await signoff({
       scId: release.scheduledChange.sc_id,
-      role: signoffRole,
+      role: roleToSignoffWith,
     });
 
-    return { error, result: { signoffRole, release } };
+    return { error, result: { roleToSignoffWith, release } };
   };
 
-  const handleSignoffDialogSubmit = async state => {
-    const { error, result } = await doSignoff(signoffRole, state.item);
+  const handleSignoffDialogSubmit = async (state, roleToSignoffWith) => {
+    const { error, result } = await doSignoff(roleToSignoffWith, state.item);
 
     if (error) {
       throw error;
@@ -387,7 +387,7 @@ function ListReleases(props) {
   const handleRevoke = async release => {
     const { error } = await revoke({
       scId: release.scheduledChange.sc_id,
-      role: signoffRole,
+      role: release.scheduledChange.signoffs[username],
     });
 
     if (!error) {
@@ -526,7 +526,7 @@ function ListReleases(props) {
         body={dialogMode === 'delete' ? deleteDialogBody : dialogMode === 'signoff' ? signoffDialogBody : accessChangeDialogBody}
         error={dialogState.error}
         confirmText={dialogState.confirmText}
-        onSubmit={() => dialogState.handleSubmit(dialogState)}
+        onSubmit={() => dialogState.handleSubmit(dialogState, signoffRole)}
         onClose={handleDialogClose}
         onError={error => handleDialogError(dialogState, error)}
         onComplete={name => dialogState.handleComplete(dialogState, name)}

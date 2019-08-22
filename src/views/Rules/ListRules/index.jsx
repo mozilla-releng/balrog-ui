@@ -435,7 +435,7 @@ function ListRules(props) {
     </FormControl>
   );
   const filteredRulesCount = filteredRulesWithScheduledChanges.length;
-  const updateSignoffs = ({ signoffRole, rule }) => {
+  const updateSignoffs = ({ roleToSignoffWith, rule }) => {
     setRulesWithScheduledChanges(
       rulesWithScheduledChanges.map(r => {
         if (
@@ -447,24 +447,24 @@ function ListRules(props) {
 
         const newRule = { ...r };
 
-        newRule.scheduledChange.signoffs[username] = signoffRole;
+        newRule.scheduledChange.signoffs[username] = roleToSignoffWith;
 
         return newRule;
       })
     );
   };
 
-  const doSignoff = async (signoffRole, rule) => {
+  const doSignoff = async (roleToSignoffWith, rule) => {
     const { error } = await signoff({
       scId: rule.scheduledChange.sc_id,
-      role: signoffRole,
+      role: roleToSignoffWith,
     });
 
-    return { error, result: { signoffRole, rule } };
+    return { error, result: { roleToSignoffWith, rule } };
   };
 
-  const handleSignoffDialogSubmit = async state => {
-    const { error, result } = await doSignoff(signoffRole, state.item);
+  const handleSignoffDialogSubmit = async (state, roleToSignoffWith) => {
+    const { error, result } = await doSignoff(roleToSignoffWith, state.item);
 
     if (error) {
       throw error;
@@ -502,7 +502,7 @@ function ListRules(props) {
   const handleRevoke = async rule => {
     const { error } = await revoke({
       scId: rule.scheduledChange.sc_id,
-      role: signoffRole,
+      role: rule.scheduledChange.signoffs[username],
     });
 
     if (!error) {
@@ -772,7 +772,7 @@ function ListRules(props) {
         destructive={dialogState.destructive}
         body={dialogMode === 'delete' ? deleteDialogBody : signoffDialogBody}
         confirmText={dialogState.confirmText}
-        onSubmit={() => dialogState.handleSubmit(dialogState)}
+        onSubmit={() => dialogState.handleSubmit(dialogState, signoffRole)}
         onError={handleDialogError}
         error={dialogState.error}
         onComplete={dialogState.handleComplete}
