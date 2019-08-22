@@ -237,13 +237,13 @@ export default function Release(props) {
                 }
                 color="primary"
                 className={classNames(classes.saveButton, {
-                  [classes.secondFab]: !isNewRelease,
-                  [classes.fab]: isNewRelease,
+                  [classes.secondFab]: scId && !isReadOnly,
+                  [classes.fab]: !scId || isReadOnly,
                 })}>
                 <ContentSaveIcon />
               </Fab>
             </Tooltip>
-            {!isNewRelease && (
+            {scId && !isReadOnly && (
               <SpeedDial ariaLabel="Secondary Actions">
                 <SpeedDialAction
                   disabled={actionLoading || isReadOnly || !scId}
