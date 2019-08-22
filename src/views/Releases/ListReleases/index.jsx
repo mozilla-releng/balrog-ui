@@ -65,6 +65,7 @@ function ListReleases(props) {
     body1TextHeight,
     body2TextHeight,
     h6TextHeight,
+    subtitle1TextHeight,
   } = elementsHeight(theme);
   const { hash } = props.location;
   const [releaseNameHash, setReleaseNameHash] = useState(null);
@@ -465,8 +466,34 @@ function ListReleases(props) {
     // space below the card (margin)
     height += theme.spacing(6);
 
-    // TODO: proper calculations for scheduled changes
-    height += theme.spacing(20);
+    if (release.scheduledChange && release.scheduledChange.sc_id) {
+      // divider
+      height += theme.spacing(2) + 1;
+
+      height += Math.max(subtitle1TextHeight(), theme.spacing(3));
+
+      // "View Diff" button + padding
+      height += buttonHeight + theme.spacing(0.5);
+
+      if (Object.keys(release.scheduledChange.required_signoffs).length > 0) {
+        const requiredRoles = Object.keys(
+          release.scheduledChange.required_signoffs
+        ).length;
+        const nSignoffs = Object.keys(release.scheduledChange.signoffs).length;
+        // Required Roles and Signoffs are beside one another, so we only
+        // need to account for the one with the most items.
+        const signoffRows = Math.max(requiredRoles, nSignoffs);
+
+        // Padding above the summary
+        height += theme.spacing(2);
+
+        // The "Requires Signoff From" title and the margin beneath it
+        height += body2TextHeight() + theme.spacing(1);
+
+        // Space for however many rows exist.
+        height += signoffRows * (body2TextHeight() + theme.spacing(0.5));
+      }
+    }
 
     return height;
   };

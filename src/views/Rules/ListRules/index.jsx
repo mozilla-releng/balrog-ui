@@ -619,7 +619,7 @@ function ListRules(props) {
 
     if (hasScheduledChanges) {
       // row with the chip label
-      height += subtitle1TextHeight();
+      height += Math.max(subtitle1TextHeight(), theme.spacing(3));
 
       if (rule.scheduledChange.change_type === 'delete') {
         // row with "all properties will be deleted" + padding
