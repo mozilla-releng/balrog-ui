@@ -64,6 +64,7 @@ const getScheduledChanges = all => {
 
   return axios.get('/scheduled_changes/releases');
 };
+
 const getScheduledChangeByName = name =>
   axios.get(`/scheduled_changes/releases?name=${name}`);
 const createRelease = (name, product, blob) =>
