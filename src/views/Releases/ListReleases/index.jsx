@@ -71,6 +71,7 @@ function ListReleases(props) {
   const [releaseNameHash, setReleaseNameHash] = useState(null);
   const [scrollToRow, setScrollToRow] = useState(null);
   const [searchValue, setSearchValue] = useState('');
+  const [dialogMode, setDialogMode] = useState('delete');
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [snackbarState, setSnackbarState] = useState(SNACKBAR_INITIAL_STATE);
   const [releases, setReleases] = useState([]);
@@ -197,12 +198,9 @@ function ListReleases(props) {
     setSearchValue(value);
   };
 
-  // Setting state like this ends up with an error in the console:
-  // Failed prop type: The prop `confirmText` is marked as required
-  // in `DialogAction`, but its value is `undefined`
-  const handleDialogClose = state => {
+  const handleDialogClose = () => {
     setDialogState({
-      ...state,
+      ...dialogState,
       open: false,
     });
   };
@@ -309,19 +307,21 @@ function ListReleases(props) {
     return result;
   };
 
-  const handleSignoffDialogComplete = result => {
+  const handleSignoffDialogComplete = (state, result) => {
     updateSignoffs(result);
     handleDialogClose();
   };
 
+  const accessChangeDialogBody = dialogState.item && `This would make ${dialogState.item.name} ${
+        dialogState.item.read_only ? 'writable' : 'read only'
+      }.`;
   const handleAccessChange = ({ release, checked }) => {
+    setDialogMode('accessChange');
     setDialogState({
+      ...dialogState,
       open: true,
       title: checked ? 'Read Only?' : 'Read/Write?',
       confirmText: 'Yes',
-      body: `This would make ${release.name} ${
-        checked ? 'read only' : 'writable'
-      }.`,
       destructive: false,
       item: release,
       handleSubmit: handleReadOnlySubmit,
@@ -329,12 +329,14 @@ function ListReleases(props) {
     });
   };
 
+  const deleteDialogBody = dialogState.item && `This will delete ${dialogState.item.name}`;
   const handleDelete = release => {
+    setDialogMode('delete');
     setDialogState({
+      ...dialogState,
       open: true,
       title: 'Delete Release?',
       confirmText: 'Delete',
-      body: `This will delete ${release.name}`,
       item: release,
       destructive: true,
       handleSubmit: handleDeleteSubmit,
@@ -342,20 +344,7 @@ function ListReleases(props) {
     });
   };
 
-  const handleSignoff = async release => {
-    if (roles.length === 1) {
-      const { error, result } = await doSignoff(roles[0], release);
-
-      if (!error) {
-        updateSignoffs(result);
-      }
-    } else {
-      setDialogState({
-        ...dialogState,
-        open: true,
-        title: 'Signoff as…',
-        confirmText: 'Sign off',
-        body: (
+  const signoffDialogBody = (
           <FormControl component="fieldset">
             <RadioGroup
               aria-label="Role"
@@ -372,7 +361,22 @@ function ListReleases(props) {
               ))}
             </RadioGroup>
           </FormControl>
-        ),
+        );
+  const handleSignoff = async release => {
+    if (roles.length === 1) {
+      const { error, result } = await doSignoff(roles[0], release);
+
+      if (!error) {
+        updateSignoffs(result);
+      }
+    } else {
+      setDialogMode('signoff');
+      setDialogState({
+        ...dialogState,
+        open: true,
+        destructive: false,
+        title: 'Signoff as…',
+        confirmText: 'Sign off',
         item: release,
         handleSubmit: handleSignoffDialogSubmit,
         handleComplete: handleSignoffDialogComplete,
@@ -519,11 +523,11 @@ function ListReleases(props) {
         open={dialogState.open}
         title={dialogState.title}
         destructive={dialogState.destructive}
-        body={dialogState.body}
+        body={dialogMode === 'delete' ? deleteDialogBody : dialogMode === 'signoff' ? signoffDialogBody : accessChangeDialogBody}
         error={dialogState.error}
         confirmText={dialogState.confirmText}
         onSubmit={() => dialogState.handleSubmit(dialogState)}
-        onClose={() => handleDialogClose(dialogState)}
+        onClose={handleDialogClose}
         onError={error => handleDialogError(dialogState, error)}
         onComplete={name => dialogState.handleComplete(dialogState, name)}
       />
