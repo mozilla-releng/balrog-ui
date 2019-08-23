@@ -56,23 +56,10 @@ function ListRuleRevisions(props) {
     : [];
   const revisionsCount = revisions.length;
   const redirectWithRulesFilter = hashFilter => {
-    const queryString = {};
+    const [product, channel] = rulesFilter;
+    const query = stringify({ product, channel }, { addQueryPrefix: true });
 
-    if (rulesFilter.length > 0) {
-      // eslint-disable-next-line prefer-destructuring
-      queryString.product = rulesFilter[0];
-
-      if (rulesFilter.length > 1 && rulesFilter[1]) {
-        // eslint-disable-next-line prefer-destructuring
-        queryString.channel = rulesFilter[1];
-      }
-    }
-
-    props.history.push(
-      `/rules?${
-        Object.keys(queryString).length > 0 ? stringify(queryString) : ''
-      }#${hashFilter}`
-    );
+    props.history.push(`/rules${query}#${hashFilter}`);
   };
 
   useEffect(() => {
