@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Column } from 'react-virtualized';
 import { clone } from 'ramda';
+import { stringify } from 'qs';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { makeStyles } from '@material-ui/styles';
 import Typography from '@material-ui/core/Typography';
@@ -36,6 +37,10 @@ const useStyles = makeStyles({
 
 function ListRuleRevisions(props) {
   const classes = useStyles();
+  const rulesFilter =
+    props.location.state && props.location.state.rulesFilter
+      ? props.location.state.rulesFilter
+      : [];
   const [drawerState, setDrawerState] = useState({ open: false, item: {} });
   const [leftRadioCheckedIndex, setLeftRadioCheckedIndex] = useState(1);
   const [rightRadioCheckedIndex, setRightRadioCheckedIndex] = useState(0);
@@ -50,6 +55,25 @@ function ListRuleRevisions(props) {
     ? fetchedRevisions.data.data.rules
     : [];
   const revisionsCount = revisions.length;
+  const redirectWithRulesFilter = hashFilter => {
+    const queryString = {};
+
+    if (rulesFilter.length > 0) {
+      // eslint-disable-next-line prefer-destructuring
+      queryString.product = rulesFilter[0];
+
+      if (rulesFilter.length > 1 && rulesFilter[1]) {
+        // eslint-disable-next-line prefer-destructuring
+        queryString.channel = rulesFilter[1];
+      }
+    }
+
+    props.history.push(
+      `/rules?${
+        Object.keys(queryString).length > 0 ? stringify(queryString) : ''
+      }#${hashFilter}`
+    );
+  };
 
   useEffect(() => {
     fetchRevisions(ruleId);
@@ -114,7 +138,7 @@ function ListRuleRevisions(props) {
 
   const handleDialogClose = () => setDialogState(DIALOG_ACTION_INITIAL_STATE);
   const handleDialogActionComplete = scId =>
-    props.history.push(`/rules#scId=${scId}`);
+    redirectWithRulesFilter(`scId=${scId}`);
   const handleDialogError = error => setDialogState({ ...dialogState, error });
   const columnWidth = CONTENT_MAX_WIDTH / 4;
 
