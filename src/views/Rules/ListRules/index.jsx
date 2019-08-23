@@ -34,6 +34,7 @@ import {
 } from '../../../services/rules';
 import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
 import { makeSignoff, revokeSignoff } from '../../../services/signoffs';
+import { getEmergencyShutoffs } from '../../../services/emergency_shutoff';
 import { getUserInfo } from '../../../services/users';
 import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
 import {
@@ -109,6 +110,7 @@ function ListRules(props) {
   const [dateTimePickerError, setDateTimePickerError] = useState(null);
   const [scrollToRow, setScrollToRow] = useState(null);
   const [roles, setRoles] = useState([]);
+  const [emergencyShutoffs, setEmergencyShutoffs] = useState([]);
   const [signoffRole, setSignoffRole] = useState('');
   const ruleListRef = useRef(null);
   const [products, fetchProducts] = useAction(getProducts);
@@ -128,11 +130,20 @@ function ListRules(props) {
     revokeSignoff({ type: 'rules', ...props })
   );
   const [rolesAction, fetchRoles] = useAction(getUserInfo);
-  const isLoading = products.loading || channels.loading || rules.loading;
+  const [emergencyShutoffsAction, fetchEmergencyShutoffs] = useAction(getEmergencyShutoffs);
+  const filteredProductChannelIsShutoff = emergencyShutoffs.find(es => {
+    if (productChannelFilter === ALL) {
+      return false;
+    }
+
+    return es.product === searchQueries[0] && (!searchQueries[1] || es.channel === searchQueries[1]);
+  });
+  const isLoading = products.loading || channels.loading || rules.loading || emergencyShutoffsAction.loading;
   const error =
     products.error ||
     channels.error ||
     rules.error ||
+    emergencyShutoffsAction.error ||
     rolesAction.error ||
     scheduledChanges.error ||
     revokeAction.error ||
@@ -198,9 +209,10 @@ function ListRules(props) {
       fetchScheduledChanges(),
       fetchRules(),
       fetchRequiredSignoffs(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
+      fetchEmergencyShutoffs(),
       fetchProducts(),
       fetchChannels(),
-    ]).then(([sc, r, rs]) => {
+    ]).then(([sc, r, rs, es]) => {
       if (!sc.data || !r.data || !rs.data) {
         return;
       }
@@ -265,6 +277,10 @@ function ListRules(props) {
       });
 
       setRulesWithScheduledChanges(sortedRules);
+
+      if (es.data) {
+        setEmergencyShutoffs(es.data.data.shutoffs);
+      }
     });
   }, []);
 
@@ -746,6 +762,7 @@ function ListRules(props) {
               ))}
             </TextField>
           </div>
+          {filteredProductChannelIsShutoff && <div>SHUTOFF</div>}
           {filteredRulesWithScheduledChanges && (
             <Fragment>
               <VariableSizeList
