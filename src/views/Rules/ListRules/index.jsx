@@ -689,6 +689,7 @@ function ListRules(props) {
           })}
           key={rule.rule_id}
           rule={rule}
+          rulesFilter={searchQueries}
           onRuleDelete={handleRuleDelete}
           onSignoff={() => handleSignoff(rule)}
           onRevoke={() => handleRevoke(rule)}
@@ -757,7 +758,11 @@ function ListRules(props) {
               />
             </Fragment>
           )}
-          <Link to="/rules/create">
+          <Link
+            to={{
+              pathname: '/rules/create',
+              state: { rulesFilter: searchQueries },
+            }}>
             <Tooltip title="Add Rule">
               <Fab color="primary" className={classes.fab}>
                 <PlusIcon />

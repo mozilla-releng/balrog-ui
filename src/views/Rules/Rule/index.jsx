@@ -2,6 +2,7 @@ import React, { Fragment, useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { bool } from 'prop-types';
 import { defaultTo, assocPath } from 'ramda';
+import { stringify } from 'qs';
 import NumberFormat from 'react-number-format';
 import { makeStyles } from '@material-ui/styles';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
@@ -76,6 +77,10 @@ const useStyles = makeStyles(theme => ({
 
 export default function Rule({ isNewRule, ...props }) {
   const classes = useStyles();
+  const rulesFilter =
+    props.location.state && props.location.state.rulesFilter
+      ? props.location.state.rulesFilter
+      : [];
   const [rule, setRule] = useState(
     props.location.state && props.location.state.rule
       ? props.location.state.rule
@@ -131,6 +136,26 @@ export default function Rule({ isNewRule, ...props }) {
     setRule(assocPath([name], value, rule));
   };
 
+  const redirectWithRulesFilter = hashFilter => {
+    const queryString = {};
+
+    if (rulesFilter.length > 0) {
+      // eslint-disable-next-line prefer-destructuring
+      queryString.product = rulesFilter[0];
+
+      if (rulesFilter.length > 1 && rulesFilter[1]) {
+        // eslint-disable-next-line prefer-destructuring
+        queryString.channel = rulesFilter[1];
+      }
+    }
+
+    props.history.push(
+      `/rules?${
+        Object.keys(queryString).length > 0 ? stringify(queryString) : ''
+      }#${hashFilter}`
+    );
+  };
+
   const handleDateTimeChange = date => {
     setScheduleDate(date);
     setDateTimePickerError(null);
@@ -147,7 +172,7 @@ export default function Rule({ isNewRule, ...props }) {
     });
 
     if (!error) {
-      props.history.push(`/rules#ruleId=${rule.rule_id}`);
+      redirectWithRulesFilter(`ruleId=${rule.rule_id}`);
     }
   };
 
@@ -185,7 +210,7 @@ export default function Rule({ isNewRule, ...props }) {
     });
 
     if (!error) {
-      props.history.push(`/rules#scId=${response.data.sc_id}`);
+      redirectWithRulesFilter(`scId=${response.data.sc_id}`);
     }
   };
 
@@ -227,7 +252,7 @@ export default function Rule({ isNewRule, ...props }) {
       });
 
       if (!error) {
-        props.history.push(`/rules#scId=${rule.sc_id}`);
+        redirectWithRulesFilter(`scId=${rule.sc_id}`);
       }
     } else {
       const { data: response, error } = await addSC({
@@ -240,9 +265,9 @@ export default function Rule({ isNewRule, ...props }) {
 
       if (!error) {
         if (response.data.sc_id) {
-          props.history.push(`/rules#scId=${response.data.sc_id}`);
+          redirectWithRulesFilter(`scId=${response.data.sc_id}`);
         } else {
-          props.history.push(`/rules#ruleId=${rule.rule_id}`);
+          redirectWithRulesFilter(`ruleId=${rule.rule_id}`);
         }
       }
     }
