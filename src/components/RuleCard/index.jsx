@@ -107,10 +107,14 @@ const useStyles = makeStyles(theme => ({
   },
   avatar: {
     height: theme.spacing(4),
-    width: theme.spacing(4),
+    padding: theme.spacing(1),
+    width: 'auto',
+    background: 'unset',
+    color: theme.palette.text.primary,
+    border: `1px solid ${theme.palette.primary.light}`,
   },
   avatarText: {
-    fontSize: 10,
+    fontSize: theme.typography.body2.fontSize,
   },
   comment: {
     maxHeight: theme.spacing(10),
