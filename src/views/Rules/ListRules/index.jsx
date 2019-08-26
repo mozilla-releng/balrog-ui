@@ -15,6 +15,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
+import EmergencyShutoffPanel from '../../../components/EmergencyShutoffPanel';
 import RuleCard from '../../../components/RuleCard';
 import DialogAction from '../../../components/DialogAction';
 import DateTimePicker from '../../../components/DateTimePicker';
@@ -748,7 +749,17 @@ function ListRules(props) {
       {!isLoading && productChannelOptions && (
         <Fragment>
           <div className={classes.options}>
-            <div>{filteredProductChannelIsShutoff && 'SHUTOFF'}</div>
+            <div>
+              {productChannelFilter !== ALL && searchQueries[1] && (
+                <EmergencyShutoffPanel
+                  product={searchQueries[0]}
+                  channel={searchQueries[1]}
+                  shutoff={filteredProductChannelIsShutoff}
+                  onShutoff={() => {}}
+                  onRestore={() => {}}
+                />
+              )}
+            </div>
             <TextField
               className={classes.dropdown}
               select
