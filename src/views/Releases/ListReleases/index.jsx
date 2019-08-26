@@ -71,7 +71,6 @@ function ListReleases(props) {
   const [releaseNameHash, setReleaseNameHash] = useState(null);
   const [scrollToRow, setScrollToRow] = useState(null);
   const [searchValue, setSearchValue] = useState('');
-  const [dialogMode, setDialogMode] = useState('delete');
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [snackbarState, setSnackbarState] = useState(SNACKBAR_INITIAL_STATE);
   const [releases, setReleases] = useState([]);
@@ -318,7 +317,6 @@ function ListReleases(props) {
       dialogState.item.read_only ? 'writable' : 'read only'
     }.`;
   const handleAccessChange = ({ release, checked }) => {
-    setDialogMode('accessChange');
     setDialogState({
       ...dialogState,
       open: true,
@@ -326,6 +324,7 @@ function ListReleases(props) {
       confirmText: 'Yes',
       destructive: false,
       item: release,
+      mode: 'accessChange',
       handleSubmit: handleReadOnlySubmit,
       handleComplete: handleReadOnlyComplete,
     });
@@ -334,7 +333,6 @@ function ListReleases(props) {
   const deleteDialogBody =
     dialogState.item && `This will delete ${dialogState.item.name}`;
   const handleDelete = release => {
-    setDialogMode('delete');
     setDialogState({
       ...dialogState,
       open: true,
@@ -342,6 +340,7 @@ function ListReleases(props) {
       confirmText: 'Delete',
       item: release,
       destructive: true,
+      mode: 'delete',
       handleSubmit: handleDeleteSubmit,
       handleComplete: handleDeleteComplete,
     });
@@ -368,7 +367,6 @@ function ListReleases(props) {
         updateSignoffs(result);
       }
     } else {
-      setDialogMode('signoff');
       setDialogState({
         ...dialogState,
         open: true,
@@ -376,6 +374,7 @@ function ListReleases(props) {
         title: 'Signoff as…',
         confirmText: 'Sign off',
         item: release,
+        mode: 'signoff',
         handleSubmit: handleSignoffDialogSubmit,
         handleComplete: handleSignoffDialogComplete,
       });
@@ -501,11 +500,11 @@ function ListReleases(props) {
   };
 
   const getDialogBody = () => {
-    if (dialogMode === 'delete') {
+    if (dialogState.mode === 'delete') {
       return deleteDialogBody;
     }
 
-    if (dialogMode === 'signoff') {
+    if (dialogState.mode === 'signoff') {
       return signoffDialogBody;
     }
 

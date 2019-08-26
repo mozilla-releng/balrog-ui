@@ -102,7 +102,6 @@ function ListRules(props) {
       : ALL
   );
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
-  const [dialogMode, setDialogMode] = useState('delete');
   const [scheduleDeleteDate, setScheduleDeleteDate] = useState(
     addSeconds(new Date(), -30)
   );
@@ -486,13 +485,13 @@ function ListRules(props) {
         updateSignoffs(result);
       }
     } else {
-      setDialogMode('signoff');
       setDialogState({
         ...dialogState,
         open: true,
         title: 'Signoff as…',
         confirmText: 'Sign off',
         item: rule,
+        mode: 'signoff',
         handleComplete: handleSignoffDialogComplete,
         handleSubmit: handleSignoffDialogSubmit,
       });
@@ -550,7 +549,6 @@ function ListRules(props) {
       }.`
     ));
   const handleRuleDelete = rule => {
-    setDialogMode('delete');
     setDialogState({
       ...dialogState,
       open: true,
@@ -558,6 +556,7 @@ function ListRules(props) {
       confirmText: 'Delete',
       destructive: true,
       item: rule,
+      mode: 'delete',
       handleComplete: handleDeleteDialogComplete,
       handleSubmit: handleDeleteDialogSubmit,
     });
@@ -770,7 +769,9 @@ function ListRules(props) {
         open={dialogState.open}
         title={dialogState.title}
         destructive={dialogState.destructive}
-        body={dialogMode === 'delete' ? deleteDialogBody : signoffDialogBody}
+        body={
+          dialogState.mode === 'delete' ? deleteDialogBody : signoffDialogBody
+        }
         confirmText={dialogState.confirmText}
         onSubmit={() => dialogState.handleSubmit(dialogState, signoffRole)}
         onError={handleDialogError}
