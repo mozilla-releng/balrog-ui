@@ -55,7 +55,7 @@ const useStyles = makeStyles(theme => ({
   },
   options: {
     display: 'flex',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
   },
   dropdown: {
     minWidth: 200,
@@ -748,6 +748,7 @@ function ListRules(props) {
       {!isLoading && productChannelOptions && (
         <Fragment>
           <div className={classes.options}>
+            <div>{filteredProductChannelIsShutoff && 'SHUTOFF'}</div>
             <TextField
               className={classes.dropdown}
               select
@@ -762,7 +763,6 @@ function ListRules(props) {
               ))}
             </TextField>
           </div>
-          {filteredProductChannelIsShutoff && <div>SHUTOFF</div>}
           {filteredRulesWithScheduledChanges && (
             <Fragment>
               <VariableSizeList
