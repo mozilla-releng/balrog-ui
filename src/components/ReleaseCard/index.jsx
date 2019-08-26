@@ -300,10 +300,9 @@ function ReleaseCard(props) {
 ReleaseCard.propTypes = {
   release: release.isRequired,
   onViewScheduledChangeDiff: func.isRequired,
-  // These are required if readOnly is false
-  onAccessChange: func,
-  onSignoff: func,
-  onRevoke: func,
+  onAccessChange: func, // Required if readOnly is false
+  onSignoff: func, // Required if readOnly is false
+  onRevoke: func, // Required if readOnly is false
 };
 
 export default withUser(ReleaseCard);
