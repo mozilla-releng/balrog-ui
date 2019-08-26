@@ -96,11 +96,7 @@ function ListRules(props) {
   );
   const [productChannelOptions, setProductChannelOptions] = useState([]);
   const searchQueries = query.product ? [query.product, query.channel] : null;
-  const [productChannelFilter, setProductChannelFilter] = useState(
-    searchQueries
-      ? searchQueries.filter(Boolean).join(productChannelSeparator)
-      : ALL
-  );
+  const [productChannelFilter, setProductChannelFilter] = useState(ALL);
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [dialogMode, setDialogMode] = useState('delete');
   const [scheduleDeleteDate, setScheduleDeleteDate] = useState(
@@ -283,9 +279,17 @@ function ListRules(props) {
     }
   }, [username]);
 
+  useEffect(() => {
+    setProductChannelFilter(
+      searchQueries
+        ? searchQueries.filter(Boolean).join(productChannelSeparator)
+        : ALL
+    );
+  }, [searchQueries]);
+
   const filteredRulesWithScheduledChanges = useMemo(
     () =>
-      productChannelFilter === ALL
+      productChannelFilter === ALL || !searchQueries
         ? rulesWithScheduledChanges
         : rulesWithScheduledChanges.filter(rule => {
             const [productFilter, channelFilter] = searchQueries;
@@ -309,7 +313,7 @@ function ListRules(props) {
 
             return true;
           }),
-    [productChannelFilter, rulesWithScheduledChanges]
+    [searchQueries, productChannelFilter, rulesWithScheduledChanges]
   );
   const handleDateTimePickerError = error => {
     setDateTimePickerError(error);
