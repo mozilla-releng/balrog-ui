@@ -204,15 +204,19 @@ function ListReleases(props) {
     });
   };
 
-  const handleDialogError = (state, error) => {
+  const handleDialogExited = () => {
+    setDialogState(DIALOG_ACTION_INITIAL_STATE);
+  };
+
+  const handleDialogError = error => {
     setDialogState({
-      ...state,
+      ...dialogState,
       error,
     });
   };
 
-  const handleReadOnlySubmit = async state => {
-    const release = state.item;
+  const handleReadOnlySubmit = async () => {
+    const release = dialogState.item;
     const { error, data } = await setReadOnlyFlag({
       name: release.name,
       readOnly: !release.read_only,
@@ -226,7 +230,7 @@ function ListReleases(props) {
     return { name: release.name, new_data_version: data.data.new_data_version };
   };
 
-  const handleReadOnlyComplete = (state, result) => {
+  const handleReadOnlyComplete = result => {
     setReleases(
       releases.map(r => {
         if (r.name !== result.name) {
@@ -242,11 +246,11 @@ function ListReleases(props) {
       })
     );
 
-    handleDialogClose(state);
+    handleDialogClose();
   };
 
-  const handleDeleteSubmit = async state => {
-    const release = state.item;
+  const handleDeleteSubmit = async () => {
+    const release = dialogState.item;
     const { error } = await delRelease({
       name: release.name,
       dataVersion: release.data_version,
@@ -259,13 +263,13 @@ function ListReleases(props) {
     return release.name;
   };
 
-  const handleDeleteComplete = (state, name) => {
+  const handleDeleteComplete = name => {
     setReleases(releases.filter(r => r.name !== name));
     handleSnackbarOpen({
       message: `${name} deleted`,
     });
 
-    handleDialogClose(state);
+    handleDialogClose();
   };
 
   const updateSignoffs = ({ roleToSignoffWith, release }) => {
@@ -296,8 +300,8 @@ function ListReleases(props) {
     return { error, result: { roleToSignoffWith, release } };
   };
 
-  const handleSignoffDialogSubmit = async (state, roleToSignoffWith) => {
-    const { error, result } = await doSignoff(roleToSignoffWith, state.item);
+  const handleSignoffDialogSubmit = async () => {
+    const { error, result } = await doSignoff(signoffRole, dialogState.item);
 
     if (error) {
       throw error;
@@ -306,7 +310,7 @@ function ListReleases(props) {
     return result;
   };
 
-  const handleSignoffDialogComplete = (state, result) => {
+  const handleSignoffDialogComplete = result => {
     updateSignoffs(result);
     handleDialogClose();
   };
@@ -511,6 +515,30 @@ function ListReleases(props) {
     return accessChangeDialogBody;
   };
 
+  const getDialogSubmit = () => {
+    if (dialogState.mode === 'delete') {
+      return handleDeleteSubmit;
+    }
+
+    if (dialogState.mode === 'signoff') {
+      return handleSignoffDialogSubmit;
+    }
+
+    return handleReadOnlySubmit;
+  };
+
+  const getDialogComplete = () => {
+    if (dialogState.mode === 'delete') {
+      return handleDeleteComplete;
+    }
+
+    if (dialogState.mode === 'signoff') {
+      return handleSignoffDialogComplete;
+    }
+
+    return handleReadOnlyComplete;
+  };
+
   return (
     <Dashboard title="Releases">
       <SearchBar
@@ -535,10 +563,11 @@ function ListReleases(props) {
         body={getDialogBody()}
         error={dialogState.error}
         confirmText={dialogState.confirmText}
-        onSubmit={() => dialogState.handleSubmit(dialogState, signoffRole)}
+        onSubmit={getDialogSubmit()}
         onClose={handleDialogClose}
-        onError={error => handleDialogError(dialogState, error)}
-        onComplete={name => dialogState.handleComplete(dialogState, name)}
+        onExited={handleDialogExited}
+        onError={handleDialogError}
+        onComplete={getDialogComplete()}
       />
       <Drawer
         classes={{ paper: classes.drawerPaper }}
