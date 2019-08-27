@@ -237,6 +237,11 @@ function ReleaseCard(props) {
                 component="h4"
                 variant="subtitle1">
                 Scheduled Changes
+                <Button
+                  color="secondary"
+                  onClick={() => onViewScheduledChangeDiff(release)}>
+                  View Diff
+                </Button>
               </Typography>
               <Chip
                 className={classes.changeTimeChip}
@@ -253,11 +258,6 @@ function ReleaseCard(props) {
                 )} (${release.scheduledChange.change_type})`}
               />
             </div>
-            <Button
-              color="secondary"
-              onClick={() => onViewScheduledChangeDiff(release)}>
-              View Diff
-            </Button>
           </Fragment>
         )}
         {requiresSignoff && (
