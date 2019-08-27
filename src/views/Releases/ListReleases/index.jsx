@@ -94,7 +94,7 @@ function ListReleases(props) {
         setReleaseNameHash(hash);
       }
     }
-  }, [hash, filteredReleases]);
+  }, [hash, releaseNameHash, filteredReleases]);
 
   const handleSnackbarOpen = ({ message, variant = 'success' }) => {
     setSnackbarState({ message, variant, open: true });
@@ -234,12 +234,13 @@ function ListReleases(props) {
 
   const Row = ({ index, style }) => {
     const release = filteredReleases[index];
+    const isSelected = Boolean(hash && hash.replace('#', '') === release.name);
 
     return (
       <div key={release.name} style={style}>
         <ReleaseCard
           className={classNames(classes.releaseCard, {
-            [classes.releaseCardSelected]: index === scrollToRow,
+            [classes.releaseCardSelected]: isSelected,
           })}
           release={release}
           onAccessChange={handleAccessChange}
