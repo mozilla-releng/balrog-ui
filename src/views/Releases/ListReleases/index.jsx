@@ -253,7 +253,7 @@ function ListReleases(props) {
     const listItemTextMargin = 6;
     const release = filteredReleases[index];
     // An approximation
-    const ruleIdsLineCount = Math.ceil(release.rule_ids.length / 10) || 1;
+    const ruleIdsLineCount = Math.ceil(Object.keys(release.rule_info).length / 10) || 1;
     // card header
     let height = h6TextHeight + body1TextHeight() + theme.spacing(2);
 

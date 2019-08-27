@@ -1,4 +1,5 @@
 import React from 'react';
+import { stringify } from 'qs';
 import { func } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
@@ -95,7 +96,7 @@ const useStyles = makeStyles(theme => ({
 function ReleaseCard(props) {
   const { release, onAccessChange, onReleaseDelete, ...rest } = props;
   const classes = useStyles();
-  const hasRulesPointingAtRevision = release.rule_ids.length > 0;
+  const hasRulesPointingAtRevision = Object.keys(release.rule_ids).length > 0;
   const handleAccessChange = ({ target: { checked } }) => {
     onAccessChange({ release, checked });
   };
@@ -168,11 +169,14 @@ function ReleaseCard(props) {
                   secondaryTypographyProps={{ component: 'div' }}
                   secondary={
                     hasRulesPointingAtRevision ? (
-                      release.rule_ids.map(ruleId => (
+                      // todo: need to adjust channel. don't set if not present
+                      // get rid of trailing - and *
+                      // add rule id to hash filter
+                      Object.entries(release.rule_info).map(([ruleId, ruleInfo]) => (
                         <Link
                           className={classes.link}
                           key={ruleId}
-                          to={`/rules/${ruleId}`}>
+                          to={`/rules${stringify({ product: ruleInfo.product, channel: ruleInfo.channel }, { addQueryPrefix: true })}`}>
                           <Chip
                             clickable
                             size="small"

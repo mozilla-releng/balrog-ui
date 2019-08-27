@@ -4,7 +4,6 @@ import {
   shape,
   string,
   oneOfType,
-  arrayOf,
   object,
 } from 'prop-types';
 
@@ -47,5 +46,5 @@ export const release = shape({
   product: string,
   read_only: bool,
   required_signoffs: object,
-  rule_ids: arrayOf(number),
+  rule_info: object,
 });
