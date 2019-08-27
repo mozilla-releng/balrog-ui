@@ -126,6 +126,10 @@ function ReleaseCard(props) {
     onAccessChange,
     onReleaseDelete,
     onViewScheduledChangeDiff,
+    // We don't actually use these, but we need to avoid passing them onto
+    // `Card` like the rest of the props.
+    onAuthorize: _,
+    onUnauthorize: __,
     ...rest
   } = props;
   const classes = useStyles();
