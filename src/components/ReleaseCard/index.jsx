@@ -101,6 +101,18 @@ function ReleaseCard(props) {
     onAccessChange({ release, checked });
   };
 
+  const getRuleLink = (ruleId, product, channel) => {
+    const args = { product };
+
+    if (channel) {
+      args.channel = channel.replace(/[-*]*$/, '');
+    }
+
+    const qs = stringify(args, { addQueryPrefix: true });
+
+    return `/rules${qs}#ruleId=${ruleId}`;
+  };
+
   return (
     <Card classes={{ root: classes.root }} {...rest}>
       <CardHeader
@@ -169,23 +181,26 @@ function ReleaseCard(props) {
                   secondaryTypographyProps={{ component: 'div' }}
                   secondary={
                     hasRulesPointingAtRevision ? (
-                      // todo: need to adjust channel. don't set if not present
-                      // get rid of trailing - and *
-                      // add rule id to hash filter
-                      Object.entries(release.rule_info).map(([ruleId, ruleInfo]) => (
-                        <Link
-                          className={classes.link}
-                          key={ruleId}
-                          to={`/rules${stringify({ product: ruleInfo.product, channel: ruleInfo.channel }, { addQueryPrefix: true })}`}>
-                          <Chip
-                            clickable
-                            size="small"
-                            icon={<LinkIcon />}
-                            label={ruleId}
-                            className={classes.chip}
-                          />
-                        </Link>
-                      ))
+                      Object.entries(release.rule_info).map(
+                        ([ruleId, ruleInfo]) => (
+                          <Link
+                            className={classes.link}
+                            key={ruleId}
+                            to={getRuleLink(
+                              ruleId,
+                              ruleInfo.product,
+                              ruleInfo.channel
+                            )}>
+                            <Chip
+                              clickable
+                              size="small"
+                              icon={<LinkIcon />}
+                              label={ruleId}
+                              className={classes.chip}
+                            />
+                          </Link>
+                        )
+                      )
                     ) : (
                       <em>n/a</em>
                     )
