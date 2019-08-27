@@ -374,8 +374,8 @@ function ListRules(props) {
     handleDialogClose();
   };
 
-  const handleDeleteDialogSubmit = async state => {
-    const dialogRule = state.item;
+  const handleDeleteDialogSubmit = async () => {
+    const dialogRule = dialogState.item;
     const now = new Date();
     const when =
       scheduleDeleteDate >= now
@@ -462,8 +462,8 @@ function ListRules(props) {
     return { error, result: { roleToSignoffWith, rule } };
   };
 
-  const handleSignoffDialogSubmit = async (state, roleToSignoffWith) => {
-    const { error, result } = await doSignoff(roleToSignoffWith, state.item);
+  const handleSignoffDialogSubmit = async () => {
+    const { error, result } = await doSignoff(signoffRole, dialogState.item);
 
     if (error) {
       throw error;
@@ -560,6 +560,14 @@ function ListRules(props) {
       handleComplete: handleDeleteDialogComplete,
       handleSubmit: handleDeleteDialogSubmit,
     });
+  };
+
+  const getDialogSubmit = () => {
+    if (dialogState.mode === 'delete') {
+      return handleDeleteDialogSubmit;
+    }
+
+    return handleSignoffDialogSubmit;
   };
 
   const getRowHeight = ({ index }) => {
@@ -773,7 +781,7 @@ function ListRules(props) {
           dialogState.mode === 'delete' ? deleteDialogBody : signoffDialogBody
         }
         confirmText={dialogState.confirmText}
-        onSubmit={() => dialogState.handleSubmit(dialogState, signoffRole)}
+        onSubmit={getDialogSubmit()}
         onError={handleDialogError}
         error={dialogState.error}
         onComplete={dialogState.handleComplete}
