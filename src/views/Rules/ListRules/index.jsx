@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { stringify, parse } from 'qs';
 import { addSeconds } from 'date-fns';
+import { clone } from 'ramda';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { makeStyles, useTheme } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
@@ -38,7 +39,10 @@ import {
 } from '../../../services/rules';
 import { getRequiredSignoffs } from '../../../services/requiredSignoffs';
 import { makeSignoff, revokeSignoff } from '../../../services/signoffs';
-import { getEmergencyShutoffs } from '../../../services/emergency_shutoff';
+import {
+  getEmergencyShutoffs,
+  createEmergencyShutoff,
+} from '../../../services/emergency_shutoff';
 import { getUserInfo } from '../../../services/users';
 import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
 import {
@@ -116,6 +120,10 @@ function ListRules(props) {
   const [roles, setRoles] = useState([]);
   const [emergencyShutoffs, setEmergencyShutoffs] = useState([]);
   const [signoffRole, setSignoffRole] = useState('');
+  const [
+    filteredProductChannelIsShutoff,
+    setFilteredProductChannelIsShutoff,
+  ] = useState(false);
   const ruleListRef = useRef(null);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
@@ -134,15 +142,17 @@ function ListRules(props) {
     revokeSignoff({ type: 'rules', ...props })
   );
   const [rolesAction, fetchRoles] = useAction(getUserInfo);
-  const [emergencyShutoffsAction, fetchEmergencyShutoffs] = useAction(getEmergencyShutoffs);
-  const filteredProductChannelIsShutoff = emergencyShutoffs.find(es => {
-    if (productChannelFilter === ALL) {
-      return false;
-    }
-
-    return es.product === searchQueries[0] && (!searchQueries[1] || es.channel === searchQueries[1]);
-  });
-  const isLoading = products.loading || channels.loading || rules.loading || emergencyShutoffsAction.loading;
+  const [emergencyShutoffsAction, fetchEmergencyShutoffs] = useAction(
+    getEmergencyShutoffs
+  );
+  const [disableUpdatesAction, disableUpdates] = useAction(
+    createEmergencyShutoff
+  );
+  const isLoading =
+    products.loading ||
+    channels.loading ||
+    rules.loading ||
+    emergencyShutoffsAction.loading;
   const error =
     products.error ||
     channels.error ||
@@ -151,6 +161,7 @@ function ListRules(props) {
     rolesAction.error ||
     scheduledChanges.error ||
     revokeAction.error ||
+    disableUpdatesAction.error ||
     (roles.length === 1 && signoffAction.error);
   const handleFilterChange = ({ target: { value } }) => {
     const [product, channel] = value.split(productChannelSeparator);
@@ -302,6 +313,23 @@ function ListRules(props) {
       });
     }
   }, [username]);
+
+  useEffect(
+    () =>
+      setFilteredProductChannelIsShutoff(
+        emergencyShutoffs.find(es => {
+          if (productChannelFilter === ALL) {
+            return false;
+          }
+
+          return (
+            es.product === searchQueries[0] &&
+            (!searchQueries[1] || es.channel === searchQueries[1])
+          );
+        })
+      ),
+    [emergencyShutoffs, searchQueries]
+  );
 
   const filteredRulesWithScheduledChanges = useMemo(
     () =>
@@ -583,7 +611,25 @@ function ListRules(props) {
     });
   };
 
-  const toggleEmergencyShutoff = () => {};
+  const toggleEmergencyShutoff = async () => {
+    // If disabling, action is always the same
+    // If enabling, we can do it directly if no signoff
+    // is required for the current product/channel.
+    // If signoff is required, it must be scheduled.
+    const [product, channel] = searchQueries;
+
+    if (filteredProductChannelIsShutoff) {
+    } else {
+      const { error, data } = await disableUpdates(product, channel);
+
+      if (!error) {
+        const result = clone(emergencyShutoffs);
+
+        result.push(data.data);
+        setEmergencyShutoffs(result);
+      }
+    }
+  };
 
   const getRowHeight = ({ index }) => {
     const rule = filteredRulesWithScheduledChanges[index];
@@ -755,10 +801,12 @@ function ListRules(props) {
         <Fragment>
           <div className={classes.options}>
             <div>
-              {productChannelFilter !== ALL && searchQueries[1] && filteredProductChannelIsShutoff && (
-                // todo: make this fixed width and disable the close button
-                <ErrorPanel error="Updates are currently disabled for this product and channel" />
-              )}
+              {productChannelFilter !== ALL &&
+                searchQueries[1] &&
+                filteredProductChannelIsShutoff && (
+                  // todo: make this fixed width and disable the close button
+                  <ErrorPanel error="Updates are currently disabled for this product and channel" />
+                )}
             </div>
             <TextField
               className={classes.dropdown}
@@ -811,9 +859,19 @@ function ListRules(props) {
       <SpeedDial ariaLabel="Secondary Actions">
         <SpeedDialAction
           disabled={isLoading || !username}
-          icon={filteredProductChannelIsShutoff ? (<CheckNetworkIcon />) : (<CloseNetworkIcon />)}
+          icon={
+            filteredProductChannelIsShutoff ? (
+              <CheckNetworkIcon />
+            ) : (
+              <CloseNetworkIcon />
+            )
+          }
           tooltipOpen
-          tooltipTitle={filteredProductChannelIsShutoff ? 'Enable Updates' : 'Disable Updates'}
+          tooltipTitle={
+            filteredProductChannelIsShutoff
+              ? 'Enable Updates'
+              : 'Disable Updates'
+          }
           onClick={toggleEmergencyShutoff}
         />
       </SpeedDial>
