@@ -42,6 +42,7 @@ import { makeSignoff, revokeSignoff } from '../../../services/signoffs';
 import {
   getEmergencyShutoffs,
   createEmergencyShutoff,
+  deleteEmergencyShutoff,
 } from '../../../services/emergency_shutoff';
 import { getUserInfo } from '../../../services/users';
 import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
@@ -124,6 +125,10 @@ function ListRules(props) {
     filteredProductChannelIsShutoff,
     setFilteredProductChannelIsShutoff,
   ] = useState(false);
+  const [
+    filteredProductChannelRequiresSignoff,
+    setFilteredProductChannelRequiresSignoff,
+  ] = useState(false);
   const ruleListRef = useRef(null);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
@@ -131,7 +136,9 @@ function ListRules(props) {
   const [scheduledChanges, fetchScheduledChanges] = useAction(
     getScheduledChanges
   );
-  const fetchRequiredSignoffs = useAction(getRequiredSignoffs)[1];
+  const [requiredSignoffs, fetchRequiredSignoffs] = useAction(
+    getRequiredSignoffs
+  );
   const delRule = useAction(deleteRule)[1];
   const scheduleDelRule = useAction(addScheduledChange)[1];
   const delSC = useAction(deleteScheduledChange)[1];
@@ -148,6 +155,9 @@ function ListRules(props) {
   const [disableUpdatesAction, disableUpdates] = useAction(
     createEmergencyShutoff
   );
+  const [enableUpdatesAction, enableUpdates] = useAction(
+    deleteEmergencyShutoff
+  );
   const isLoading =
     products.loading ||
     channels.loading ||
@@ -158,10 +168,11 @@ function ListRules(props) {
     channels.error ||
     rules.error ||
     emergencyShutoffsAction.error ||
+    disableUpdatesAction.error ||
+    enableUpdatesAction.error ||
     rolesAction.error ||
     scheduledChanges.error ||
     revokeAction.error ||
-    disableUpdatesAction.error ||
     (roles.length === 1 && signoffAction.error);
   const handleFilterChange = ({ target: { value } }) => {
     const [product, channel] = value.split(productChannelSeparator);
@@ -313,6 +324,17 @@ function ListRules(props) {
       });
     }
   }, [username]);
+
+  useEffect(() => {
+    if (requiredSignoffs.data) {
+      setFilteredProductChannelRequiresSignoff(
+        requiredSignoffs.data.data.required_signoffs.some(
+          rs =>
+            rs.product === searchQueries[0] && rs.channel === searchQueries[1]
+        )
+      );
+    }
+  }, [requiredSignoffs, searchQueries]);
 
   useEffect(
     () =>
@@ -619,6 +641,25 @@ function ListRules(props) {
     const [product, channel] = searchQueries;
 
     if (filteredProductChannelIsShutoff) {
+      if (filteredProductChannelRequiresSignoff) {
+      } else {
+        const esDetails = emergencyShutoffs.find(
+          es => es.product === product && es.channel === channel
+        );
+        const { error } = await enableUpdates(
+          product,
+          channel,
+          esDetails.data_version
+        );
+
+        if (!error) {
+          setEmergencyShutoffs(
+            emergencyShutoffs.filter(
+              es => es.product !== product && es.channel !== channel
+            )
+          );
+        }
+      }
     } else {
       const { error, data } = await disableUpdates(product, channel);
 
