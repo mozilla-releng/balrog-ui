@@ -43,6 +43,7 @@ import {
   getEmergencyShutoffs,
   createEmergencyShutoff,
   deleteEmergencyShutoff,
+  scheduleDeleteEmergencyShutoff,
 } from '../../../services/emergency_shutoff';
 import { getUserInfo } from '../../../services/users';
 import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
@@ -158,6 +159,9 @@ function ListRules(props) {
   const [enableUpdatesAction, enableUpdates] = useAction(
     deleteEmergencyShutoff
   );
+  const [scheduleEnableUpdatesAction, scheduleEnableUpdates] = useAction(
+    scheduleDeleteEmergencyShutoff
+  );
   const isLoading =
     products.loading ||
     channels.loading ||
@@ -170,6 +174,7 @@ function ListRules(props) {
     emergencyShutoffsAction.error ||
     disableUpdatesAction.error ||
     enableUpdatesAction.error ||
+    scheduleEnableUpdatesAction.error ||
     rolesAction.error ||
     scheduledChanges.error ||
     revokeAction.error ||
@@ -641,11 +646,23 @@ function ListRules(props) {
     const [product, channel] = searchQueries;
 
     if (filteredProductChannelIsShutoff) {
+      const esDetails = emergencyShutoffs.find(
+        es => es.product === product && es.channel === channel
+      );
+
       if (filteredProductChannelRequiresSignoff) {
-      } else {
-        const esDetails = emergencyShutoffs.find(
-          es => es.product === product && es.channel === channel
+        const now = new Date();
+        const when = now.getTime() + 5000;
+        const { error } = await scheduleEnableUpdates(
+          product,
+          channel,
+          esDetails.data_version,
+          when
         );
+
+        if (!error) {
+        }
+      } else {
         const { error } = await enableUpdates(
           product,
           channel,

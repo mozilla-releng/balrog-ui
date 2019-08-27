@@ -7,6 +7,19 @@ const deleteEmergencyShutoff = (product, channel, dataVersion) =>
   axios.delete(`/emergency_shutoff/${product}/${channel}`, {
     params: { data_version: dataVersion },
   });
+const scheduleDeleteEmergencyShutoff = (product, channel, dataVersion, when) =>
+  axios.post('/scheduled_changes/emergency_shutoff', {
+    product,
+    channel,
+    data_version: dataVersion,
+    when,
+    change_type: 'delete',
+  });
 
 // eslint-disable-next-line import/prefer-default-export
-export { getEmergencyShutoffs, createEmergencyShutoff, deleteEmergencyShutoff };
+export {
+  getEmergencyShutoffs,
+  createEmergencyShutoff,
+  deleteEmergencyShutoff,
+  scheduleDeleteEmergencyShutoff,
+};
