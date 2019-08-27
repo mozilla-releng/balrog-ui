@@ -96,7 +96,7 @@ const useStyles = makeStyles(theme => ({
 function ReleaseCard(props) {
   const { release, onAccessChange, onReleaseDelete, ...rest } = props;
   const classes = useStyles();
-  const hasRulesPointingAtRevision = Object.keys(release.rule_ids).length > 0;
+  const hasRulesPointingAtRevision = Object.keys(release.rule_info).length > 0;
   const handleAccessChange = ({ target: { checked } }) => {
     onAccessChange({ release, checked });
   };
