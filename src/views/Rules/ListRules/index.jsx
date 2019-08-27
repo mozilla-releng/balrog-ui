@@ -15,7 +15,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
-import EmergencyShutoffPanel from '../../../components/EmergencyShutoffPanel';
 import RuleCard from '../../../components/RuleCard';
 import DialogAction from '../../../components/DialogAction';
 import DateTimePicker from '../../../components/DateTimePicker';
@@ -750,14 +749,9 @@ function ListRules(props) {
         <Fragment>
           <div className={classes.options}>
             <div>
-              {productChannelFilter !== ALL && searchQueries[1] && (
-                <EmergencyShutoffPanel
-                  product={searchQueries[0]}
-                  channel={searchQueries[1]}
-                  shutoff={filteredProductChannelIsShutoff}
-                  onShutoff={() => {}}
-                  onRestore={() => {}}
-                />
+              {productChannelFilter !== ALL && searchQueries[1] && filteredProductChannelIsShutoff && (
+                // todo: make this fixed width and disable the close button
+                <ErrorPanel error="Updates are currently disabled for this product and channel" />
               )}
             </div>
             <TextField
