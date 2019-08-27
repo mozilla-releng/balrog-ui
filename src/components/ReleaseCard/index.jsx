@@ -126,8 +126,6 @@ function ReleaseCard(props) {
     onAccessChange,
     onReleaseDelete,
     onViewScheduledChangeDiff,
-    onAuthorize,
-    onUnauthorize,
     ...rest
   } = props;
   const classes = useStyles();

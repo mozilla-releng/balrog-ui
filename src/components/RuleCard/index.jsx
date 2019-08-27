@@ -139,8 +139,6 @@ function RuleCard({
   onRevoke,
   user,
   readOnly,
-  onAuthorize,
-  onUnauthorize,
   ...props
 }) {
   const classes = useStyles();
