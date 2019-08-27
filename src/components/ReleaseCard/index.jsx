@@ -98,9 +98,14 @@ const useStyles = makeStyles(theme => ({
   divider: {
     margin: `${theme.spacing(1)}px`,
   },
-  scheduledChangesHeader: {
+  scheduledChangesContainer: {
     display: 'flex',
     justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  scheduledChangesContent: {
+    display: 'flex',
+    alignItems: 'baseline',
   },
   scheduledChangesTitle: {
     padding: `0 ${theme.spacing(1)}px`,
@@ -235,18 +240,20 @@ function ReleaseCard(props) {
         {release.scheduledChange && (
           <Fragment>
             <Divider className={classes.divider} />
-            <div className={classes.scheduledChangesHeader}>
-              <Typography
-                className={classes.scheduledChangesTitle}
-                component="h4"
-                variant="subtitle1">
-                Scheduled Changes
+            <div className={classes.scheduledChangesContainer}>
+              <div className={classes.scheduledChangesContent}>
+                <Typography
+                  className={classes.scheduledChangesTitle}
+                  component="h4"
+                  variant="subtitle1">
+                  Scheduled Changes
+                </Typography>
                 <Button
                   color="secondary"
                   onClick={() => onViewScheduledChangeDiff(release)}>
                   View Diff
                 </Button>
-              </Typography>
+              </div>
               <Chip
                 className={classes.changeTimeChip}
                 icon={
