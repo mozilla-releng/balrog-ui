@@ -12,13 +12,17 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 import PlusIcon from 'mdi-react/PlusIcon';
+import CheckNetworkIcon from 'mdi-react/CheckNetworkIcon';
+import CloseNetworkIcon from 'mdi-react/CloseNetworkIcon';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
 import RuleCard from '../../../components/RuleCard';
 import DialogAction from '../../../components/DialogAction';
 import DateTimePicker from '../../../components/DateTimePicker';
 import VariableSizeList from '../../../components/VariableSizeList';
+import SpeedDial from '../../../components/SpeedDial';
 import Link from '../../../utils/Link';
 import getDiffedProperties from '../../../utils/getDiffedProperties';
 import useAction from '../../../hooks/useAction';
@@ -579,6 +583,8 @@ function ListRules(props) {
     });
   };
 
+  const toggleEmergencyShutoff = () => {};
+
   const getRowHeight = ({ index }) => {
     const rule = filteredRulesWithScheduledChanges[index];
     const hasScheduledChanges = Boolean(rule.scheduledChange);
@@ -802,6 +808,15 @@ function ListRules(props) {
         onExited={handleDialogExited}
       />
       <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
+      <SpeedDial ariaLabel="Secondary Actions">
+        <SpeedDialAction
+          disabled={isLoading || !username}
+          icon={filteredProductChannelIsShutoff ? (<CheckNetworkIcon />) : (<CloseNetworkIcon />)}
+          tooltipOpen
+          tooltipTitle={filteredProductChannelIsShutoff ? 'Enable Updates' : 'Disable Updates'}
+          onClick={toggleEmergencyShutoff}
+        />
+      </SpeedDial>
     </Dashboard>
   );
 }
