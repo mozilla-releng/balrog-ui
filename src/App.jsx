@@ -50,7 +50,6 @@ axios.interceptors.response.use(
 );
 
 const App = () => {
-  const session = localStorage.getItem(USER_SESSION);
   const [authorize, setAuthorize] = useState(
     Boolean(localStorage.getItem(USER_SESSION))
   );
@@ -67,7 +66,9 @@ const App = () => {
   });
   // Wait until authorization is done before rendering
   // to make sure users who are logged in are able to access protected views
-  const [ready, setReady] = useState(Boolean(!session));
+  const [ready, setReady] = useState(
+    Boolean(!localStorage.getItem(USER_SESSION))
+  );
   const handleAuthorize = user => {
     setAuthContext({
       ...authContext,
@@ -81,6 +82,8 @@ const App = () => {
   };
 
   const render = () => {
+    const session = localStorage.getItem(USER_SESSION);
+
     if (session) {
       const user = JSON.parse(session);
       const expires = new Date(user.expiration);
