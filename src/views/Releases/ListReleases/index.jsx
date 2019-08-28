@@ -66,6 +66,7 @@ function ListReleases(props) {
     body2TextHeight,
     h6TextHeight,
     subtitle1TextHeight,
+    listSubheaderTextHeight,
   } = elementsHeight(theme);
   const { hash } = props.location;
   const [releaseNameHash, setReleaseNameHash] = useState(null);
@@ -477,11 +478,7 @@ function ListReleases(props) {
 
       // Scheduled changes row, which includes some text, a button, and a chip.
       // Which one is largest depends on platform/browser.
-      height += Math.max(
-        subtitle1TextHeight(),
-        theme.spacing(3),
-        buttonHeight + theme.spacing(0.5)
-      );
+      height += Math.max(subtitle1TextHeight(), theme.spacing(3), buttonHeight);
 
       if (Object.keys(release.scheduledChange.required_signoffs).length > 0) {
         const requiredRoles = Object.keys(
@@ -496,7 +493,7 @@ function ListReleases(props) {
         height += theme.spacing(2);
 
         // The "Requires Signoff From" title and the margin beneath it
-        height += body2TextHeight() + theme.spacing(1.5);
+        height += listSubheaderTextHeight;
 
         // Space for however many rows exist.
         height += signoffRows * (body2TextHeight() + theme.spacing(0.5));

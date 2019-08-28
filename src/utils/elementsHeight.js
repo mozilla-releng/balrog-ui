@@ -20,4 +20,7 @@ export default theme => ({
       theme.typography.button.lineHeight +
     6 +
     6,
+  listSubheaderTextHeight:
+    remToPx(theme.typography.subtitle1.fontSize) *
+    theme.typography.body1.lineHeight,
 });
