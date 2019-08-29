@@ -494,7 +494,7 @@ function ListReleases(props) {
         height += theme.spacing(2);
 
         // The "Requires Signoff From" title and the margin beneath it
-        height += listSubheaderTextHeight;
+        height += listSubheaderTextHeight + theme.spacing(0.5);
 
         // Space for however many rows exist.
         height += signoffRows * (body2TextHeight() + theme.spacing(0.5));
