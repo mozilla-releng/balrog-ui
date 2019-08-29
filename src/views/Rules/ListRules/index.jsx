@@ -19,6 +19,7 @@ import CheckNetworkIcon from 'mdi-react/CheckNetworkIcon';
 import CloseNetworkIcon from 'mdi-react/CloseNetworkIcon';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
+import EmergencyShutoffCard from '../../../components/EmergencyShutoffCard';
 import RuleCard from '../../../components/RuleCard';
 import DialogAction from '../../../components/DialogAction';
 import DateTimePicker from '../../../components/DateTimePicker';
@@ -122,7 +123,6 @@ function ListRules(props) {
   const [scrollToRow, setScrollToRow] = useState(null);
   const [roles, setRoles] = useState([]);
   const [emergencyShutoffs, setEmergencyShutoffs] = useState([]);
-  const [scheduledEmergencyShutoffs, setScheduledEmergencyShutoffs] = useState([]);
   const [signoffRole, setSignoffRole] = useState('');
   const [
     filteredProductChannelIsShutoff,
@@ -317,12 +317,17 @@ function ListRules(props) {
 
       setRulesWithScheduledChanges(sortedRules);
 
-      if (es.data) {
-        setEmergencyShutoffs(es.data.data.shutoffs);
-      }
+      if (es.data && scheduledEs.data) {
+        const shutoffs = es.data.data.shutoffs.map(shutoff => {
+          const sc = scheduledEs.data.data.scheduled_changes.find(ses => ses.product === shutoff.product && ses.channel === shutoff.channel);
+          
+          if (sc) {
+            shutoff.scheduledChange = sc;
+          }
 
-      if (scheduledEs.data) {
-        setScheduledEmergencyShutoffs(scheduledEs.data.data.scheduled_changes);
+          return shutoff;
+        });
+        setEmergencyShutoffs(shutoffs);
       }
     });
   }, []);
@@ -894,10 +899,12 @@ function ListRules(props) {
               ))}
             </TextField>
           </div>
-          {productChannelFilter !== ALL && searchQueries.length === 2 && scheduledEmergencyShutoffs.find(es => es.product === searchQueries[0] && es.channel === searchQueries[1]) && (
-            <div>
-              Updates are scheduled to be enabled.
-            </div>
+          {productChannelFilter !== ALL && searchQueries.length === 2 && emergencyShutoffs.find(es => es.product === searchQueries[0] && es.channel === searchQueries[1]) && (
+            <EmergencyShutoffCard
+              emergencyShutoff={emergencyShutoffs.find(es => es.product === searchQueries[0] && es.channel === searchQueries[1])}
+              onSignoff={() => {}}
+              onRevoke={() => {}}
+            />
           )}
           {filteredRulesWithScheduledChanges && (
             <Fragment>
