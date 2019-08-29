@@ -331,7 +331,9 @@ function ListRules(props) {
   }, [username]);
 
   useEffect(() => {
-    if (requiredSignoffs.data) {
+    if (!requiredSignoffs.data || !searchQueries || searchQueries.length !== 2) {
+      setFilteredProductChannelRequiresSignoff(false);
+    } else {
       setFilteredProductChannelRequiresSignoff(
         requiredSignoffs.data.data.required_signoffs.some(
           rs =>
