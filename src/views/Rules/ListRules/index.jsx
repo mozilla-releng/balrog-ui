@@ -680,8 +680,26 @@ function ListRules(props) {
     return height;
   };
 
+  const isRuleSelected = rule => {
+    if (!hashQuery.ruleId && !hashQuery.scId) {
+      return false;
+    }
+
+    if (hashQuery.ruleId) {
+      return Boolean(rule.rule_id === Number(hashQuery.ruleId));
+    }
+
+    if (hashQuery.scId) {
+      return Boolean(
+        rule.scheduledChange &&
+          Number(rule.scheduledChange.sc_id === hashQuery.scId)
+      );
+    }
+  };
+
   const Row = ({ index, style }) => {
     const rule = filteredRulesWithScheduledChanges[index];
+    const isSelected = isRuleSelected(rule);
 
     return (
       <div
@@ -693,7 +711,7 @@ function ListRules(props) {
         style={style}>
         <RuleCard
           className={classNames(classes.ruleCard, {
-            [classes.ruleCardSelected]: index === scrollToRow,
+            [classes.ruleCardSelected]: isSelected,
           })}
           key={rule.rule_id}
           rule={rule}
