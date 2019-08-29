@@ -43,6 +43,7 @@ import {
   getEmergencyShutoffs,
   createEmergencyShutoff,
   deleteEmergencyShutoff,
+  getScheduledChanges as getScheduledEmergencyShutoffs,
   scheduleDeleteEmergencyShutoff,
 } from '../../../services/emergency_shutoff';
 import { getUserInfo } from '../../../services/users';
@@ -121,6 +122,7 @@ function ListRules(props) {
   const [scrollToRow, setScrollToRow] = useState(null);
   const [roles, setRoles] = useState([]);
   const [emergencyShutoffs, setEmergencyShutoffs] = useState([]);
+  const [scheduledEmergencyShutoffs, setScheduledEmergencyShutoffs] = useState([]);
   const [signoffRole, setSignoffRole] = useState('');
   const [
     filteredProductChannelIsShutoff,
@@ -153,6 +155,9 @@ function ListRules(props) {
   const [emergencyShutoffsAction, fetchEmergencyShutoffs] = useAction(
     getEmergencyShutoffs
   );
+  const [scheduledEmergencyShutoffsAction, fetchScheduledEmergencyShutoffs] = useAction(
+    getScheduledEmergencyShutoffs
+  );
   const [disableUpdatesAction, disableUpdates] = useAction(
     createEmergencyShutoff
   );
@@ -166,12 +171,14 @@ function ListRules(props) {
     products.loading ||
     channels.loading ||
     rules.loading ||
-    emergencyShutoffsAction.loading;
+    emergencyShutoffsAction.loading ||
+    scheduledEmergencyShutoffsAction.loading;
   const error =
     products.error ||
     channels.error ||
     rules.error ||
     emergencyShutoffsAction.error ||
+    scheduledEmergencyShutoffsAction.error ||
     disableUpdatesAction.error ||
     enableUpdatesAction.error ||
     scheduleEnableUpdatesAction.error ||
@@ -241,9 +248,10 @@ function ListRules(props) {
       fetchRules(),
       fetchRequiredSignoffs(OBJECT_NAMES.PRODUCT_REQUIRED_SIGNOFF),
       fetchEmergencyShutoffs(),
+      fetchScheduledEmergencyShutoffs(),
       fetchProducts(),
       fetchChannels(),
-    ]).then(([sc, r, rs, es]) => {
+    ]).then(([sc, r, rs, es, scheduledEs]) => {
       if (!sc.data || !r.data || !rs.data) {
         return;
       }
@@ -311,6 +319,10 @@ function ListRules(props) {
 
       if (es.data) {
         setEmergencyShutoffs(es.data.data.shutoffs);
+      }
+
+      if (scheduledEs.data) {
+        setScheduledEmergencyShutoffs(scheduledEs.data.data.scheduled_changes);
       }
     });
   }, []);
@@ -862,7 +874,7 @@ function ListRules(props) {
           <div className={classes.options}>
             <div>
               {productChannelFilter !== ALL &&
-                searchQueries[1] &&
+                searchQueries.length === 2 && searchQueries[1] &&
                 filteredProductChannelIsShutoff && (
                   // todo: make this fixed width and disable the close button
                   <ErrorPanel error="Updates are currently disabled for this product and channel" />
@@ -882,6 +894,11 @@ function ListRules(props) {
               ))}
             </TextField>
           </div>
+          {productChannelFilter !== ALL && searchQueries.length === 2 && scheduledEmergencyShutoffs.find(es => es.product === searchQueries[0] && es.channel === searchQueries[1]) && (
+            <div>
+              Updates are scheduled to be enabled.
+            </div>
+          )}
           {filteredRulesWithScheduledChanges && (
             <Fragment>
               <VariableSizeList

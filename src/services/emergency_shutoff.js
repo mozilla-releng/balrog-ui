@@ -7,6 +7,8 @@ const deleteEmergencyShutoff = (product, channel, dataVersion) =>
   axios.delete(`/emergency_shutoff/${product}/${channel}`, {
     params: { data_version: dataVersion },
   });
+const getScheduledChanges = () =>
+  axios.get('/scheduled_changes/emergency_shutoff');
 const scheduleDeleteEmergencyShutoff = (product, channel, dataVersion, when) =>
   axios.post('/scheduled_changes/emergency_shutoff', {
     product,
@@ -21,5 +23,6 @@ export {
   getEmergencyShutoffs,
   createEmergencyShutoff,
   deleteEmergencyShutoff,
+  getScheduledChanges,
   scheduleDeleteEmergencyShutoff,
 };
