@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Column } from 'react-virtualized';
 import { clone } from 'ramda';
+import { stringify } from 'qs';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { makeStyles } from '@material-ui/styles';
 import Typography from '@material-ui/core/Typography';
@@ -36,6 +37,10 @@ const useStyles = makeStyles({
 
 function ListRuleRevisions(props) {
   const classes = useStyles();
+  const rulesFilter =
+    props.location.state && props.location.state.rulesFilter
+      ? props.location.state.rulesFilter
+      : [];
   const [drawerState, setDrawerState] = useState({ open: false, item: {} });
   const [leftRadioCheckedIndex, setLeftRadioCheckedIndex] = useState(1);
   const [rightRadioCheckedIndex, setRightRadioCheckedIndex] = useState(0);
@@ -50,6 +55,12 @@ function ListRuleRevisions(props) {
     ? fetchedRevisions.data.data.rules
     : [];
   const revisionsCount = revisions.length;
+  const redirectWithRulesFilter = hashFilter => {
+    const [product, channel] = rulesFilter;
+    const query = stringify({ product, channel }, { addQueryPrefix: true });
+
+    props.history.push(`/rules${query}#${hashFilter}`);
+  };
 
   useEffect(() => {
     fetchRevisions(ruleId);
@@ -114,7 +125,7 @@ function ListRuleRevisions(props) {
 
   const handleDialogClose = () => setDialogState(DIALOG_ACTION_INITIAL_STATE);
   const handleDialogActionComplete = scId =>
-    props.history.push(`/rules#scId=${scId}`);
+    redirectWithRulesFilter(`scId=${scId}`);
   const handleDialogError = error => setDialogState({ ...dialogState, error });
   const columnWidth = CONTENT_MAX_WIDTH / 4;
 

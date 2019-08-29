@@ -1,4 +1,5 @@
 import React from 'react';
+import { stringify } from 'qs';
 import { func } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
@@ -95,9 +96,21 @@ const useStyles = makeStyles(theme => ({
 function ReleaseCard(props) {
   const { release, onAccessChange, onReleaseDelete, ...rest } = props;
   const classes = useStyles();
-  const hasRulesPointingAtRevision = release.rule_ids.length > 0;
+  const hasRulesPointingAtRevision = Object.keys(release.rule_info).length > 0;
   const handleAccessChange = ({ target: { checked } }) => {
     onAccessChange({ release, checked });
+  };
+
+  const getRuleLink = (ruleId, product, channel) => {
+    const args = { product };
+
+    if (channel) {
+      args.channel = channel.replace(/[-*]*$/, '');
+    }
+
+    const qs = stringify(args, { addQueryPrefix: true });
+
+    return `/rules${qs}#ruleId=${ruleId}`;
   };
 
   return (
@@ -168,20 +181,26 @@ function ReleaseCard(props) {
                   secondaryTypographyProps={{ component: 'div' }}
                   secondary={
                     hasRulesPointingAtRevision ? (
-                      release.rule_ids.map(ruleId => (
-                        <Link
-                          className={classes.link}
-                          key={ruleId}
-                          to={`/rules/${ruleId}`}>
-                          <Chip
-                            clickable
-                            size="small"
-                            icon={<LinkIcon />}
-                            label={ruleId}
-                            className={classes.chip}
-                          />
-                        </Link>
-                      ))
+                      Object.entries(release.rule_info).map(
+                        ([ruleId, ruleInfo]) => (
+                          <Link
+                            className={classes.link}
+                            key={ruleId}
+                            to={getRuleLink(
+                              ruleId,
+                              ruleInfo.product,
+                              ruleInfo.channel
+                            )}>
+                            <Chip
+                              clickable
+                              size="small"
+                              icon={<LinkIcon />}
+                              label={ruleId}
+                              className={classes.chip}
+                            />
+                          </Link>
+                        )
+                      )
                     ) : (
                       <em>n/a</em>
                     )

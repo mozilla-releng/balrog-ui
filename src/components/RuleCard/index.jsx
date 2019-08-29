@@ -138,6 +138,7 @@ const useStyles = makeStyles(theme => ({
 
 function RuleCard({
   rule,
+  rulesFilter,
   onRuleDelete,
   onSignoff,
   onRevoke,
@@ -223,7 +224,11 @@ function RuleCard({
           }
           action={
             !readOnly ? (
-              <Link to={`/rules/${rule.rule_id}/revisions`}>
+              <Link
+                to={{
+                  pathname: `/rules/${rule.rule_id}/revisions`,
+                  state: { rulesFilter },
+                }}>
                 <Tooltip title="Revisions">
                   <IconButton>
                     <HistoryIcon />
@@ -724,6 +729,7 @@ function RuleCard({
                 pathname: '/rules/create',
                 state: {
                   rule,
+                  rulesFilter,
                 },
               }}>
               <Button color="secondary">Duplicate</Button>
@@ -736,11 +742,14 @@ function RuleCard({
           {user ? (
             <Link
               className={classes.link}
-              to={
-                rule.rule_id
+              to={{
+                pathname: rule.rule_id
                   ? `/rules/${rule.rule_id}`
-                  : `/rules/create/${rule.scheduledChange.sc_id}`
-              }>
+                  : `/rules/create/${rule.scheduledChange.sc_id}`,
+                state: {
+                  rulesFilter,
+                },
+              }}>
               <Button color="secondary">Update</Button>
             </Link>
           ) : (
