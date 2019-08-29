@@ -39,5 +39,10 @@ export const release = shape({
   product: string,
   read_only: bool,
   required_signoffs: object,
-  rule_info: object,
+  rule_info: shape({
+    rule_id: shape({
+      channel: string,
+      product: string,
+    }),
+  }),
 });
