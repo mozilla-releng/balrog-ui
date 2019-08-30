@@ -309,10 +309,8 @@ function ListRules(props) {
                 if (ruleChannel !== channelFilter) {
                   return false;
                 }
-              } else {
-                if (!channelFilter.startsWith(ruleChannel.split("*")[0])) {
-                  return false;
-                }
+              } else if (!channelFilter.startsWith(ruleChannel.split('*')[0])) {
+                return false;
               }
             }
 
