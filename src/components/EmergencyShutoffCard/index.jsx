@@ -145,16 +145,16 @@ function EmergencyShutoffCard({
 
   return (
     <Card classes={{ root: classes.root }} spacing={4} {...props}>
-        <CardHeader
-          classes={{ avatar: classes.cardHeaderAvatar }}
-          className={classes.cardHeader}
-          avatar={<AlertIcon />}
-          title={
-            <Typography component="h2" variant="h6">
-              Updates are currently disabled for this product and channel.
-            </Typography>
-          }
-        />
+      <CardHeader
+        classes={{ avatar: classes.cardHeaderAvatar }}
+        className={classes.cardHeader}
+        avatar={<AlertIcon />}
+        title={
+          <Typography component="h2" variant="h6">
+            Updates are currently disabled for this product and channel.
+          </Typography>
+        }
+      />
       <CardContent classes={{ root: classes.cardContentRoot }}>
         {emergencyShutoff.scheduledChange && (
           <Fragment>
@@ -184,29 +184,31 @@ function EmergencyShutoffCard({
           </Fragment>
         )}
         {!readOnly && requiresSignoff && (
-        <SignoffSummary
-          requiredSignoffs={emergencyShutoff.scheduledChange.required_signoffs}
-          signoffs={emergencyShutoff.scheduledChange.signoffs}
-          className={classes.space}
-        />
+          <SignoffSummary
+            requiredSignoffs={
+              emergencyShutoff.scheduledChange.required_signoffs
+            }
+            signoffs={emergencyShutoff.scheduledChange.signoffs}
+            className={classes.space}
+          />
         )}
       </CardContent>
       {!readOnly && (
         <CardActions className={classes.cardActions}>
           {emergencyShutoff.scheduledChange ? (
-          <Button
-            color="secondary"
-            disabled={!user}
-            onClick={() => onCancelEnable(emergencySignoff)}>
-            Keep Updates Disabled
-          </Button>
+            <Button
+              color="secondary"
+              disabled={!user}
+              onClick={() => onCancelEnable(emergencySignoff)}>
+              Keep Updates Disabled
+            </Button>
           ) : (
-          <Button
-            color="secondary"
-            disabled={!user}
-            onClick={() => onEnableUpdates(emergencySignoff)}>
-            Enable Updates
-          </Button>
+            <Button
+              color="secondary"
+              disabled={!user}
+              onClick={() => onEnableUpdates(emergencySignoff)}>
+              Enable Updates
+            </Button>
           )}
           {requiresSignoff &&
             (user && user.email in emergencyShutoff.scheduledChange.signoffs ? (
@@ -217,8 +219,7 @@ function EmergencyShutoffCard({
               <Button color="secondary" disabled={!user} onClick={onSignoff}>
                 Signoff
               </Button>
-            ))
-          }
+            ))}
         </CardActions>
       )}
     </Card>

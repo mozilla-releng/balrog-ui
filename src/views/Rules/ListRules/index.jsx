@@ -155,9 +155,10 @@ function ListRules(props) {
   const [emergencyShutoffsAction, fetchEmergencyShutoffs] = useAction(
     getEmergencyShutoffs
   );
-  const [scheduledEmergencyShutoffsAction, fetchScheduledEmergencyShutoffs] = useAction(
-    getScheduledEmergencyShutoffs
-  );
+  const [
+    scheduledEmergencyShutoffsAction,
+    fetchScheduledEmergencyShutoffs,
+  ] = useAction(getScheduledEmergencyShutoffs);
   const [disableUpdatesAction, disableUpdates] = useAction(
     createEmergencyShutoff
   );
@@ -319,14 +320,19 @@ function ListRules(props) {
 
       if (es.data && scheduledEs.data) {
         const shutoffs = es.data.data.shutoffs.map(shutoff => {
-          const sc = scheduledEs.data.data.scheduled_changes.find(ses => ses.product === shutoff.product && ses.channel === shutoff.channel);
-          
+          const returnedShutoff = clone(shutoff);
+          const sc = scheduledEs.data.data.scheduled_changes.find(
+            ses =>
+              ses.product === shutoff.product && ses.channel === shutoff.channel
+          );
+
           if (sc) {
-            shutoff.scheduledChange = sc;
+            returnedShutoff.scheduledChange = sc;
           }
 
-          return shutoff;
+          return returnedShutoff;
         });
+
         setEmergencyShutoffs(shutoffs);
       }
     });
@@ -348,7 +354,11 @@ function ListRules(props) {
   }, [username]);
 
   useEffect(() => {
-    if (!requiredSignoffs.data || !searchQueries || searchQueries.length !== 2) {
+    if (
+      !requiredSignoffs.data ||
+      !searchQueries ||
+      searchQueries.length !== 2
+    ) {
       setFilteredProductChannelRequiresSignoff(false);
     } else {
       setFilteredProductChannelRequiresSignoff(
@@ -672,7 +682,7 @@ function ListRules(props) {
       if (filteredProductChannelRequiresSignoff) {
         const now = new Date();
         const when = now.getTime() + 5000;
-        const { error } = await scheduleEnableUpdates(
+        const { error, data } = await scheduleEnableUpdates(
           product,
           channel,
           esDetails.data_version,
@@ -680,6 +690,18 @@ function ListRules(props) {
         );
 
         if (!error) {
+          setEmergencyShutoffs(
+            emergencyShutoffs.map(es => {
+              if (es.product !== product || es.channel !== channel) {
+                return es;
+              }
+
+              // how to construct this without reloading everything?
+              es.scheduledChange = {
+                ...es,
+              };
+            })
+          );
         }
       } else {
         const { error } = await enableUpdates(
@@ -879,7 +901,8 @@ function ListRules(props) {
           <div className={classes.options}>
             <div>
               {productChannelFilter !== ALL &&
-                searchQueries.length === 2 && searchQueries[1] &&
+                searchQueries.length === 2 &&
+                searchQueries[1] &&
                 filteredProductChannelIsShutoff && (
                   // todo: make this fixed width and disable the close button
                   <ErrorPanel error="Updates are currently disabled for this product and channel" />
@@ -899,13 +922,23 @@ function ListRules(props) {
               ))}
             </TextField>
           </div>
-          {productChannelFilter !== ALL && searchQueries.length === 2 && emergencyShutoffs.find(es => es.product === searchQueries[0] && es.channel === searchQueries[1]) && (
-            <EmergencyShutoffCard
-              emergencyShutoff={emergencyShutoffs.find(es => es.product === searchQueries[0] && es.channel === searchQueries[1])}
-              onSignoff={() => {}}
-              onRevoke={() => {}}
-            />
-          )}
+          {productChannelFilter !== ALL &&
+            searchQueries.length === 2 &&
+            emergencyShutoffs.find(
+              es =>
+                es.product === searchQueries[0] &&
+                es.channel === searchQueries[1]
+            ) && (
+              <EmergencyShutoffCard
+                emergencyShutoff={emergencyShutoffs.find(
+                  es =>
+                    es.product === searchQueries[0] &&
+                    es.channel === searchQueries[1]
+                )}
+                onSignoff={() => {}}
+                onRevoke={() => {}}
+              />
+            )}
           {filteredRulesWithScheduledChanges && (
             <Fragment>
               <VariableSizeList
