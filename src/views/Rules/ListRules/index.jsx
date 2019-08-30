@@ -45,6 +45,7 @@ import {
   deleteEmergencyShutoff,
   getScheduledChanges as getScheduledEmergencyShutoffs,
   scheduleDeleteEmergencyShutoff,
+  cancelDeleteEmergencyShutoff,
 } from '../../../services/emergency_shutoff';
 import { getUserInfo } from '../../../services/users';
 import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
@@ -171,6 +172,9 @@ function ListRules(props) {
   const [scheduleEnableUpdatesAction, scheduleEnableUpdates] = useAction(
     scheduleDeleteEmergencyShutoff
   );
+  const [cancelEnableUpdatesAction, cancelEnableUpdates] = useAction(
+    cancelDeleteEmergencyShutoff
+  );
   const isLoading =
     products.loading ||
     channels.loading ||
@@ -185,6 +189,7 @@ function ListRules(props) {
     disableUpdatesAction.error ||
     enableUpdatesAction.error ||
     scheduleEnableUpdatesAction.error ||
+    cancelEnableUpdatesAction.error ||
     rolesAction.error ||
     scheduledChanges.error ||
     revokeAction.error ||
@@ -741,7 +746,33 @@ function ListRules(props) {
     }
   };
 
-  const handleCancelEnableUpdates = async () => {};
+  const handleCancelEnableUpdates = async () => {
+    const [product, channel] = searchQueries;
+    const esDetails = emergencyShutoffs.find(
+      es => es.product === product && es.channel === channel
+    );
+    const { error } = await cancelEnableUpdates(
+      esDetails.scheduledChange.sc_id,
+      esDetails.scheduledChange.sc_data_version
+    );
+
+    if (!error) {
+      setEmergencyShutoffs(
+        emergencyShutoffs.map(es => {
+          if (es.product !== product || es.channel !== channel) {
+            return es;
+          }
+
+          const shutoff = clone(es);
+
+          delete shutoff.scheduledChange;
+
+          return shutoff;
+        })
+      );
+    }
+  };
+
   const handleEnableUpdatesSignoff = async () => {};
   const handleEnableUpdatesRevoke = async () => {};
   const getRowHeight = ({ index }) => {

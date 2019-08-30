@@ -17,6 +17,10 @@ const scheduleDeleteEmergencyShutoff = (product, channel, dataVersion, when) =>
     when,
     change_type: 'delete',
   });
+const cancelDeleteEmergencyShutoff = (scId, scDataVersion) =>
+  axios.delete(`/scheduled_changes/emergency_shutoff/${scId}`, {
+    params: { data_version: scDataVersion },
+  });
 
 // eslint-disable-next-line import/prefer-default-export
 export {
@@ -25,4 +29,5 @@ export {
   deleteEmergencyShutoff,
   getScheduledChanges,
   scheduleDeleteEmergencyShutoff,
+  cancelDeleteEmergencyShutoff,
 };
