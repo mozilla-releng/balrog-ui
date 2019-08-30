@@ -175,6 +175,12 @@ function ListRules(props) {
   const [cancelEnableUpdatesAction, cancelEnableUpdates] = useAction(
     cancelDeleteEmergencyShutoff
   );
+  const [signoffEnableUpdatesAction, signoffEnableUpdates] = useAction(props =>
+    makeSignoffEnableUpdates({ type: 'emergency_shutoff', ...props })
+  );
+  const [revokeEnableUpdatesAction, revokeEnableUpdates] = useAction(props =>
+    revokeSignoffEnableUpdates({ type: 'rules', ...props })
+  );
   const isLoading =
     products.loading ||
     channels.loading ||
@@ -193,7 +199,9 @@ function ListRules(props) {
     rolesAction.error ||
     scheduledChanges.error ||
     revokeAction.error ||
-    (roles.length === 1 && signoffAction.error);
+    (roles.length === 1 && signoffAction.error) ||
+    revokeEnableUpdatesAction.error ||
+    (roles.length === 1 && signoffEnableUpdatesAction.error);
   const handleFilterChange = ({ target: { value } }) => {
     const [product, channel] = value.split(productChannelSeparator);
     const query =
