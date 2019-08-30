@@ -64,6 +64,10 @@ const ALL = 'all';
 const useStyles = makeStyles(theme => ({
   fab: {
     ...theme.mixins.fab,
+    right: theme.spacing(12),
+  },
+  disableUpdates: {
+    color: theme.palette.error.main,
   },
   options: {
     display: 'flex',
@@ -689,7 +693,10 @@ function ListRules(props) {
         );
 
         if (!error) {
-          const { error: sesError, data: sesData } = await fetchScheduledEmergencyShutoffs();
+          const {
+            error: sesError,
+            data: sesData,
+          } = await fetchScheduledEmergencyShutoffs();
 
           if (!sesError) {
             setEmergencyShutoffs(
@@ -976,21 +983,12 @@ function ListRules(props) {
       <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
       <SpeedDial ariaLabel="Secondary Actions">
         <SpeedDialAction
-          disabled={isLoading || !username}
-          icon={
-            filteredProductChannelIsShutoff ? (
-              <CheckNetworkIcon />
-            ) : (
-              <CloseNetworkIcon />
-            )
-          }
+          disabled={isLoading || !username || filteredProductChannelIsShutoff}
+          icon={<CloseNetworkIcon />}
+          className={classes.disableUpdates}
           tooltipOpen
-          tooltipTitle={
-            filteredProductChannelIsShutoff
-              ? 'Enable Updates'
-              : 'Disable Updates'
-          }
-          onClick={toggleEmergencyShutoff}
+          tooltipTitle="Disable Updates"
+          onClick={disableUpdates}
         />
       </SpeedDial>
     </Dashboard>
