@@ -375,7 +375,7 @@ function ListRules(props) {
   useEffect(
     () =>
       setFilteredProductChannelIsShutoff(
-        emergencyShutoffs.find(es => {
+        emergencyShutoffs.some(es => {
           if (productChannelFilter === ALL) {
             return false;
           }
