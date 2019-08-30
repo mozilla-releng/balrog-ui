@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { bool, func, object } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
@@ -6,9 +6,7 @@ import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import Typography from '@material-ui/core/Typography';
-import Chip from '@material-ui/core/Chip';
 import AlertIcon from 'mdi-react/AlertIcon';
-import { formatDistanceStrict } from 'date-fns';
 import Button from '../Button';
 import SignoffSummary from '../SignoffSummary';
 import { withUser } from '../../utils/AuthContext';
@@ -140,38 +138,13 @@ function EmergencyShutoffCard({
         avatar={<AlertIcon />}
         title={
           <Typography component="h2" variant="h6">
-            Updates are currently disabled for this product and channel.
+            {emergencyShutoff.scheduledChange
+              ? 'Updates are scheduled to be enabled for this product and channel'
+              : 'Updates are currently disabled for this product and channel'}
           </Typography>
         }
       />
       <CardContent classes={{ root: classes.cardContentRoot }}>
-        {emergencyShutoff.scheduledChange && (
-          <Fragment>
-            <div className={classes.scheduledChangesHeader}>
-              <Typography
-                className={classes.scheduledChangesTitle}
-                component="h4"
-                variant="subtitle1">
-                Scheduled Changes
-              </Typography>
-              <Chip
-                className={classes.deleteChip}
-                icon={<AlertIcon className={classes.chipIcon} size={16} />}
-                label={`${formatDistanceStrict(
-                  emergencyShutoff.scheduledChange.when,
-                  new Date(),
-                  { addSuffix: true }
-                )} (${emergencyShutoff.scheduledChange.change_type})`}
-              />
-            </div>
-            <Typography
-              className={classes.deletedText}
-              variant="body2"
-              color="textSecondary">
-              Updates will be re-enabled.
-            </Typography>
-          </Fragment>
-        )}
         {!readOnly && requiresSignoff && (
           <SignoffSummary
             requiredSignoffs={
