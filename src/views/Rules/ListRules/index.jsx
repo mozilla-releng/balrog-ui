@@ -83,7 +83,7 @@ const useStyles = makeStyles(theme => ({
   tablePaginationSpacer: {
     flex: 'unset',
   },
-  ruleCard: {
+  card: {
     margin: theme.spacing(1),
   },
   ruleCardSelected: {
@@ -1047,7 +1047,7 @@ function ListRules(props) {
         }
         style={style}>
         <RuleCard
-          className={classNames(classes.ruleCard, {
+          className={classNames(classes.card, {
             [classes.ruleCardSelected]: isSelected,
           })}
           key={rule.rule_id}
@@ -1118,6 +1118,7 @@ function ListRules(props) {
                 es.channel === searchQueries[1]
             ) && (
               <EmergencyShutoffCard
+                className={classes.card}
                 emergencyShutoff={emergencyShutoffs.find(
                   es =>
                     es.product === searchQueries[0] &&
