@@ -52,7 +52,7 @@ export const DIALOG_ACTION_INITIAL_STATE = {
   item: null,
   open: false,
   destructive: false,
-  mode: '',
+  mode: null,
   handleSubmit: Function.prototype,
   handleClose: Function.prototype,
   handleError: Function.prototype,

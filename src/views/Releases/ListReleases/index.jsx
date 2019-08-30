@@ -66,7 +66,7 @@ function ListReleases(props) {
     body2TextHeight,
     h6TextHeight,
     subtitle1TextHeight,
-    listSubheaderTextHeight,
+    signoffSummarylistSubheaderTextHeight,
   } = elementsHeight(theme);
   const { hash } = props.location;
   const [releaseNameHash, setReleaseNameHash] = useState(null);
@@ -495,7 +495,7 @@ function ListReleases(props) {
         height += theme.spacing(2);
 
         // The "Requires Signoff From" title and the margin beneath it
-        height += listSubheaderTextHeight + theme.spacing(0.5);
+        height += signoffSummarylistSubheaderTextHeight + theme.spacing(0.5);
 
         // Space for however many rows exist.
         height += signoffRows * (body2TextHeight() + theme.spacing(0.5));

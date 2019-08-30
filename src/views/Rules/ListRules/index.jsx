@@ -86,7 +86,7 @@ function ListRules(props) {
     body2TextHeight,
     subtitle1TextHeight,
     buttonHeight,
-    listSubheaderTextHeight,
+    signoffSummarylistSubheaderTextHeight,
   } = elementsHeight(theme);
   const productChannelSeparator = ' : ';
   const [snackbarState, setSnackbarState] = useState(SNACKBAR_INITIAL_STATE);
@@ -671,7 +671,7 @@ function ListRules(props) {
         height += theme.spacing(2);
 
         // The "Requires Signoff From" title and the margin beneath it
-        height += listSubheaderTextHeight;
+        height += signoffSummarylistSubheaderTextHeight + theme.spacing(0.5);
 
         // Space for however many rows exist.
         height += signoffRows * body2TextHeight();
