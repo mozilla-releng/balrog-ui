@@ -172,8 +172,7 @@ function ListRules(props) {
     products.loading ||
     channels.loading ||
     rules.loading ||
-    emergencyShutoffsAction.loading ||
-    scheduledEmergencyShutoffsAction.loading;
+    emergencyShutoffsAction.loading;
   const error =
     products.error ||
     channels.error ||
@@ -682,7 +681,7 @@ function ListRules(props) {
       if (filteredProductChannelRequiresSignoff) {
         const now = new Date();
         const when = now.getTime() + 5000;
-        const { error, data } = await scheduleEnableUpdates(
+        const { error } = await scheduleEnableUpdates(
           product,
           channel,
           esDetails.data_version,
@@ -690,18 +689,29 @@ function ListRules(props) {
         );
 
         if (!error) {
-          setEmergencyShutoffs(
-            emergencyShutoffs.map(es => {
-              if (es.product !== product || es.channel !== channel) {
-                return es;
-              }
+          const { error: sesError, data: sesData } = await fetchScheduledEmergencyShutoffs();
 
-              // how to construct this without reloading everything?
-              es.scheduledChange = {
-                ...es,
-              };
-            })
-          );
+          if (!sesError) {
+            setEmergencyShutoffs(
+              emergencyShutoffs.map(es => {
+                if (es.product !== product || es.channel !== channel) {
+                  return es;
+                }
+
+                const shutoff = clone(es);
+                const sc = sesData.data.scheduled_changes.find(
+                  ses =>
+                    ses.product === es.product && ses.channel === es.channel
+                );
+
+                if (sc) {
+                  shutoff.scheduledChange = sc;
+                }
+
+                return shutoff;
+              })
+            );
+          }
         }
       } else {
         const { error } = await enableUpdates(
