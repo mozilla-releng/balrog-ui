@@ -648,7 +648,8 @@ function ListRules(props) {
   };
 
   const deleteDialogBody =
-    dialogState.mode === 'delete' && dialogState.item &&
+    dialogState.mode === 'delete' &&
+    dialogState.item &&
     (!isScheduledInsert(dialogState.item) &&
     Object.keys(dialogState.item.required_signoffs).length > 0 ? (
       <DateTimePicker
@@ -784,7 +785,10 @@ function ListRules(props) {
     }
   };
 
-  const updateSignoffsEnableUpdates = ({ roleToSignoffWith, emergencyShutoff }) => {
+  const updateSignoffsEnableUpdates = ({
+    roleToSignoffWith,
+    emergencyShutoff,
+  }) => {
     setEmergencyShutoffs(
       emergencyShutoffs.map(es => {
         if (
@@ -803,7 +807,10 @@ function ListRules(props) {
     );
   };
 
-  const doSignoffEnableUpdates = async (roleToSignoffWith, emergencyShutoff) => {
+  const doSignoffEnableUpdates = async (
+    roleToSignoffWith,
+    emergencyShutoff
+  ) => {
     const { error } = await signoffEnableUpdates({
       scId: emergencyShutoff.scheduledChange.sc_id,
       role: roleToSignoffWith,
@@ -813,7 +820,10 @@ function ListRules(props) {
   };
 
   const handleSignoffEnableUpdatesDialogSubmit = async () => {
-    const { error, result } = await doSignoffEnableUpdates(signoffRole, dialogState.item);
+    const { error, result } = await doSignoffEnableUpdates(
+      signoffRole,
+      dialogState.item
+    );
 
     if (error) {
       throw error;
@@ -834,7 +844,10 @@ function ListRules(props) {
     );
 
     if (roles.length === 1) {
-      const { error, result } = await doSignoffEnableUpdates(roles[0], esDetails);
+      const { error, result } = await doSignoffEnableUpdates(
+        roles[0],
+        esDetails
+      );
 
       if (!error) {
         updateSignoffsEnableUpdates(result);
@@ -872,9 +885,9 @@ function ListRules(props) {
           ) {
             return es;
           }
-  
+
           const newEs = { ...es };
-  
+
           delete newEs.scheduledChange.signoffs[username];
 
           return newEs;
