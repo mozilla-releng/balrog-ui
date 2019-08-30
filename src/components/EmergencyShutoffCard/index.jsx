@@ -1,30 +1,17 @@
 import React, { Fragment } from 'react';
 import { bool, func, object } from 'prop-types';
-import classNames from 'classnames';
 import { makeStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import Tooltip from '@material-ui/core/Tooltip';
-import IconButton from '@material-ui/core/IconButton';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
-import Grid from '@material-ui/core/Grid';
-import Avatar from '@material-ui/core/Avatar';
-import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import Chip from '@material-ui/core/Chip';
 import AlertIcon from 'mdi-react/AlertIcon';
-import UpdateIcon from 'mdi-react/UpdateIcon';
-import PlusCircleIcon from 'mdi-react/PlusCircleIcon';
-import HistoryIcon from 'mdi-react/HistoryIcon';
 import { formatDistanceStrict } from 'date-fns';
 import Button from '../Button';
 import SignoffSummary from '../SignoffSummary';
 import { withUser } from '../../utils/AuthContext';
-import Link from '../../utils/Link';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -130,6 +117,8 @@ const useStyles = makeStyles(theme => ({
 
 function EmergencyShutoffCard({
   emergencyShutoff,
+  onEnableUpdates,
+  onCancelEnable,
   onSignoff,
   onRevoke,
   user,
@@ -199,14 +188,14 @@ function EmergencyShutoffCard({
             <Button
               color="secondary"
               disabled={!user}
-              onClick={() => onCancelEnable(emergencySignoff)}>
+              onClick={() => onCancelEnable(emergencyShutoff)}>
               Keep Updates Disabled
             </Button>
           ) : (
             <Button
               color="secondary"
               disabled={!user}
-              onClick={() => onEnableUpdates(emergencySignoff)}>
+              onClick={() => onEnableUpdates(emergencyShutoff)}>
               Enable Updates
             </Button>
           )}

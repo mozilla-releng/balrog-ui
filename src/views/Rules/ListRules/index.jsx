@@ -15,7 +15,6 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 import PlusIcon from 'mdi-react/PlusIcon';
-import CheckNetworkIcon from 'mdi-react/CheckNetworkIcon';
 import CloseNetworkIcon from 'mdi-react/CloseNetworkIcon';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
