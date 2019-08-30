@@ -175,7 +175,7 @@ function ListRules(props) {
     signoff({ type: 'emergency_shutoff', ...props })
   );
   const [revokeEnableUpdatesAction, revokeEnableUpdates] = useAction(props =>
-    revoke({ type: 'rules', ...props })
+    revoke({ type: 'emergency_shutoff', ...props })
   );
   const isLoading =
     products.loading ||
@@ -853,7 +853,36 @@ function ListRules(props) {
     }
   };
 
-  const handleRevokeEnableUpdates = async () => {};
+  const handleRevokeEnableUpdates = async () => {
+    const [product, channel] = searchQueries;
+    const esDetails = emergencyShutoffs.find(
+      es => es.product === product && es.channel === channel
+    );
+    const { error } = await revokeEnableUpdates({
+      scId: esDetails.scheduledChange.sc_id,
+      role: esDetails.scheduledChange.signoffs[username],
+    });
+
+    if (!error) {
+      setEmergencyShutoffs(
+        emergencyShutoffs.map(es => {
+          if (
+            !es.scheduledChange ||
+            es.scheduledChange.sc_id !== esDetails.scheduledChange.sc_id
+          ) {
+            return es;
+          }
+  
+          const newEs = { ...es };
+  
+          delete newEs.scheduledChange.signoffs[username];
+
+          return newEs;
+        })
+      );
+    }
+  };
+
   const getDialogSubmit = () => {
     if (dialogState.mode === 'delete') {
       return handleDeleteDialogSubmit;
