@@ -67,7 +67,7 @@ const useStyles = makeStyles(theme => ({
   },
   options: {
     display: 'flex',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
   },
   dropdown: {
     minWidth: 200,
@@ -909,15 +909,6 @@ function ListRules(props) {
       {!isLoading && productChannelOptions && (
         <Fragment>
           <div className={classes.options}>
-            <div>
-              {productChannelFilter !== ALL &&
-                searchQueries.length === 2 &&
-                searchQueries[1] &&
-                filteredProductChannelIsShutoff && (
-                  // todo: make this fixed width and disable the close button
-                  <ErrorPanel error="Updates are currently disabled for this product and channel" />
-                )}
-            </div>
             <TextField
               className={classes.dropdown}
               select
