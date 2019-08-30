@@ -669,83 +669,81 @@ function ListRules(props) {
     });
   };
 
-  const toggleEmergencyShutoff = async () => {
-    // If disabling, action is always the same
-    // If enabling, we can do it directly if no signoff
-    // is required for the current product/channel.
-    // If signoff is required, it must be scheduled.
+  const handleDisableUpdates = async () => {
     const [product, channel] = searchQueries;
+    const { error, data } = await disableUpdates(product, channel);
 
-    if (filteredProductChannelIsShutoff) {
-      const esDetails = emergencyShutoffs.find(
-        es => es.product === product && es.channel === channel
+    if (!error) {
+      const result = clone(emergencyShutoffs);
+
+      result.push(data.data);
+      setEmergencyShutoffs(result);
+    }
+  };
+
+  const handleEnableUpdates = async () => {
+    const [product, channel] = searchQueries;
+    const esDetails = emergencyShutoffs.find(
+      es => es.product === product && es.channel === channel
+    );
+
+    if (filteredProductChannelRequiresSignoff) {
+      const now = new Date();
+      const when = now.getTime() + 5000;
+      const { error } = await scheduleEnableUpdates(
+        product,
+        channel,
+        esDetails.data_version,
+        when
       );
 
-      if (filteredProductChannelRequiresSignoff) {
-        const now = new Date();
-        const when = now.getTime() + 5000;
-        const { error } = await scheduleEnableUpdates(
-          product,
-          channel,
-          esDetails.data_version,
-          when
-        );
+      if (!error) {
+        const {
+          error: sesError,
+          data: sesData,
+        } = await fetchScheduledEmergencyShutoffs();
 
-        if (!error) {
-          const {
-            error: sesError,
-            data: sesData,
-          } = await fetchScheduledEmergencyShutoffs();
-
-          if (!sesError) {
-            setEmergencyShutoffs(
-              emergencyShutoffs.map(es => {
-                if (es.product !== product || es.channel !== channel) {
-                  return es;
-                }
-
-                const shutoff = clone(es);
-                const sc = sesData.data.scheduled_changes.find(
-                  ses =>
-                    ses.product === es.product && ses.channel === es.channel
-                );
-
-                if (sc) {
-                  shutoff.scheduledChange = sc;
-                }
-
-                return shutoff;
-              })
-            );
-          }
-        }
-      } else {
-        const { error } = await enableUpdates(
-          product,
-          channel,
-          esDetails.data_version
-        );
-
-        if (!error) {
+        if (!sesError) {
           setEmergencyShutoffs(
-            emergencyShutoffs.filter(
-              es => es.product !== product && es.channel !== channel
-            )
+            emergencyShutoffs.map(es => {
+              if (es.product !== product || es.channel !== channel) {
+                return es;
+              }
+
+              const shutoff = clone(es);
+              const sc = sesData.data.scheduled_changes.find(
+                ses => ses.product === es.product && ses.channel === es.channel
+              );
+
+              if (sc) {
+                shutoff.scheduledChange = sc;
+              }
+
+              return shutoff;
+            })
           );
         }
       }
     } else {
-      const { error, data } = await disableUpdates(product, channel);
+      const { error } = await enableUpdates(
+        product,
+        channel,
+        esDetails.data_version
+      );
 
       if (!error) {
-        const result = clone(emergencyShutoffs);
-
-        result.push(data.data);
-        setEmergencyShutoffs(result);
+        setEmergencyShutoffs(
+          emergencyShutoffs.filter(
+            es => es.product !== product && es.channel !== channel
+          )
+        );
       }
     }
   };
 
+  const handleCancelEnableUpdates = async () => {};
+  const handleEnableUpdatesSignoff = async () => {};
+  const handleEnableUpdatesRevoke = async () => {};
   const getRowHeight = ({ index }) => {
     const rule = filteredRulesWithScheduledChanges[index];
     const hasScheduledChanges = Boolean(rule.scheduledChange);
@@ -942,8 +940,10 @@ function ListRules(props) {
                     es.product === searchQueries[0] &&
                     es.channel === searchQueries[1]
                 )}
-                onSignoff={() => {}}
-                onRevoke={() => {}}
+                onEnableUpdates={handleEnableUpdates}
+                onCancelEnable={handleCancelEnableUpdates}
+                onSignoff={handleEnableUpdatesSignoff}
+                onRevoke={handleEnableUpdatesRevoke}
               />
             )}
           {filteredRulesWithScheduledChanges && (
@@ -987,7 +987,7 @@ function ListRules(props) {
           className={classes.disableUpdates}
           tooltipOpen
           tooltipTitle="Disable Updates"
-          onClick={disableUpdates}
+          onClick={handleDisableUpdates}
         />
       </SpeedDial>
     </Dashboard>
