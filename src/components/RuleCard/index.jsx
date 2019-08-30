@@ -144,8 +144,10 @@ function RuleCard({
   onRevoke,
   user,
   readOnly,
-  onAuthorize,
-  onUnauthorize,
+  // We don't actually use these, but we need to avoid passing them onto
+  // `Card` like the rest of the props.
+  onAuthorize: _,
+  onUnauthorize: __,
   ...props
 }) {
   const classes = useStyles();
@@ -711,13 +713,11 @@ function RuleCard({
           </Fragment>
         )}
         {!readOnly && requiresSignoff && (
-          <Fragment>
-            <SignoffSummary
-              requiredSignoffs={rule.scheduledChange.required_signoffs}
-              signoffs={rule.scheduledChange.signoffs}
-              className={classes.space}
-            />
-          </Fragment>
+          <SignoffSummary
+            requiredSignoffs={rule.scheduledChange.required_signoffs}
+            signoffs={rule.scheduledChange.signoffs}
+            className={classes.space}
+          />
         )}
       </CardContent>
       {!readOnly && (

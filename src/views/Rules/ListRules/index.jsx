@@ -86,6 +86,7 @@ function ListRules(props) {
     body2TextHeight,
     subtitle1TextHeight,
     buttonHeight,
+    signoffSummarylistSubheaderTextHeight,
   } = elementsHeight(theme);
   const productChannelSeparator = ' : ';
   const [snackbarState, setSnackbarState] = useState(SNACKBAR_INITIAL_STATE);
@@ -98,7 +99,6 @@ function ListRules(props) {
   const searchQueries = query.product ? [query.product, query.channel] : null;
   const [productChannelFilter, setProductChannelFilter] = useState(ALL);
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
-  const [dialogMode, setDialogMode] = useState('delete');
   const [scheduleDeleteDate, setScheduleDeleteDate] = useState(
     addSeconds(new Date(), -30)
   );
@@ -379,8 +379,8 @@ function ListRules(props) {
     handleDialogClose();
   };
 
-  const handleDeleteDialogSubmit = async state => {
-    const dialogRule = state.item;
+  const handleDeleteDialogSubmit = async () => {
+    const dialogRule = dialogState.item;
     const now = new Date();
     const when =
       scheduleDeleteDate >= now
@@ -439,7 +439,7 @@ function ListRules(props) {
     </FormControl>
   );
   const filteredRulesCount = filteredRulesWithScheduledChanges.length;
-  const updateSignoffs = ({ signoffRole, rule }) => {
+  const updateSignoffs = ({ roleToSignoffWith, rule }) => {
     setRulesWithScheduledChanges(
       rulesWithScheduledChanges.map(r => {
         if (
@@ -451,24 +451,24 @@ function ListRules(props) {
 
         const newRule = { ...r };
 
-        newRule.scheduledChange.signoffs[username] = signoffRole;
+        newRule.scheduledChange.signoffs[username] = roleToSignoffWith;
 
         return newRule;
       })
     );
   };
 
-  const doSignoff = async (signoffRole, rule) => {
+  const doSignoff = async (roleToSignoffWith, rule) => {
     const { error } = await signoff({
       scId: rule.scheduledChange.sc_id,
-      role: signoffRole,
+      role: roleToSignoffWith,
     });
 
-    return { error, result: { signoffRole, rule } };
+    return { error, result: { roleToSignoffWith, rule } };
   };
 
-  const handleSignoffDialogSubmit = async state => {
-    const { error, result } = await doSignoff(signoffRole, state.item);
+  const handleSignoffDialogSubmit = async () => {
+    const { error, result } = await doSignoff(signoffRole, dialogState.item);
 
     if (error) {
       throw error;
@@ -490,13 +490,13 @@ function ListRules(props) {
         updateSignoffs(result);
       }
     } else {
-      setDialogMode('signoff');
       setDialogState({
         ...dialogState,
         open: true,
         title: 'Signoff as…',
         confirmText: 'Sign off',
         item: rule,
+        mode: 'signoff',
         handleComplete: handleSignoffDialogComplete,
         handleSubmit: handleSignoffDialogSubmit,
       });
@@ -506,7 +506,7 @@ function ListRules(props) {
   const handleRevoke = async rule => {
     const { error } = await revoke({
       scId: rule.scheduledChange.sc_id,
-      role: signoffRole,
+      role: rule.scheduledChange.signoffs[username],
     });
 
     if (!error) {
@@ -554,7 +554,6 @@ function ListRules(props) {
       }.`
     ));
   const handleRuleDelete = rule => {
-    setDialogMode('delete');
     setDialogState({
       ...dialogState,
       open: true,
@@ -562,9 +561,18 @@ function ListRules(props) {
       confirmText: 'Delete',
       destructive: true,
       item: rule,
+      mode: 'delete',
       handleComplete: handleDeleteDialogComplete,
       handleSubmit: handleDeleteDialogSubmit,
     });
+  };
+
+  const getDialogSubmit = () => {
+    if (dialogState.mode === 'delete') {
+      return handleDeleteDialogSubmit;
+    }
+
+    return handleSignoffDialogSubmit;
   };
 
   const getRowHeight = ({ index }) => {
@@ -623,7 +631,7 @@ function ListRules(props) {
 
     if (hasScheduledChanges) {
       // row with the chip label
-      height += subtitle1TextHeight();
+      height += Math.max(subtitle1TextHeight(), theme.spacing(3));
 
       if (rule.scheduledChange.change_type === 'delete') {
         // row with "all properties will be deleted" + padding
@@ -663,7 +671,7 @@ function ListRules(props) {
         height += theme.spacing(2);
 
         // The "Requires Signoff From" title and the margin beneath it
-        height += body2TextHeight() + theme.spacing(0.5);
+        height += signoffSummarylistSubheaderTextHeight + theme.spacing(0.5);
 
         // Space for however many rows exist.
         height += signoffRows * body2TextHeight();
@@ -797,9 +805,11 @@ function ListRules(props) {
         open={dialogState.open}
         title={dialogState.title}
         destructive={dialogState.destructive}
-        body={dialogMode === 'delete' ? deleteDialogBody : signoffDialogBody}
+        body={
+          dialogState.mode === 'delete' ? deleteDialogBody : signoffDialogBody
+        }
         confirmText={dialogState.confirmText}
-        onSubmit={() => dialogState.handleSubmit(dialogState)}
+        onSubmit={getDialogSubmit()}
         onError={handleDialogError}
         error={dialogState.error}
         onComplete={dialogState.handleComplete}
