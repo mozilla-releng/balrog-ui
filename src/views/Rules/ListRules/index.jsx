@@ -172,10 +172,10 @@ function ListRules(props) {
     cancelDeleteEmergencyShutoff
   );
   const [signoffEnableUpdatesAction, signoffEnableUpdates] = useAction(props =>
-    makeSignoffEnableUpdates({ type: 'emergency_shutoff', ...props })
+    signoff({ type: 'emergency_shutoff', ...props })
   );
   const [revokeEnableUpdatesAction, revokeEnableUpdates] = useAction(props =>
-    revokeSignoffEnableUpdates({ type: 'rules', ...props })
+    revoke({ type: 'rules', ...props })
   );
   const isLoading =
     products.loading ||
@@ -648,7 +648,7 @@ function ListRules(props) {
   };
 
   const deleteDialogBody =
-    dialogState.item &&
+    dialogState.mode === 'delete' && dialogState.item &&
     (!isScheduledInsert(dialogState.item) &&
     Object.keys(dialogState.item.required_signoffs).length > 0 ? (
       <DateTimePicker
@@ -784,14 +784,86 @@ function ListRules(props) {
     }
   };
 
-  const handleEnableUpdatesSignoff = async () => {};
-  const handleEnableUpdatesRevoke = async () => {};
+  const updateSignoffsEnableUpdates = ({ roleToSignoffWith, emergencyShutoff }) => {
+    setEmergencyShutoffs(
+      emergencyShutoffs.map(es => {
+        if (
+          !es.scheduledChange ||
+          es.scheduledChange.sc_id !== emergencyShutoff.scheduledChange.sc_id
+        ) {
+          return es;
+        }
+
+        const newEs = { ...es };
+
+        newEs.scheduledChange.signoffs[username] = roleToSignoffWith;
+
+        return newEs;
+      })
+    );
+  };
+
+  const doSignoffEnableUpdates = async (roleToSignoffWith, emergencyShutoff) => {
+    const { error } = await signoffEnableUpdates({
+      scId: emergencyShutoff.scheduledChange.sc_id,
+      role: roleToSignoffWith,
+    });
+
+    return { error, result: { roleToSignoffWith, emergencyShutoff } };
+  };
+
+  const handleSignoffEnableUpdatesDialogSubmit = async () => {
+    const { error, result } = await doSignoffEnableUpdates(signoffRole, dialogState.item);
+
+    if (error) {
+      throw error;
+    }
+
+    return result;
+  };
+
+  const handleSignoffEnableUpdatesDialogComplete = result => {
+    updateSignoffsEnableUpdates(result);
+    handleDialogClose();
+  };
+
+  const handleSignoffEnableUpdates = async () => {
+    const [product, channel] = searchQueries;
+    const esDetails = emergencyShutoffs.find(
+      es => es.product === product && es.channel === channel
+    );
+
+    if (roles.length === 1) {
+      const { error, result } = await doSignoffEnableUpdates(roles[0], esDetails);
+
+      if (!error) {
+        updateSignoffsEnableUpdates(result);
+      }
+    } else {
+      setDialogState({
+        ...dialogState,
+        open: true,
+        title: 'Signoff as…',
+        confirmText: 'Sign off',
+        item: esDetails,
+        mode: 'signoffEnableUpdates',
+        handleComplete: handleSignoffEnableUpdatesDialogComplete,
+        handleSubmit: handleSignoffEnableUpdatesDialogSubmit,
+      });
+    }
+  };
+
+  const handleRevokeEnableUpdates = async () => {};
   const getDialogSubmit = () => {
     if (dialogState.mode === 'delete') {
       return handleDeleteDialogSubmit;
     }
 
-    return handleSignoffDialogSubmit;
+    if (dialogState.mode === 'signoff') {
+      return handleSignoffDialogSubmit;
+    }
+
+    return handleSignoffEnableUpdatesDialogSubmit;
   };
 
   const getRowHeight = ({ index }) => {
@@ -1011,8 +1083,8 @@ function ListRules(props) {
                 )}
                 onEnableUpdates={handleEnableUpdates}
                 onCancelEnable={handleCancelEnableUpdates}
-                onSignoff={handleEnableUpdatesSignoff}
-                onRevoke={handleEnableUpdatesRevoke}
+                onSignoff={handleSignoffEnableUpdates}
+                onRevoke={handleRevokeEnableUpdates}
               />
             )}
           {filteredRulesWithScheduledChanges && (
