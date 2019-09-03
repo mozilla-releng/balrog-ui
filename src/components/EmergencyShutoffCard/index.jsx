@@ -1,5 +1,5 @@
 import React from 'react';
-import { bool, func, object } from 'prop-types';
+import { func, object } from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -54,7 +54,6 @@ function EmergencyShutoffCard({
   onSignoff,
   onRevoke,
   user,
-  readOnly,
   onAuthorize,
   onUnauthorize,
   ...props
@@ -79,7 +78,7 @@ function EmergencyShutoffCard({
         }
       />
       <CardContent classes={{ root: classes.cardContentRoot }}>
-        {!readOnly && requiresSignoff && (
+        {requiresSignoff && (
           <SignoffSummary
             requiredSignoffs={
               emergencyShutoff.scheduledChange.required_signoffs
@@ -89,50 +88,41 @@ function EmergencyShutoffCard({
           />
         )}
       </CardContent>
-      {!readOnly && (
-        <CardActions className={classes.cardActions}>
-          {emergencyShutoff.scheduledChange ? (
-            <Button
-              color="secondary"
-              disabled={!user}
-              onClick={() => onCancelEnable(emergencyShutoff)}>
-              Keep Updates Disabled
+      <CardActions className={classes.cardActions}>
+        {emergencyShutoff.scheduledChange ? (
+          <Button
+            color="secondary"
+            disabled={!user}
+            onClick={() => onCancelEnable(emergencyShutoff)}>
+            Keep Updates Disabled
+          </Button>
+        ) : (
+          <Button
+            color="secondary"
+            disabled={!user}
+            onClick={() => onEnableUpdates(emergencyShutoff)}>
+            Enable Updates
+          </Button>
+        )}
+        {requiresSignoff &&
+          (user && user.email in emergencyShutoff.scheduledChange.signoffs ? (
+            <Button color="secondary" disabled={!user} onClick={onRevoke}>
+              Revoke Signoff
             </Button>
           ) : (
-            <Button
-              color="secondary"
-              disabled={!user}
-              onClick={() => onEnableUpdates(emergencyShutoff)}>
-              Enable Updates
+            <Button color="secondary" disabled={!user} onClick={onSignoff}>
+              Signoff
             </Button>
-          )}
-          {requiresSignoff &&
-            (user && user.email in emergencyShutoff.scheduledChange.signoffs ? (
-              <Button color="secondary" disabled={!user} onClick={onRevoke}>
-                Revoke Signoff
-              </Button>
-            ) : (
-              <Button color="secondary" disabled={!user} onClick={onSignoff}>
-                Signoff
-              </Button>
-            ))}
-        </CardActions>
-      )}
+          ))}
+      </CardActions>
     </Card>
   );
 }
 
 EmergencyShutoffCard.propTypes = {
   emergencyShutoff: object,
-  // If true, the card will hide all buttons.
-  readOnly: bool,
-  // These are required if readOnly is false
-  onSignoff: func,
-  onRevoke: func,
-};
-
-EmergencyShutoffCard.defaultProps = {
-  readOnly: false,
+  onSignoff: func.isRequired,
+  onRevoke: func.isRequired,
 };
 
 export default withUser(EmergencyShutoffCard);
