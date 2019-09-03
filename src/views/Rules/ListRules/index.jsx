@@ -669,6 +669,9 @@ function ListRules(props) {
 
       result.push(data.data);
       setEmergencyShutoffs(result);
+      handleSnackbarOpen({
+        message: `Updates for the ${product} ${channel} channel have been disabled`,
+      });
     }
   };
 
