@@ -15,7 +15,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 import PlusIcon from 'mdi-react/PlusIcon';
-import CloseNetworkIcon from 'mdi-react/CloseNetworkIcon';
+import PauseIcon from 'mdi-react/PauseIcon';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
 import EmergencyShutoffCard from '../../../components/EmergencyShutoffCard';
@@ -65,9 +65,6 @@ const useStyles = makeStyles(theme => ({
   fab: {
     ...theme.mixins.fab,
     right: theme.spacing(12),
-  },
-  disableUpdates: {
-    color: theme.palette.error.main,
   },
   options: {
     display: 'flex',
@@ -1150,8 +1147,7 @@ function ListRules(props) {
       <SpeedDial ariaLabel="Secondary Actions">
         <SpeedDialAction
           disabled={isLoading || !username || filteredProductChannelIsShutoff}
-          icon={<CloseNetworkIcon />}
-          className={classes.disableUpdates}
+          icon={<PauseIcon />}
           tooltipOpen
           tooltipTitle="Disable Updates"
           onClick={handleDisableUpdates}
