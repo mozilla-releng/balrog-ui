@@ -42,74 +42,8 @@ const useStyles = makeStyles(theme => ({
   cardContentRoot: {
     padding: theme.spacing(1),
   },
-  deletedText: {
-    padding: theme.spacing(1),
-  },
-  listItem: {
-    paddingTop: 0,
-    paddingBottom: 0,
-  },
-  textEllipsis: {
-    ...theme.mixins.textEllipsis,
-  },
   cardActions: {
     justifyContent: 'flex-end',
-  },
-  scheduledChangesTitle: {
-    padding: `0 ${theme.spacing(1)}px`,
-  },
-  diff: {
-    fontSize: theme.typography.body2.fontSize,
-    marginTop: theme.spacing(1),
-  },
-  chip: {
-    height: theme.spacing(3),
-  },
-  chipIcon: {
-    marginLeft: theme.spacing(1),
-    marginBottom: 1,
-  },
-  deleteChip: {
-    background: theme.palette.error.main,
-    color: theme.palette.error.contrastText,
-    '& svg': {
-      fill: theme.palette.error.contrastText,
-    },
-  },
-  divider: {
-    margin: `${theme.spacing(1)}px`,
-  },
-  scheduledChangesHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-  },
-  inline: {
-    display: 'inline',
-  },
-  avatar: {
-    height: theme.spacing(4),
-    width: theme.spacing(4),
-  },
-  avatarText: {
-    fontSize: 10,
-  },
-  comment: {
-    maxHeight: theme.spacing(10),
-    overflowY: 'auto',
-  },
-  propertyWithScheduledChange: {
-    ...theme.mixins.redDot,
-  },
-  priorityScheduledChange: {
-    marginLeft: -10,
-    zIndex: 1,
-  },
-  primaryText: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  link: {
-    ...theme.mixins.link,
   },
 }));
 
