@@ -751,7 +751,7 @@ function ListRules(props) {
       if (!error) {
         setEmergencyShutoffs(
           emergencyShutoffs.filter(
-            es => es.product !== product && es.channel !== channel
+            es => es.product !== product || es.channel !== channel
           )
         );
       }
