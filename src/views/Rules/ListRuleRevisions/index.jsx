@@ -48,9 +48,7 @@ function ListRuleRevisions(props) {
   const [fetchedRevisions, fetchRevisions] = useAction(getRevisions);
   const addSC = useAction(addScheduledChange)[1];
   const { ruleId } = props.match.params;
-  // eslint-disable-next-line prefer-destructuring
-  const error = fetchedRevisions.error;
-  const isLoading = fetchedRevisions.loading;
+  const { error, loading: isLoading } = fetchedRevisions;
   const revisions = fetchedRevisions.data
     ? fetchedRevisions.data.data.rules
     : [];

@@ -22,7 +22,6 @@ const cancelDeleteEmergencyShutoff = (scId, scDataVersion) =>
     params: { data_version: scDataVersion },
   });
 
-// eslint-disable-next-line import/prefer-default-export
 export {
   getEmergencyShutoffs,
   createEmergencyShutoff,

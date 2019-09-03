@@ -93,7 +93,6 @@ function ListReleases(props) {
   );
   const [rolesAction, fetchRoles] = useAction(getUserInfo);
   const isLoading = releasesAction.loading || scheduledChangesAction.loading;
-  // eslint-disable-next-line prefer-destructuring
   const error =
     releasesAction.error ||
     scheduledChangesAction.error ||
