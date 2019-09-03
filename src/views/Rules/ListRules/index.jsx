@@ -304,11 +304,14 @@ function ListRules(props) {
               return false;
             }
 
-            if (
-              channelFilter &&
-              ruleChannel.replace('*', '') !== channelFilter
-            ) {
-              return false;
+            if (channelFilter) {
+              if (ruleChannel.indexOf('*') === -1) {
+                if (ruleChannel !== channelFilter) {
+                  return false;
+                }
+              } else if (!channelFilter.startsWith(ruleChannel.split('*')[0])) {
+                return false;
+              }
             }
 
             return true;
