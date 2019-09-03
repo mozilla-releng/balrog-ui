@@ -438,7 +438,7 @@ function ListRules(props) {
             return r;
           }
 
-          const newRule = { ...r };
+          const newRule = clone(r);
 
           newRule.scheduledChange = result;
 
@@ -541,7 +541,7 @@ function ListRules(props) {
           return r;
         }
 
-        const newRule = { ...r };
+        const newRule = clone(r);
 
         newRule.scheduledChange.signoffs[username] = roleToSignoffWith;
 
@@ -611,7 +611,7 @@ function ListRules(props) {
             return r;
           }
 
-          const newRule = { ...r };
+          const newRule = clone(r);
 
           delete newRule.scheduledChange.signoffs[username];
 
@@ -772,7 +772,7 @@ function ListRules(props) {
           return es;
         }
 
-        const newEs = { ...es };
+        const newEs = clone(es);
 
         newEs.scheduledChange.signoffs[username] = roleToSignoffWith;
 
@@ -860,7 +860,7 @@ function ListRules(props) {
             return es;
           }
 
-          const newEs = { ...es };
+          const newEs = clone(es);
 
           delete newEs.scheduledChange.signoffs[username];
 

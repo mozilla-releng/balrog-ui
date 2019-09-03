@@ -282,7 +282,7 @@ function ListReleases(props) {
           return r;
         }
 
-        const newRelease = { ...r };
+        const newRelease = clone(r);
 
         newRelease.scheduledChange.signoffs[username] = roleToSignoffWith;
 
@@ -401,7 +401,7 @@ function ListReleases(props) {
             return r;
           }
 
-          const newRelease = { ...r };
+          const newRelease = clone(r);
 
           delete newRelease.scheduledChange.signoffs[username];
 
@@ -546,7 +546,7 @@ function ListReleases(props) {
   return (
     <Dashboard title="Releases">
       <SearchBar
-        placeholder="Search a release..."
+        placeholder="Search a release…"
         onChange={handleSearchChange}
         value={searchValue}
       />
