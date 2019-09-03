@@ -1146,7 +1146,13 @@ function ListRules(props) {
       <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
       <SpeedDial ariaLabel="Secondary Actions">
         <SpeedDialAction
-          disabled={isLoading || !username || filteredProductChannelIsShutoff}
+          disabled={
+            isLoading ||
+            !username ||
+            filteredProductChannelIsShutoff ||
+            !searchQueries ||
+            !searchQueries[1]
+          }
           icon={<PauseIcon />}
           tooltipOpen
           tooltipTitle="Disable Updates"
