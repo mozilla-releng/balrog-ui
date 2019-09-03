@@ -124,14 +124,6 @@ function ListRules(props) {
   const [roles, setRoles] = useState([]);
   const [emergencyShutoffs, setEmergencyShutoffs] = useState([]);
   const [signoffRole, setSignoffRole] = useState('');
-  const [
-    filteredProductChannelIsShutoff,
-    setFilteredProductChannelIsShutoff,
-  ] = useState(false);
-  const [
-    filteredProductChannelRequiresSignoff,
-    setFilteredProductChannelRequiresSignoff,
-  ] = useState(false);
   const ruleListRef = useRef(null);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
@@ -159,6 +151,21 @@ function ListRules(props) {
     scheduledEmergencyShutoffsAction,
     fetchScheduledEmergencyShutoffs,
   ] = useAction(getScheduledEmergencyShutoffs);
+  const filteredProductChannelIsShutoff =
+    productChannelFilter !== ALL && searchQueries && searchQueries.length === 2
+      ? emergencyShutoffs.some(
+          es =>
+            es.product === searchQueries[0] &&
+            (!searchQueries[1] || es.channel === searchQueries[1])
+        )
+      : false;
+  const filteredProductChannelRequiresSignoff =
+    requiredSignoffs.data && searchQueries && searchQueries.length === 2
+      ? requiredSignoffs.data.data.required_signoffs.some(
+          rs =>
+            rs.product === searchQueries[0] && rs.channel === searchQueries[1]
+        )
+      : false;
   const [disableUpdatesAction, disableUpdates] = useAction(
     createEmergencyShutoff
   );
@@ -364,39 +371,6 @@ function ListRules(props) {
     }
   }, [username]);
 
-  useEffect(() => {
-    if (
-      !requiredSignoffs.data ||
-      !searchQueries ||
-      searchQueries.length !== 2
-    ) {
-      setFilteredProductChannelRequiresSignoff(false);
-    } else {
-      setFilteredProductChannelRequiresSignoff(
-        requiredSignoffs.data.data.required_signoffs.some(
-          rs =>
-            rs.product === searchQueries[0] && rs.channel === searchQueries[1]
-        )
-      );
-    }
-  }, [requiredSignoffs, searchQueries]);
-
-  useEffect(
-    () =>
-      setFilteredProductChannelIsShutoff(
-        emergencyShutoffs.some(es => {
-          if (productChannelFilter === ALL) {
-            return false;
-          }
-
-          return (
-            es.product === searchQueries[0] &&
-            (!searchQueries[1] || es.channel === searchQueries[1])
-          );
-        })
-      ),
-    [emergencyShutoffs, searchQueries]
-  );
   useEffect(() => {
     setProductChannelFilter(
       searchQueries
