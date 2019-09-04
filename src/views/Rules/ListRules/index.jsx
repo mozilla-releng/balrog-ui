@@ -1088,6 +1088,7 @@ function ListRules(props) {
             </TextField>
           </div>
           {productChannelFilter !== ALL &&
+            searchQueries &&
             searchQueries.length === 2 &&
             emergencyShutoffs.find(
               es =>
