@@ -1118,17 +1118,6 @@ function ListRules(props) {
               />
             </Fragment>
           )}
-          <Link
-            to={{
-              pathname: '/rules/create',
-              state: { rulesFilter: searchQueries },
-            }}>
-            <Tooltip title="Add Rule">
-              <Fab color="primary" className={classes.fab}>
-                <PlusIcon />
-              </Fab>
-            </Tooltip>
-          </Link>
         </Fragment>
       )}
       <DialogAction
@@ -1147,6 +1136,17 @@ function ListRules(props) {
         onExited={handleDialogExited}
       />
       <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
+      <Link
+        to={{
+          pathname: '/rules/create',
+          state: { rulesFilter: searchQueries },
+        }}>
+        <Tooltip title="Add Rule">
+          <Fab color="primary" className={classes.fab}>
+            <PlusIcon />
+          </Fab>
+        </Tooltip>
+      </Link>
       <SpeedDial ariaLabel="Secondary Actions">
         <SpeedDialAction
           disabled={
