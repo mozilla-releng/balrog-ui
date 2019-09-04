@@ -44,6 +44,7 @@ function EmergencyShutoffCard({
   ...props
 }) {
   const classes = useStyles();
+  const { product, channel } = emergencyShutoff;
   const requiresSignoff =
     emergencyShutoff.scheduledChange &&
     Object.keys(emergencyShutoff.scheduledChange.required_signoffs).length > 0;
@@ -57,8 +58,8 @@ function EmergencyShutoffCard({
         title={
           <Typography component="h2" variant="h6">
             {emergencyShutoff.scheduledChange
-              ? 'Updates are scheduled to be enabled for this product and channel'
-              : 'Updates are currently disabled for this product and channel'}
+              ? `Updates are scheduled to be enabled for the ${product} ${channel} channel`
+              : `Updates are currently disabled for the ${product} ${channel} channel`}
           </Typography>
         }
       />
