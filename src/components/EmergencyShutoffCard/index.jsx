@@ -13,28 +13,13 @@ import { withUser } from '../../utils/AuthContext';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    '& h2, & h4': {
-      '& .anchor-link-style': {
-        textDecoration: 'none',
-        opacity: 0,
-        // To prevent the link to get the focus.
-        display: 'none',
-      },
-      '&:hover .anchor-link-style': {
-        display: 'inline-block',
-        opacity: 1,
-        color: theme.palette.text.hint,
-        '&:hover': {
-          color: theme.palette.text.secondary,
-        },
-      },
-    },
+    border: `2px solid ${theme.palette.warning.dark}`,
   },
   space: {
     paddingTop: theme.spacing(2),
   },
   cardHeader: {
-    paddingBottom: 0,
+    backgroundColor: theme.palette.warning.main,
   },
   cardHeaderAvatar: {
     display: 'flex',
