@@ -512,7 +512,7 @@ function RuleCard({
                 {rule.osVersion && (
                   <ListItem className={classes.listItem}>
                     <ListItemText
-                      title={rule.osVersion}
+                      title={rule.osVersion.split(',').join('\n')}
                       primaryTypographyProps={{
                         component: 'div',
                         className: classes.primaryText,

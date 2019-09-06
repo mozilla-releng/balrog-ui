@@ -32,7 +32,10 @@ import {
   deleteScheduledChange,
 } from '../../../services/rules';
 import { getReleaseNames } from '../../../services/releases';
-import { EMPTY_MENU_ITEM_CHAR } from '../../../utils/constants';
+import {
+  EMPTY_MENU_ITEM_CHAR,
+  SPLIT_WITH_NEWLINES_AND_COMMA_REGEX,
+} from '../../../utils/constants';
 
 const initialRule = {
   alias: '',
@@ -120,8 +123,15 @@ export default function Rule({ isNewRule, ...props }) {
   const { ruleId, scId } = props.match.params;
   const hasScheduledChange = !!rule.sc_id;
   const defaultToEmptyString = defaultTo('');
+  const osVersionTextValue = rule.osVersion
+    .split(SPLIT_WITH_NEWLINES_AND_COMMA_REGEX)
+    .join('\n');
   const handleInputChange = ({ target: { name, value } }) => {
     setRule(assocPath([name], value, rule));
+  };
+
+  const handleOsVersionChange = ({ target: { name, value } }) => {
+    setRule(assocPath([name], value.split('\n').join(','), rule));
   };
 
   const handleProductChange = value =>
@@ -488,11 +498,14 @@ export default function Rule({ isNewRule, ...props }) {
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
+                helperText="Enter each OS version on its own line"
+                multiline
+                rows={4}
                 fullWidth
                 label="OS Version"
-                value={defaultToEmptyString(rule.osVersion)}
+                value={osVersionTextValue}
                 name="osVersion"
-                onChange={handleInputChange}
+                onChange={handleOsVersionChange}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
