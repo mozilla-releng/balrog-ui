@@ -66,9 +66,7 @@ const App = () => {
   });
   // Wait until authorization is done before rendering
   // to make sure users who are logged in are able to access protected views
-  const [ready, setReady] = useState(
-    Boolean(!localStorage.getItem(USER_SESSION))
-  );
+  const [ready, setReady] = useState(false);
   const handleAuthorize = user => {
     setAuthContext({
       ...authContext,
@@ -78,24 +76,14 @@ const App = () => {
   };
 
   const handleError = () => {
+    setAuthContext({
+      ...authContext,
+      user: null,
+    });
     setReady(true);
   };
 
-  const render = () => {
-    const session = localStorage.getItem(USER_SESSION);
-
-    if (session) {
-      const user = JSON.parse(session);
-      const expires = new Date(user.expiration);
-      const now = new Date();
-
-      if (expires < now && user) {
-        authContext.unauthorize();
-      }
-    }
-
-    return <Main />;
-  };
+  const render = () => <Main />;
 
   return (
     <Fragment>
