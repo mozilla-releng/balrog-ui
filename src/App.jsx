@@ -5,7 +5,6 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider } from '@material-ui/styles';
 import axios from 'axios';
 import { AuthContext } from './utils/AuthContext';
-import isSessionValid from './utils/isSessionValid';
 import { BASE_URL, USER_SESSION } from './utils/constants';
 import theme from './theme';
 import Main from './Main';
@@ -51,7 +50,9 @@ axios.interceptors.response.use(
 );
 
 const App = () => {
-  const [authorize, setAuthorize] = useState(isSessionValid);
+  const [authorize, setAuthorize] = useState(
+    Boolean(localStorage.getItem(USER_SESSION))
+  );
   const [authContext, setAuthContext] = useState({
     authorize: () => setAuthorize(true),
     unauthorize: () => {
@@ -65,7 +66,7 @@ const App = () => {
   });
   // Wait until authorization is done before rendering
   // to make sure users who are logged in are able to access protected views
-  const [ready, setReady] = useState(() => !isSessionValid());
+  const [ready, setReady] = useState(false);
   const handleAuthorize = user => {
     setAuthContext({
       ...authContext,
@@ -75,20 +76,14 @@ const App = () => {
   };
 
   const handleError = () => {
+    setAuthContext({
+      ...authContext,
+      user: null,
+    });
     setReady(true);
   };
 
-  const render = () => {
-    const session = localStorage.getItem(USER_SESSION);
-
-    if (session) {
-      if (!isSessionValid()) {
-        authContext.unauthorize();
-      }
-    }
-
-    return <Main />;
-  };
+  const render = () => <Main />;
 
   return (
     <Fragment>
