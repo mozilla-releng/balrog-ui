@@ -1006,7 +1006,7 @@ function ListRules(props) {
     if (hashQuery.scId) {
       return Boolean(
         rule.scheduledChange &&
-          Number(rule.scheduledChange.sc_id === hashQuery.scId)
+          Number(rule.scheduledChange.sc_id === Number(hashQuery.scId))
       );
     }
   };
