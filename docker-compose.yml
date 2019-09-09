@@ -4,7 +4,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: node:current
     ports:
       - "9000:9000"
     environment:
