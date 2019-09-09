@@ -933,9 +933,12 @@ function ListRules(props) {
         2 * listPadding;
 
       // row with comment
-      // (max 8*10px; ~3 lines of comments otherwise we display a scroller)
       if (rule.comment) {
-        height += theme.spacing(10) + 2 * listItemTextMargin + 2 * listPadding;
+        height +=
+          body1TextHeight() +
+          body2TextHeight() +
+          2 * listItemTextMargin +
+          2 * listPadding;
       }
     }
 
@@ -956,8 +959,13 @@ function ListRules(props) {
           rule.scheduledChange
         );
 
-        // diff viewer + marginTop
-        height += diffedProperties.length * diffRowHeight + theme.spacing(1);
+        // diff viewer + marginTop + height of the
+        // horizontal scroller (rough estimate;
+        // sometimes there are no scroller as well)
+        height +=
+          diffedProperties.length * diffRowHeight +
+          theme.spacing(1) +
+          theme.spacing(2);
       }
 
       if (
@@ -989,7 +997,7 @@ function ListRules(props) {
     }
 
     // space below the card (margin)
-    height += theme.spacing(6);
+    height += theme.spacing(4);
 
     return height;
   };

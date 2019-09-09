@@ -116,10 +116,6 @@ const useStyles = makeStyles(theme => ({
   avatarText: {
     fontSize: theme.typography.body2.fontSize,
   },
-  comment: {
-    maxHeight: theme.spacing(10),
-    overflowY: 'auto',
-  },
   propertyWithScheduledChange: {
     ...theme.mixins.redDot,
   },
@@ -645,10 +641,13 @@ function RuleCard({
                 <List>
                   <ListItem className={classes.listItem}>
                     <ListItemText
-                      className={classes.comment}
+                      title={rule.comment}
                       primaryTypographyProps={{
                         component: 'div',
                         className: classes.primaryText,
+                      }}
+                      secondaryTypographyProps={{
+                        className: classes.textEllipsis,
                       }}
                       primary={
                         <Fragment>
