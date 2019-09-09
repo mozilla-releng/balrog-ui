@@ -453,7 +453,6 @@ function ListReleases(props) {
     // An approximation
     const ruleIdsLineCount =
       Math.ceil(Object.keys(release.rule_info).length / 10) || 1;
-
     // card header
     let height = h6TextHeight + body1TextHeight() + theme.spacing(2);
 
