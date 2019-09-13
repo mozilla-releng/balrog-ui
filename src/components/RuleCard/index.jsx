@@ -130,6 +130,9 @@ const useStyles = makeStyles(theme => ({
   link: {
     ...theme.mixins.link,
   },
+  scheduledPriorityChange: {
+    backgroundColor: '#c0dc91',
+  },
 }));
 
 function RuleCard({
@@ -186,6 +189,10 @@ function RuleCard({
     rule.scheduledChange && rule.scheduledChange.change_type === 'update'
       ? rule.scheduledChange.priority
       : rule.priority;
+  const priorityTitle =
+    rule.scheduledChange && rule.scheduledChange.change_type === 'update'
+      ? 'Scheduled Priority'
+      : 'Priority';
 
   return (
     <Card classes={{ root: classes.root }} spacing={4} {...props}>
@@ -197,22 +204,13 @@ function RuleCard({
             Number.isInteger(Number(headerPriority)) && (
               <Fragment>
                 <Avatar
-                  title="Priority"
-                  aria-label="Priority"
-                  className={classes.avatar}>
+                  title={priorityTitle}
+                  aria-label={priorityTitle}
+                  className={classNames(classes.avatar, classes.scheduledPriorityChange)}>
                   <Typography className={classes.avatarText}>
                     {headerPriority}
                   </Typography>
                 </Avatar>
-                {diffedProperties.includes('priority') &&
-                  rule.scheduledChange.change_type === 'update' && (
-                    <div
-                      className={classNames(
-                        classes.propertyWithScheduledChange,
-                        classes.priorityScheduledChange
-                      )}
-                    />
-                  )}
               </Fragment>
             )
           }
