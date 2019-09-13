@@ -185,14 +185,16 @@ function RuleCard({
   // For other types of scheduled changes (inserts and deletes) we either
   // don't show it at all, or don't have a value in the scheduled change to
   // show.
-  const headerPriority =
-    rule.scheduledChange && rule.scheduledChange.change_type === 'update'
-      ? rule.scheduledChange.priority
-      : rule.priority;
-  const priorityTitle =
-    rule.scheduledChange && rule.scheduledChange.change_type === 'update'
-      ? 'Scheduled Priority'
-      : 'Priority';
+  const isScheduledPriorityUpdate =
+    rule.scheduledChange &&
+    rule.scheduledChange.change_type === 'update' &&
+    rule.priority !== rule.scheduledChange.priority;
+  const headerPriority = isScheduledPriorityUpdate
+    ? rule.scheduledChange.priority
+    : rule.priority;
+  const priorityTitle = isScheduledPriorityUpdate
+    ? 'Scheduled Priority'
+    : 'Priority';
 
   return (
     <Card classes={{ root: classes.root }} spacing={4} {...props}>
@@ -206,10 +208,9 @@ function RuleCard({
                 <Avatar
                   title={priorityTitle}
                   aria-label={priorityTitle}
-                  className={classNames(
-                    classes.avatar,
-                    classes.scheduledPriorityChange
-                  )}>
+                  className={classNames(classes.avatar, {
+                    [classes.scheduledPriorityChange]: isScheduledPriorityUpdate,
+                  })}>
                   <Typography className={classes.avatarText}>
                     {headerPriority}
                   </Typography>
