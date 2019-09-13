@@ -206,7 +206,10 @@ function RuleCard({
                 <Avatar
                   title={priorityTitle}
                   aria-label={priorityTitle}
-                  className={classNames(classes.avatar, classes.scheduledPriorityChange)}>
+                  className={classNames(
+                    classes.avatar,
+                    classes.scheduledPriorityChange
+                  )}>
                   <Typography className={classes.avatarText}>
                     {headerPriority}
                   </Typography>
