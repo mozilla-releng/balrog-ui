@@ -320,11 +320,11 @@ function ListRules(props) {
       // than future state.
       const sortedRules = rulesWithScheduledChanges.sort((ruleA, ruleB) => {
         const priorityA =
-          ruleA.priority === null || ruleA.priority === undefined
+          ruleA.scheduledChange && ruleA.scheduledChange.priority
             ? ruleA.scheduledChange.priority
             : ruleA.priority;
         const priorityB =
-          ruleB.priority === null || ruleB.priority === undefined
+          ruleB.scheduledChange && ruleB.scheduledChange.priority
             ? ruleB.scheduledChange.priority
             : ruleB.priority;
 
