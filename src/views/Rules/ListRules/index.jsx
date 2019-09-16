@@ -4,6 +4,7 @@ import { stringify, parse } from 'qs';
 import { addSeconds } from 'date-fns';
 import { clone } from 'ramda';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
+import Code from '@mozilla-frontend-infra/components/Code';
 import { makeStyles, useTheme } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -14,6 +15,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
+import Drawer from '@material-ui/core/Drawer';
 import PlusIcon from 'mdi-react/PlusIcon';
 import PauseIcon from 'mdi-react/PauseIcon';
 import Dashboard from '../../../components/Dashboard';
@@ -47,6 +49,10 @@ import {
   scheduleDeleteEmergencyShutoff,
   cancelDeleteEmergencyShutoff,
 } from '../../../services/emergency_shutoff';
+import {
+  getRelease,
+  getScheduledChangeByName,
+} from '../../../services/releases';
 import { getUserInfo } from '../../../services/users';
 import { ruleMatchesRequiredSignoff } from '../../../utils/requiredSignoffs';
 import {
@@ -54,6 +60,7 @@ import {
   DIALOG_ACTION_INITIAL_STATE,
   OBJECT_NAMES,
   SNACKBAR_INITIAL_STATE,
+  CONTENT_MAX_WIDTH,
 } from '../../../utils/constants';
 import { withUser } from '../../../utils/AuthContext';
 import remToPx from '../../../utils/remToPx';
@@ -85,6 +92,12 @@ const useStyles = makeStyles(theme => ({
   },
   ruleCardSelected: {
     border: `2px solid ${theme.palette.primary.light}`,
+  },
+  drawerPaper: {
+    maxWidth: CONTENT_MAX_WIDTH,
+    margin: '0 auto',
+    padding: theme.spacing(1),
+    maxHeight: '80vh',
   },
 }));
 
@@ -121,6 +134,8 @@ function ListRules(props) {
   const [roles, setRoles] = useState([]);
   const [emergencyShutoffs, setEmergencyShutoffs] = useState([]);
   const [signoffRole, setSignoffRole] = useState('');
+  const [drawerState, setDrawerState] = useState({ open: false, item: {} });
+  const [drawerReleaseName, setDrawerReleaseName] = useState(null);
   const ruleListRef = useRef(null);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
@@ -131,9 +146,15 @@ function ListRules(props) {
   const [requiredSignoffs, fetchRequiredSignoffs] = useAction(
     getRequiredSignoffs
   );
-  const delRule = useAction(deleteRule)[1];
-  const scheduleDelRule = useAction(addScheduledChange)[1];
-  const delSC = useAction(deleteScheduledChange)[1];
+  const [release, fetchRelease] = useAction(getRelease);
+  const [scheduledChangeNameAction, fetchScheduledChangeByName] = useAction(
+    getScheduledChangeByName
+  );
+  const [delRuleAction, delRule] = useAction(deleteRule);
+  const [scheduleDelRuleAction, scheduleDelRule] = useAction(
+    addScheduledChange
+  );
+  const [delScAction, delSC] = useAction(deleteScheduledChange);
   const [signoffAction, signoff] = useAction(props =>
     makeSignoff({ type: 'rules', ...props })
   );
@@ -186,6 +207,15 @@ function ListRules(props) {
     channels.loading ||
     rules.loading ||
     emergencyShutoffsAction.loading;
+  const isActionLoading =
+    // The first two are to check if "View Release" is currently fetching
+    release.loading ||
+    scheduledChangeNameAction.loading ||
+    delScAction.loading ||
+    delRuleAction.loading ||
+    signoffAction.loading ||
+    scheduleDelRuleAction.loading ||
+    signoffEnableUpdatesAction.loading;
   const error =
     products.error ||
     channels.error ||
@@ -873,6 +903,54 @@ function ListRules(props) {
     }
   };
 
+  const handleViewRelease = ({ currentTarget: { name } }) => {
+    // Sometimes the previous opened release drawer may be the same as
+    // the one being requested. In that case, we simply open the drawer
+    // without having the useEffect take care of
+    // fetching the release + opening the drawer
+    if (drawerReleaseName === name) {
+      setDrawerState({
+        ...drawerState,
+        open: true,
+      });
+    } else {
+      setDrawerReleaseName(name);
+    }
+  };
+
+  useEffect(() => {
+    if (drawerReleaseName) {
+      Promise.all([
+        fetchRelease(drawerReleaseName),
+        fetchScheduledChangeByName(drawerReleaseName),
+      ]).then(([fetchedRelease, fetchedSC]) => {
+        const item =
+          fetchedSC.data.data.count > 0
+            ? JSON.stringify(
+                fetchedSC.data.data.scheduled_changes[0].data,
+                null,
+                2
+              )
+            : JSON.stringify(fetchedRelease.data.data, null, 2);
+
+        setDrawerState({
+          ...drawerState,
+          open: true,
+          item,
+        });
+      });
+    }
+  }, [drawerReleaseName]);
+
+  const handleDrawerClose = () => {
+    // We do not set the drawer item key to the initial state to
+    // avoid re-fetching if the user decides to view the same mapping again
+    setDrawerState({
+      ...drawerState,
+      open: false,
+    });
+  };
+
   const getDialogSubmit = () => {
     if (dialogState.mode === 'delete') {
       return handleDeleteDialogSubmit;
@@ -1041,6 +1119,8 @@ function ListRules(props) {
           onRuleDelete={handleRuleDelete}
           onSignoff={() => handleSignoff(rule)}
           onRevoke={() => handleRevoke(rule)}
+          onViewReleaseClick={handleViewRelease}
+          actionLoading={isActionLoading}
         />
       </div>
     );
@@ -1144,6 +1224,13 @@ function ListRules(props) {
         onClose={handleDialogClose}
         onExited={handleDialogExited}
       />
+      <Drawer
+        classes={{ paper: classes.drawerPaper }}
+        anchor="bottom"
+        open={drawerState.open}
+        onClose={handleDrawerClose}>
+        <Code language="json">{drawerState.item}</Code>
+      </Drawer>
       <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
       <Link
         to={{
