@@ -441,30 +441,6 @@ export default function Rule({ isNewRule, ...props }) {
                 }}
               />
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                helperText="Enter each locale on its own line"
-                multiline
-                rows={2}
-                fullWidth
-                label="Locale"
-                value={localeTextValue}
-                name="locale"
-                onChange={handleTextFieldWithNewLinesChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                helperText="Enter each OS version on its own line"
-                multiline
-                rows={2}
-                fullWidth
-                label="OS Version"
-                value={osVersionTextValue}
-                name="osVersion"
-                onChange={handleTextFieldWithNewLinesChange}
-              />
-            </Grid>
             <Grid item xs={12} sm={6}>
               <NumberFormat
                 allowNegative={false}
@@ -503,6 +479,30 @@ export default function Rule({ isNewRule, ...props }) {
                 value={defaultToEmptyString(rule.buildID)}
                 name="buildID"
                 onChange={handleInputChange}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                helperText="Enter each locale on its own line"
+                multiline
+                rows={4}
+                fullWidth
+                label="Locale"
+                value={localeTextValue}
+                name="locale"
+                onChange={handleTextFieldWithNewLinesChange}
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                helperText="Enter each OS version on its own line"
+                multiline
+                rows={4}
+                fullWidth
+                label="OS Version"
+                value={osVersionTextValue}
+                name="osVersion"
+                onChange={handleTextFieldWithNewLinesChange}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
