@@ -130,7 +130,7 @@ const useStyles = makeStyles(theme => ({
   link: {
     ...theme.mixins.link,
   },
-  scheduledPriorityChange: {
+  schedPriorityChange: {
     backgroundColor: '#c0dc91',
   },
 }));
@@ -209,7 +209,7 @@ function RuleCard({
                   title={priorityTitle}
                   aria-label={priorityTitle}
                   className={classNames(classes.avatar, {
-                    [classes.scheduledPriorityChange]: isScheduledPriorityUpdate,
+                    [classes.schedPriorityChange]: isScheduledPriorityUpdate,
                   })}>
                   <Typography className={classes.avatarText}>
                     {headerPriority}
