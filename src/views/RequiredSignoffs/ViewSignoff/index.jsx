@@ -204,8 +204,14 @@ function ViewSignoff({ isNewSignoff, ...props }) {
   };
 
   const handleDialogClose = () => setDialogState(DIALOG_ACTION_INITIAL_STATE);
-  const handleDialogActionComplete = () => {
-    props.history.push('/required-signoffs');
+  const handleDialogActionComplete = async () => {
+    const { error } = await saveRS({
+      product: productTextValue,
+    });
+
+    if (!error) {
+      props.history.push(`/required-signoffs?product=${product}`);
+    }
   };
 
   const handleDialogError = error => setDialogState({ ...dialogState, error });
