@@ -54,15 +54,19 @@ const useStyles = makeStyles(theme => ({
   },
   cardHeader: {
     paddingBottom: 0,
+    paddingTop: theme.spacing(1),
   },
   cardHeaderAvatar: {
     display: 'flex',
+  },
+  cardHeaderAction: {
+    marginTop: 0,
   },
   cardContentRoot: {
     padding: theme.spacing(1),
   },
   deletedText: {
-    padding: theme.spacing(1),
+    padding: `0 ${theme.spacing(1)}px`,
   },
   listItem: {
     paddingTop: 0,
@@ -97,6 +101,7 @@ const useStyles = makeStyles(theme => ({
   },
   divider: {
     margin: `${theme.spacing(1)}px`,
+    backgroundColor: theme.palette.grey[200],
   },
   scheduledChangesHeader: {
     display: 'flex',
@@ -200,7 +205,10 @@ function RuleCard({
     <Card classes={{ root: classes.root }} spacing={4} {...props}>
       {rule.product && (
         <CardHeader
-          classes={{ avatar: classes.cardHeaderAvatar }}
+          classes={{
+            avatar: classes.cardHeaderAvatar,
+            action: classes.cardHeaderAction,
+          }}
           className={classes.cardHeader}
           avatar={
             Number.isInteger(Number(headerPriority)) && (
@@ -364,10 +372,12 @@ function RuleCard({
                             component="span"
                             variant="body2"
                             className={classes.inline}
-                            color="textPrimary">
+                            color="textSecondary">
                             {rule.rule_id}
                           </Typography>
-                          {rule.alias && ` ${rule.alias} (alias)`}
+                          <strong>
+                            {rule.alias && ` ${rule.alias} (alias)`}
+                          </strong>
                         </Fragment>
                       }
                     />
