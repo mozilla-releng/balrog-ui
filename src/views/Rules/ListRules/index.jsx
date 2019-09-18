@@ -4,7 +4,6 @@ import { stringify, parse } from 'qs';
 import { addSeconds } from 'date-fns';
 import { clone } from 'ramda';
 import Spinner from '@mozilla-frontend-infra/components/Spinner';
-import Code from '@mozilla-frontend-infra/components/Code';
 import { makeStyles, useTheme } from '@material-ui/styles';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -1229,7 +1228,9 @@ function ListRules(props) {
         anchor="bottom"
         open={drawerState.open}
         onClose={handleDrawerClose}>
-        <Code language="json">{drawerState.item}</Code>
+        <pre>
+          <code>{drawerState.item}</code>
+        </pre>
       </Drawer>
       <Snackbar onClose={handleSnackbarClose} {...snackbarState} />
       <Link
