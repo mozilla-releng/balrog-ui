@@ -823,7 +823,7 @@ RuleCard.propTypes = {
   onRevoke: func,
   // If true, card buttons that trigger a request
   // navigating to a different view will be disabled
-  actionLoading: func,
+  actionLoading: bool,
 };
 
 RuleCard.defaultProps = {
