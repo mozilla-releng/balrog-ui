@@ -127,6 +127,9 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     alignItems: 'baseline',
   },
+  primaryTextWithButton: {
+    whiteSpace: 'nowrap',
+  },
   link: {
     ...theme.mixins.link,
   },
@@ -267,7 +270,10 @@ function RuleCard({
                       title={rule.mapping}
                       primaryTypographyProps={{
                         component: 'div',
-                        className: classes.primaryText,
+                        className: classNames(
+                          classes.primaryText,
+                          classes.primaryTextWithButton
+                        ),
                       }}
                       secondaryTypographyProps={{
                         className: classes.textEllipsis,
@@ -304,7 +310,10 @@ function RuleCard({
                       title={rule.fallbackMapping}
                       primaryTypographyProps={{
                         component: 'div',
-                        className: classes.primaryText,
+                        className: classNames(
+                          classes.primaryText,
+                          classes.primaryTextWithButton
+                        ),
                       }}
                       secondaryTypographyProps={{
                         className: classes.textEllipsis,
@@ -318,6 +327,17 @@ function RuleCard({
                                 className={classes.propertyWithScheduledChange}
                               />
                             )}
+                          {!readOnly && (
+                            <Button
+                              size="small"
+                              disabled={actionLoading}
+                              name={rule.fallbackMapping}
+                              onClick={onViewReleaseClick}
+                              variant="outlined"
+                              className={classes.viewReleaseBtn}>
+                              View Release
+                            </Button>
+                          )}
                         </Fragment>
                       }
                       secondary={rule.fallbackMapping}
