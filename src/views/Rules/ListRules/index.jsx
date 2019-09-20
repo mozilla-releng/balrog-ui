@@ -67,6 +67,11 @@ import elementsHeight from '../../../utils/elementsHeight';
 import Snackbar from '../../../components/Snackbar';
 
 const ALL = 'all';
+const displayModeOptions = {
+  'both': 'Rules & Scheduled Changes',
+  'rules': 'Rules',
+  'scheduled': 'Scheduled Changes',
+}
 const useStyles = makeStyles(theme => ({
   fab: {
     ...theme.mixins.fab,
@@ -125,6 +130,7 @@ function ListRules(props) {
   const [productChannelOptions, setProductChannelOptions] = useState([]);
   const searchQueries = query.product ? [query.product, query.channel] : null;
   const [productChannelFilter, setProductChannelFilter] = useState(ALL);
+  const [displayMode, setDisplayMode] = useState('both');
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [scheduleDeleteDate, setScheduleDeleteDate] = useState(
     addSeconds(new Date(), -30)
@@ -243,6 +249,10 @@ function ListRules(props) {
 
     setProductChannelFilter(value);
   };
+
+  // TODO: should we update query string?
+  const handleDisplayModeChange = ({ target: { value } }) =>
+    setDisplayMode(value);
 
   const handleSignoffRoleChange = ({ target: { value } }) =>
     setSignoffRole(value);
@@ -1168,6 +1178,18 @@ function ListRules(props) {
       {!isLoading && productChannelOptions && (
         <Fragment>
           <div className={classes.options}>
+            <TextField
+              className={classes.dropdown}
+              select
+              label="Display Mode"
+              value={displayMode}
+              onChange={handleDisplayModeChange}>
+              {Object.entries(displayModeOptions).map(([key, value]) => (
+                <MenuItem key={key} value={key}>
+                  {value}
+                </MenuItem>
+              ))}
+            </TextField>
             <TextField
               className={classes.dropdown}
               select
