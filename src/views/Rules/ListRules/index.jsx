@@ -13,6 +13,8 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormLabel from '@material-ui/core/FormLabel';
+import Switch from '@material-ui/core/Switch';
 import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 import Drawer from '@material-ui/core/Drawer';
 import PlusIcon from 'mdi-react/PlusIcon';
@@ -67,11 +69,6 @@ import elementsHeight from '../../../utils/elementsHeight';
 import Snackbar from '../../../components/Snackbar';
 
 const ALL = 'all';
-const displayModeOptions = {
-  'both': 'Rules & Scheduled Changes',
-  'rules': 'Rules',
-  'scheduled': 'Scheduled Changes',
-}
 const useStyles = makeStyles(theme => ({
   fab: {
     ...theme.mixins.fab,
@@ -103,6 +100,13 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1),
     maxHeight: '80vh',
   },
+  pendingSignoffContainer: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  pendingSignoffFormLabel: {
+    transform: 'scale(0.75)',
+  },
 }));
 
 function ListRules(props) {
@@ -127,10 +131,10 @@ function ListRules(props) {
   const [rulesWithScheduledChanges, setRulesWithScheduledChanges] = useState(
     []
   );
+  const [onlyShowPendingSignoffs, setOnlyShowPendingSignoffs] = useState(false);
   const [productChannelOptions, setProductChannelOptions] = useState([]);
   const searchQueries = query.product ? [query.product, query.channel] : null;
   const [productChannelFilter, setProductChannelFilter] = useState(ALL);
-  const [displayMode, setDisplayMode] = useState('both');
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [scheduleDeleteDate, setScheduleDeleteDate] = useState(
     addSeconds(new Date(), -30)
@@ -250,10 +254,8 @@ function ListRules(props) {
     setProductChannelFilter(value);
   };
 
-  // TODO: should we update query string?
-  const handleDisplayModeChange = ({ target: { value } }) =>
-    setDisplayMode(value);
-
+  const handleShowOnlyPendingSignoffsChange = ({ target: { checked } }) =>
+    setOnlyShowPendingSignoffs(checked);
   const handleSignoffRoleChange = ({ target: { value } }) =>
     setSignoffRole(value);
   const handleSnackbarOpen = ({ message, variant = 'success' }) => {
@@ -1178,18 +1180,15 @@ function ListRules(props) {
       {!isLoading && productChannelOptions && (
         <Fragment>
           <div className={classes.options}>
-            <TextField
-              className={classes.dropdown}
-              select
-              label="Display Mode"
-              value={displayMode}
-              onChange={handleDisplayModeChange}>
-              {Object.entries(displayModeOptions).map(([key, value]) => (
-                <MenuItem key={key} value={key}>
-                  {value}
-                </MenuItem>
-              ))}
-            </TextField>
+            <FormControl className={classes.pendingSignoffContainer}>
+              <FormLabel className={classes.pendingSignoffFormLabel}>
+                Only Show Pending Signoffs
+              </FormLabel>
+              <Switch
+                checked={onlyShowPendingSignoffs}
+                onChange={handleShowOnlyPendingSignoffsChange}
+              />
+            </FormControl>
             <TextField
               className={classes.dropdown}
               select
