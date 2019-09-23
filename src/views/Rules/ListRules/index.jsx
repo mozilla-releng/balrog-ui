@@ -131,7 +131,8 @@ function ListRules(props) {
   const [rulesWithScheduledChanges, setRulesWithScheduledChanges] = useState(
     []
   );
-  const [onlyShowPendingSignoffs, setOnlyShowPendingSignoffs] = useState(false);
+  const onlySignoffsQuery = Boolean(query.onlySignoffs);
+  const [onlyShowPendingSignoffs, setOnlyShowPendingSignoffs] = useState(onlySignoffsQuery);
   const [productChannelOptions, setProductChannelOptions] = useState([]);
   const searchQueries = query.product ? [query.product, query.channel] : null;
   const [productChannelFilter, setProductChannelFilter] = useState(ALL);
@@ -242,18 +243,8 @@ function ListRules(props) {
     (roles.length === 1 && signoffAction.error) ||
     revokeEnableUpdatesAction.error ||
     (roles.length === 1 && signoffEnableUpdatesAction.error);
-  const handleFilterChange = ({ target: { value } }) => {
-    const [product, channel] = value.split(productChannelSeparator);
-    const query =
-      value !== ALL
-        ? stringify({ product, channel }, { addQueryPrefix: true })
-        : '';
-
-    props.history.push(`/rules${query}`);
-
+  const handleFilterChange = ({ target: { value } }) =>
     setProductChannelFilter(value);
-  };
-
   const handleShowOnlyPendingSignoffsChange = ({ target: { checked } }) =>
     setOnlyShowPendingSignoffs(checked);
   const handleSignoffRoleChange = ({ target: { value } }) =>
@@ -299,6 +290,24 @@ function ListRules(props) {
 
     setProductChannelOptions(options.sort());
   }, [products.data, channels.data, rules.data]);
+
+  useEffect(() => {
+    const queryArgs = { onlySignoffs: onlyShowPendingSignoffs ? 1 : 0 };
+    const [product, channel] = productChannelFilter.split(productChannelSeparator);
+
+    if (productChannelFilter !== ALL) {
+      queryArgs.product = product;
+      queryArgs.channel = channel;
+    }
+
+    const query = stringify(queryArgs, { addQueryPrefix: true });
+    console.log("updating url");
+    console.log(productChannelFilter);
+    console.log(onlyShowPendingSignoffs);
+
+    props.history.push(`/rules${query}`);
+
+  }, [searchQueries, onlyShowPendingSignoffs]);
 
   useEffect(() => {
     Promise.all([
