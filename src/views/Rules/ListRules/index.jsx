@@ -100,7 +100,7 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(1),
     maxHeight: '80vh',
   },
-  pendingSignoffContainer: {
+  pendingSignoffFormControl: {
     display: 'flex',
     alignItems: 'center',
   },
@@ -131,11 +131,15 @@ function ListRules(props) {
   const [rulesWithScheduledChanges, setRulesWithScheduledChanges] = useState(
     []
   );
-  const onlySignoffsQuery = Boolean(query.onlySignoffs);
-  const [onlyShowPendingSignoffs, setOnlyShowPendingSignoffs] = useState(onlySignoffsQuery);
   const [productChannelOptions, setProductChannelOptions] = useState([]);
-  const searchQueries = query.product ? [query.product, query.channel] : null;
-  const [productChannelFilter, setProductChannelFilter] = useState(ALL);
+  const productChannelQueries = query.product
+    ? [query.product, query.channel]
+    : null;
+  const [productChannelFilter, setProductChannelFilter] = useState(
+    productChannelQueries
+      ? productChannelQueries.filter(Boolean).join(productChannelSeparator)
+      : ALL
+  );
   const [dialogState, setDialogState] = useState(DIALOG_ACTION_INITIAL_STATE);
   const [scheduleDeleteDate, setScheduleDeleteDate] = useState(
     addSeconds(new Date(), -30)
@@ -181,18 +185,24 @@ function ListRules(props) {
     fetchScheduledEmergencyShutoffs,
   ] = useAction(getScheduledEmergencyShutoffs);
   const filteredProductChannelIsShutoff =
-    productChannelFilter !== ALL && searchQueries && searchQueries.length === 2
+    productChannelFilter !== ALL &&
+    productChannelQueries &&
+    productChannelQueries.length === 2
       ? emergencyShutoffs.some(
           es =>
-            es.product === searchQueries[0] &&
-            (!searchQueries[1] || es.channel === searchQueries[1])
+            es.product === productChannelQueries[0] &&
+            (!productChannelQueries[1] ||
+              es.channel === productChannelQueries[1])
         )
       : false;
   const filteredProductChannelRequiresSignoff =
-    requiredSignoffs.data && searchQueries && searchQueries.length === 2
+    requiredSignoffs.data &&
+    productChannelQueries &&
+    productChannelQueries.length === 2
       ? requiredSignoffs.data.data.required_signoffs.some(
           rs =>
-            rs.product === searchQueries[0] && rs.channel === searchQueries[1]
+            rs.product === productChannelQueries[0] &&
+            rs.channel === productChannelQueries[1]
         )
       : false;
   const [disableUpdatesAction, disableUpdates] = useAction(
@@ -243,10 +253,31 @@ function ListRules(props) {
     (roles.length === 1 && signoffAction.error) ||
     revokeEnableUpdatesAction.error ||
     (roles.length === 1 && signoffEnableUpdatesAction.error);
-  const handleFilterChange = ({ target: { value } }) =>
+  const handleFilterChange = ({ target: { value } }) => {
     setProductChannelFilter(value);
-  const handleShowOnlyPendingSignoffsChange = ({ target: { checked } }) =>
-    setOnlyShowPendingSignoffs(checked);
+
+    const [product, channel] =
+      value === ALL
+        ? [undefined, undefined]
+        : value.split(productChannelSeparator);
+    const qs = {
+      ...query,
+      product,
+      channel,
+    };
+
+    props.history.push(`/rules${stringify(qs, { addQueryPrefix: true })}`);
+  };
+
+  const handleShowOnlyPendingSignoffsChange = ({ target: { checked } }) => {
+    const qs = {
+      ...query,
+      onlySignoffs: checked ? 1 : undefined,
+    };
+
+    props.history.push(`/rules${stringify(qs, { addQueryPrefix: true })}`);
+  };
+
   const handleSignoffRoleChange = ({ target: { value } }) =>
     setSignoffRole(value);
   const handleSnackbarOpen = ({ message, variant = 'success' }) => {
@@ -290,24 +321,6 @@ function ListRules(props) {
 
     setProductChannelOptions(options.sort());
   }, [products.data, channels.data, rules.data]);
-
-  useEffect(() => {
-    const queryArgs = { onlySignoffs: onlyShowPendingSignoffs ? 1 : 0 };
-    const [product, channel] = productChannelFilter.split(productChannelSeparator);
-
-    if (productChannelFilter !== ALL) {
-      queryArgs.product = product;
-      queryArgs.channel = channel;
-    }
-
-    const query = stringify(queryArgs, { addQueryPrefix: true });
-    console.log("updating url");
-    console.log(productChannelFilter);
-    console.log(onlyShowPendingSignoffs);
-
-    props.history.push(`/rules${query}`);
-
-  }, [searchQueries, onlyShowPendingSignoffs]);
 
   useEffect(() => {
     Promise.all([
@@ -419,45 +432,45 @@ function ListRules(props) {
     }
   }, [username]);
 
-  useEffect(() => {
-    setProductChannelFilter(
-      searchQueries
-        ? searchQueries.filter(Boolean).join(productChannelSeparator)
-        : ALL
-    );
-  }, [searchQueries]);
+  const filteredRulesWithScheduledChanges = useMemo(() => {
+    let filteredRules = clone(rulesWithScheduledChanges);
 
-  const filteredRulesWithScheduledChanges = useMemo(
-    () =>
-      productChannelFilter === ALL || !searchQueries
-        ? rulesWithScheduledChanges
-        : rulesWithScheduledChanges.filter(rule => {
-            const [productFilter, channelFilter] = searchQueries;
-            const ruleProduct =
-              rule.product ||
-              (rule.scheduledChange && rule.scheduledChange.product);
-            const ruleChannel =
-              rule.channel ||
-              (rule.scheduledChange && rule.scheduledChange.channel);
+    // Pending signoff switch
+    if (filteredRules && Boolean(query.onlySignoffs)) {
+      filteredRules = filteredRules.filter(rule => rule.scheduledChange);
+    }
 
-            if (ruleProduct !== productFilter) {
-              return false;
-            }
+    if (!productChannelQueries) {
+      return filteredRules;
+    }
 
-            if (channelFilter) {
-              if (ruleChannel.indexOf('*') === -1) {
-                if (ruleChannel !== channelFilter) {
-                  return false;
-                }
-              } else if (!channelFilter.startsWith(ruleChannel.split('*')[0])) {
-                return false;
-              }
-            }
+    // Product channel dropdown filter
+    filteredRules = filteredRules.filter(rule => {
+      const [productFilter, channelFilter] = productChannelQueries;
+      const ruleProduct =
+        rule.product || (rule.scheduledChange && rule.scheduledChange.product);
+      const ruleChannel =
+        rule.channel || (rule.scheduledChange && rule.scheduledChange.channel);
 
-            return true;
-          }),
-    [searchQueries, productChannelFilter, rulesWithScheduledChanges]
-  );
+      if (ruleProduct !== productFilter) {
+        return false;
+      }
+
+      if (channelFilter) {
+        if (ruleChannel.indexOf('*') === -1) {
+          if (ruleChannel !== channelFilter) {
+            return false;
+          }
+        } else if (!channelFilter.startsWith(ruleChannel.split('*')[0])) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    return filteredRules;
+  }, [productChannelQueries, rulesWithScheduledChanges, query.onlySignoffs]);
   const handleDateTimePickerError = error => {
     setDateTimePickerError(error);
   };
@@ -712,7 +725,7 @@ function ListRules(props) {
   };
 
   const handleDisableUpdates = async () => {
-    const [product, channel] = searchQueries;
+    const [product, channel] = productChannelQueries;
     const { error, data } = await disableUpdates(product, channel);
 
     if (!error) {
@@ -727,7 +740,7 @@ function ListRules(props) {
   };
 
   const handleEnableUpdates = async () => {
-    const [product, channel] = searchQueries;
+    const [product, channel] = productChannelQueries;
     const esDetails = emergencyShutoffs.find(
       es => es.product === product && es.channel === channel
     );
@@ -787,7 +800,7 @@ function ListRules(props) {
   };
 
   const handleCancelEnableUpdates = async () => {
-    const [product, channel] = searchQueries;
+    const [product, channel] = productChannelQueries;
     const esDetails = emergencyShutoffs.find(
       es => es.product === product && es.channel === channel
     );
@@ -866,7 +879,7 @@ function ListRules(props) {
   };
 
   const handleSignoffEnableUpdates = async () => {
-    const [product, channel] = searchQueries;
+    const [product, channel] = productChannelQueries;
     const esDetails = emergencyShutoffs.find(
       es => es.product === product && es.channel === channel
     );
@@ -895,7 +908,7 @@ function ListRules(props) {
   };
 
   const handleRevokeEnableUpdates = async () => {
-    const [product, channel] = searchQueries;
+    const [product, channel] = productChannelQueries;
     const esDetails = emergencyShutoffs.find(
       es => es.product === product && es.channel === channel
     );
@@ -1143,7 +1156,7 @@ function ListRules(props) {
           })}
           key={rule.rule_id}
           rule={rule}
-          rulesFilter={searchQueries}
+          rulesFilter={productChannelQueries}
           onRuleDelete={handleRuleDelete}
           onSignoff={() => handleSignoff(rule)}
           onRevoke={() => handleRevoke(rule)}
@@ -1189,12 +1202,12 @@ function ListRules(props) {
       {!isLoading && productChannelOptions && (
         <Fragment>
           <div className={classes.options}>
-            <FormControl className={classes.pendingSignoffContainer}>
+            <FormControl className={classes.pendingSignoffFormControl}>
               <FormLabel className={classes.pendingSignoffFormLabel}>
-                Only Show Pending Signoffs
+                Filter by rules pending signoff
               </FormLabel>
               <Switch
-                checked={onlyShowPendingSignoffs}
+                checked={Boolean(query.onlySignoffs)}
                 onChange={handleShowOnlyPendingSignoffsChange}
               />
             </FormControl>
@@ -1213,19 +1226,19 @@ function ListRules(props) {
             </TextField>
           </div>
           {productChannelFilter !== ALL &&
-            searchQueries &&
-            searchQueries.length === 2 &&
+            productChannelQueries &&
+            productChannelQueries.length === 2 &&
             emergencyShutoffs.find(
               es =>
-                es.product === searchQueries[0] &&
-                es.channel === searchQueries[1]
+                es.product === productChannelQueries[0] &&
+                es.channel === productChannelQueries[1]
             ) && (
               <EmergencyShutoffCard
                 className={classes.card}
                 emergencyShutoff={emergencyShutoffs.find(
                   es =>
-                    es.product === searchQueries[0] &&
-                    es.channel === searchQueries[1]
+                    es.product === productChannelQueries[0] &&
+                    es.channel === productChannelQueries[1]
                 )}
                 onEnableUpdates={handleEnableUpdates}
                 onCancelEnable={handleCancelEnableUpdates}
@@ -1274,7 +1287,7 @@ function ListRules(props) {
       <Link
         to={{
           pathname: '/rules/create',
-          state: { rulesFilter: searchQueries },
+          state: { rulesFilter: productChannelQueries },
         }}>
         <Tooltip title="Add Rule">
           <Fab color="primary" className={classes.fab}>
@@ -1288,8 +1301,8 @@ function ListRules(props) {
             isLoading ||
             !username ||
             filteredProductChannelIsShutoff ||
-            !searchQueries ||
-            !searchQueries[1]
+            !productChannelQueries ||
+            !productChannelQueries[1]
           }
           icon={<PauseIcon />}
           tooltipOpen
