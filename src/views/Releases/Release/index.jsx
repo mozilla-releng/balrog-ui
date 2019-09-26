@@ -231,6 +231,8 @@ export default function Release(props) {
         const content = JSON.parse(e.target.result);
 
         setReleaseEditorValue(JSON.stringify(content, null, 2));
+        setProductTextValue(content.product);
+        setReleaseNameValue(content.name);
       } catch (e) {
         handleSnackbarOpen({
           message: e.message,
