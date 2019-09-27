@@ -269,10 +269,10 @@ function ListRules(props) {
     props.history.push(`/rules${stringify(qs, { addQueryPrefix: true })}`);
   };
 
-  const handleShowOnlyPendingSignoffsChange = ({ target: { checked } }) => {
+  const handleShowOnlyScheduledChangesChange = ({ target: { checked } }) => {
     const qs = {
       ...query,
-      onlySignoffs: checked ? 1 : undefined,
+      onlyScheduledChanges: checked ? 1 : undefined,
     };
 
     props.history.push(`/rules${stringify(qs, { addQueryPrefix: true })}`);
@@ -436,7 +436,7 @@ function ListRules(props) {
     let filteredRules = clone(rulesWithScheduledChanges);
 
     // Pending signoff switch
-    if (filteredRules && Boolean(query.onlySignoffs)) {
+    if (filteredRules && Boolean(query.onlyScheduledChanges)) {
       filteredRules = filteredRules.filter(rule => rule.scheduledChange);
     }
 
@@ -470,7 +470,11 @@ function ListRules(props) {
     });
 
     return filteredRules;
-  }, [productChannelQueries, rulesWithScheduledChanges, query.onlySignoffs]);
+  }, [
+    productChannelQueries,
+    rulesWithScheduledChanges,
+    query.onlyScheduledChanges,
+  ]);
   const handleDateTimePickerError = error => {
     setDateTimePickerError(error);
   };
@@ -1204,11 +1208,11 @@ function ListRules(props) {
           <div className={classes.options}>
             <FormControl className={classes.pendingSignoffFormControl}>
               <FormLabel className={classes.pendingSignoffFormLabel}>
-                Filter by rules pending signoff
+                Filter by rules with scheduled changes
               </FormLabel>
               <Switch
-                checked={Boolean(query.onlySignoffs)}
-                onChange={handleShowOnlyPendingSignoffsChange}
+                checked={Boolean(query.onlyScheduledChanges)}
+                onChange={handleShowOnlyScheduledChangesChange}
               />
             </FormControl>
             <TextField
