@@ -15,6 +15,7 @@ import AutoCompleteText from '../../../components/AutoCompleteText';
 import CodeEditor from '../../../components/CodeEditor';
 import Snackbar from '../../../components/Snackbar';
 import Button from '../../../components/Button';
+import SignoffsRequiredText from '../../../components/SignoffsRequiredText';
 import useAction from '../../../hooks/useAction';
 import {
   getReleases,
@@ -70,6 +71,7 @@ export default function Release(props) {
   const [scDataVersion, setScDataVersion] = useState(null);
   const [isReadOnly, setIsReadOnly] = useState(false);
   const [snackbarState, setSnackbarState] = useState(SNACKBAR_INITIAL_STATE);
+  const [requiredSignoffs, setRequiredSignoffs] = useState({});
   const [release, fetchRelease] = useAction(getRelease);
   const [createRelAction, createRel] = useAction(createRelease);
   const [addSCAction, addSC] = useAction(addScheduledChange);
@@ -111,6 +113,7 @@ export default function Release(props) {
           setDataVersion(sc.data_version);
           setScId(sc.sc_id);
           setScDataVersion(sc.sc_data_version);
+          setRequiredSignoffs(sc.required_signoffs);
         } else {
           setReleaseEditorValue(
             JSON.stringify(fetchedRelease.data.data, null, 2)
@@ -124,6 +127,7 @@ export default function Release(props) {
             setProductTextValue(r.product);
             setDataVersion(r.data_version);
             setIsReadOnly(r.read_only);
+            setRequiredSignoffs(r.required_signoffs);
           }
         }
       });
@@ -284,6 +288,9 @@ export default function Release(props) {
           />
           <br />
           <br />
+          {Object.entries(requiredSignoffs).length > 0 && (
+            <SignoffsRequiredText requiredSignoffs={requiredSignoffs} />
+          )}
           <div className={classes.uploadReleaseDiv}>
             <label htmlFor="upload-release-file">
               <input
