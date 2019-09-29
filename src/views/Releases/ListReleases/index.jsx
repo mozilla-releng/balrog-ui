@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, Fragment } from 'react';
 import { clone } from 'ramda';
 import classNames from 'classnames';
 import PlusIcon from 'mdi-react/PlusIcon';
@@ -22,6 +22,7 @@ import {
   deleteRelease,
   setReadOnly,
   getScheduledChanges,
+  addScheduledChange,
 } from '../../../services/releases';
 import { getUserInfo } from '../../../services/users';
 import { makeSignoff, revokeSignoff } from '../../../services/signoffs';
@@ -37,6 +38,8 @@ import {
 } from '../../../utils/constants';
 import { withUser } from '../../../utils/AuthContext';
 import elementsHeight from '../../../utils/elementsHeight';
+import { Typography } from '@material-ui/core';
+import SignoffsRequiredText from '../../../components/SignoffsRequiredText';
 
 const useStyles = makeStyles(theme => ({
   fab: {
@@ -134,8 +137,9 @@ function ListReleases(props) {
               );
             }
 
-            // todo: set these
-            release.required_signoffs = {};
+            release.requiresSignoffs = function() {
+              return this.required_signoffs && Object.entries(this.required_signoffs).length > 0;
+            };
 
             return release;
           })
@@ -217,6 +221,13 @@ function ListReleases(props) {
 
   const handleReadOnlySubmit = async () => {
     const release = dialogState.item;
+    if (release.read_only && release.requiresSignoffs()) {
+      return await scheduleReadWriteChange(release);
+    }
+    return await updateReadonlyFlag(release);
+  };
+
+  const updateReadonlyFlag = async (release) => {
     const { error, data } = await setReadOnlyFlag({
       name: release.name,
       readOnly: !release.read_only,
@@ -230,10 +241,29 @@ function ListReleases(props) {
     return { name: release.name, new_data_version: data.data.new_data_version };
   };
 
+  const scheduleReadWriteChange = async (release) => {
+    const sc = {
+      change_type: 'update',
+      when: new Date().getTime() + 5000,
+      name: release.name,
+      product: release.product,
+      read_only: false,
+      data_version: release.data_version,
+    };
+
+    const { error } = await addScheduledChange(sc);
+
+    if (error) {
+      throw error;
+    }
+
+    return { name: release.name };
+  };
+
   const handleReadOnlyComplete = result => {
     setReleases(
       releases.map(r => {
-        if (r.name !== result.name) {
+        if (r.name !== result.name || (r.read_only && r.requiresSignoffs())) {
           return r;
         }
 
@@ -316,10 +346,18 @@ function ListReleases(props) {
   };
 
   const accessChangeDialogBody =
-    dialogState.item &&
-    `This would make ${dialogState.item.name} ${
-      dialogState.item.read_only ? 'writable' : 'read only'
-    }.`;
+    dialogState.item && (
+      <Fragment>
+        <Typography component="p" gutterBottom={true}>
+          This would make {dialogState.item.name} {
+          dialogState.item.read_only ? 'writable' : 'read only'
+        }.
+        </Typography>
+        {dialogState.item.read_only &&
+          dialogState.item.requiresSignoffs() &&
+          <SignoffsRequiredText requiredSignoffs={dialogState.item.required_signoffs} />}
+      </Fragment>
+    );
   const handleAccessChange = ({ release, checked }) => {
     setDialogState({
       ...dialogState,
