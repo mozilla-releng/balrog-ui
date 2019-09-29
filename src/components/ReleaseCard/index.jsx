@@ -300,7 +300,7 @@ function ReleaseCard(props) {
       </CardContent>
       <CardActions className={classes.cardActions}>
         <Link className={classes.link} to={`/releases/${release.name}`}>
-          <Button color="secondary">
+          <Button color="secondary" disabled={!user}>
             {release.read_only ? 'View' : 'Update'}
           </Button>
         </Link>
