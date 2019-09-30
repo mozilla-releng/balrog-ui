@@ -262,6 +262,17 @@ export default function Release(props) {
       {!isLoading && error && <ErrorPanel fixed error={error} />}
       {!isLoading && (
         <Fragment>
+          {Object.entries(requiredSignoffs).length > 0 && (
+            <ErrorPanel
+              warning
+              unclosable
+              error={`Changes will require signoffs: ${Object.entries(
+                requiredSignoffs
+              )
+                .map(([role, count]) => `${count} from ${role}`)
+                .join(', ')}.`}
+            />
+          )}
           <TextField
             disabled={!isNewRelease}
             fullWidth
@@ -287,17 +298,6 @@ export default function Release(props) {
           />
           <br />
           <br />
-          {Object.entries(requiredSignoffs).length > 0 && (
-            <ErrorPanel
-              warning
-              onClose={null}
-              error={`Any changes will require signoffs: ${Object.entries(
-                requiredSignoffs
-              )
-                .map(([role, count]) => `${count} from ${role}`)
-                .join(', ')}.`}
-            />
-          )}
           <div className={classes.uploadReleaseDiv}>
             <label htmlFor="upload-release-file">
               <input
