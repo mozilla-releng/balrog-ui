@@ -17,21 +17,15 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function ErrorPanel({
-  onClose,
-  className,
-  error,
-  fixed,
-  ...props
-}) {
+export default function ErrorPanel({ className, error, fixed, ...props }) {
   const classes = useStyles();
   const [currentError, setCurrentError] = useState(null);
   const [previousError, setPreviousError] = useState(null);
   const handleErrorClose = () => {
     setCurrentError(null);
 
-    if (onClose) {
-      onClose();
+    if (props.onClose) {
+      props.onClose();
     }
   };
 
