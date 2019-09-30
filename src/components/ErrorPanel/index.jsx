@@ -17,21 +17,33 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function ErrorPanel({ className, error, fixed, ...props }) {
+export default function ErrorPanel({
+  className,
+  error,
+  fixed,
+  onClose,
+  unclosable,
+  ...props
+}) {
   const classes = useStyles();
   const [currentError, setCurrentError] = useState(null);
   const [previousError, setPreviousError] = useState(null);
+  const otherProps = {};
   const handleErrorClose = () => {
     setCurrentError(null);
 
-    if (props.onClose) {
-      props.onClose();
+    if (onClose) {
+      onClose();
     }
   };
 
   if (error !== previousError) {
     setCurrentError(error);
     setPreviousError(error);
+  }
+
+  if (unclosable) {
+    otherProps.onClose = null;
   }
 
   return currentError ? (
@@ -41,6 +53,7 @@ export default function ErrorPanel({ className, error, fixed, ...props }) {
       })}
       error={currentError}
       onClose={handleErrorClose}
+      {...otherProps}
       {...props}
     />
   ) : null;
@@ -53,10 +66,16 @@ ErrorPanel.propTypes = {
   fixed: bool,
   className: string,
   onClose: func,
+  /**
+   * If true, the error panel will not have the close button,
+   * therefore unclosable.
+   * */
+  unclosable: bool,
 };
 
 ErrorPanel.defaultProps = {
   className: null,
   error: null,
   fixed: false,
+  onClose: null,
 };
