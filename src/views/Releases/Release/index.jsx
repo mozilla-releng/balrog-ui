@@ -15,7 +15,6 @@ import AutoCompleteText from '../../../components/AutoCompleteText';
 import CodeEditor from '../../../components/CodeEditor';
 import Snackbar from '../../../components/Snackbar';
 import Button from '../../../components/Button';
-import SignoffsRequiredText from '../../../components/SignoffsRequiredText';
 import useAction from '../../../hooks/useAction';
 import {
   getReleases,
@@ -289,7 +288,14 @@ export default function Release(props) {
           <br />
           <br />
           {Object.entries(requiredSignoffs).length > 0 && (
-            <SignoffsRequiredText requiredSignoffs={requiredSignoffs} />
+            <ErrorPanel
+              warning
+              error={`Any changes will require signoffs: ${Object.entries(
+                requiredSignoffs
+              )
+                .map(([role, count]) => `${count} from ${role}`)
+                .join(', ')}.`}
+            />
           )}
           <div className={classes.uploadReleaseDiv}>
             <label htmlFor="upload-release-file">
