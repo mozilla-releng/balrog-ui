@@ -59,5 +59,4 @@ ErrorPanel.defaultProps = {
   className: null,
   error: null,
   fixed: false,
-  onClose: null,
 };
