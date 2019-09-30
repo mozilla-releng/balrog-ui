@@ -290,6 +290,7 @@ export default function Release(props) {
           {Object.entries(requiredSignoffs).length > 0 && (
             <ErrorPanel
               warning
+              onClose={null}
               error={`Any changes will require signoffs: ${Object.entries(
                 requiredSignoffs
               )
