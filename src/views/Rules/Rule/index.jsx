@@ -32,6 +32,7 @@ import {
   deleteScheduledChange,
 } from '../../../services/rules';
 import { getReleaseNames } from '../../../services/releases';
+import { withUser } from '../../../utils/AuthContext';
 import {
   EMPTY_MENU_ITEM_CHAR,
   SPLIT_WITH_NEWLINES_AND_COMMA_REGEX,
@@ -68,6 +69,10 @@ const useStyles = makeStyles(theme => ({
     ...theme.mixins.fab,
     right: theme.spacing(12),
   },
+  fabWithTooltip: {
+    height: theme.spacing(7),
+    width: theme.spacing(7),
+  },
   scheduleDiv: {
     display: 'flex',
     alignItems: 'center',
@@ -78,7 +83,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function Rule({ isNewRule, ...props }) {
+function Rule({ isNewRule, user, ...props }) {
   const classes = useStyles();
   const rulesFilter =
     props.location.state && props.location.state.rulesFilter
@@ -628,19 +633,27 @@ export default function Rule({ isNewRule, ...props }) {
       {!isLoading && (
         <Fragment>
           <Tooltip title={isNewRule && !scId ? 'Create Rule' : 'Update Rule'}>
-            <Fab
-              disabled={actionLoading}
-              onClick={isNewRule && !scId ? handleCreateRule : handleUpdateRule}
-              color="primary"
-              className={classNames({
+            {/* Add <div /> to avoid material-ui error "you are providing
+              a disabled `button` child to the Tooltip component." */}
+            <div
+              className={classNames(classes.fabWithTooltip, {
                 [classes.secondFab]: hasScheduledChange,
                 [classes.fab]: !hasScheduledChange,
               })}>
-              <ContentSaveIcon />
-            </Fab>
+              <Fab
+                disabled={!user || actionLoading}
+                onClick={
+                  isNewRule && !scId ? handleCreateRule : handleUpdateRule
+                }
+                color="primary">
+                <ContentSaveIcon />
+              </Fab>
+            </div>
           </Tooltip>
           {hasScheduledChange && (
-            <SpeedDial ariaLabel="Secondary Actions">
+            <SpeedDial
+              ButtonProps={{ disabled: !user || actionLoading }}
+              ariaLabel="Secondary Actions">
               <SpeedDialAction
                 disabled={actionLoading}
                 icon={<DeleteIcon />}
@@ -663,3 +676,5 @@ Rule.propTypes = {
 Rule.defaultProps = {
   isNewRule: false,
 };
+
+export default withUser(Rule);
