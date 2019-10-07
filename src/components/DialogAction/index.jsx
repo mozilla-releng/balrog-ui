@@ -8,7 +8,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Button from '../Button';
-import ErrorPanel from '../ErrorPanel';
+import MessagePanel from '../MessagePanel';
 import tryCatch from '../../utils/tryCatch';
 
 const useStyles = makeStyles(theme => ({
@@ -89,7 +89,7 @@ function DialogAction(props) {
       <DialogContent>
         {error && (
           <DialogContentText component="div">
-            <ErrorPanel error={error} />
+            <MessagePanel error={error} />
           </DialogContentText>
         )}
         {body && <DialogContentText component="div">{body}</DialogContentText>}

@@ -11,7 +11,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import PlusIcon from 'mdi-react/PlusIcon';
 import Dashboard from '../../../components/Dashboard';
 import DialogAction from '../../../components/DialogAction';
-import ErrorPanel from '../../../components/ErrorPanel';
+import MessagePanel from '../../../components/MessagePanel';
 import { makeSignoff, revokeSignoff } from '../../../services/signoffs';
 import { getUsers } from '../../../services/users';
 import useAction from '../../../hooks/useAction';
@@ -173,7 +173,7 @@ function ListUsers({ user }) {
   return (
     <Dashboard title="Users">
       {isLoading && <Spinner loading />}
-      {error && <ErrorPanel fixed error={error} />}
+      {error && <MessagePanel fixed error={error} />}
       {!isLoading && users && (
         <Fragment>
           {Object.keys(users)

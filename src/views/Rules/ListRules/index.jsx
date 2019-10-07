@@ -20,7 +20,7 @@ import Drawer from '@material-ui/core/Drawer';
 import PlusIcon from 'mdi-react/PlusIcon';
 import PauseIcon from 'mdi-react/PauseIcon';
 import Dashboard from '../../../components/Dashboard';
-import ErrorPanel from '../../../components/ErrorPanel';
+import MessagePanel from '../../../components/MessagePanel';
 import EmergencyShutoffCard from '../../../components/EmergencyShutoffCard';
 import RuleCard from '../../../components/RuleCard';
 import DialogAction from '../../../components/DialogAction';
@@ -1202,7 +1202,7 @@ function ListRules(props) {
   return (
     <Dashboard title="Rules">
       {isLoading && <Spinner loading />}
-      {error && <ErrorPanel fixed error={error} />}
+      {error && <MessagePanel fixed error={error} />}
       {!isLoading && productChannelOptions && (
         <Fragment>
           <div className={classes.options}>

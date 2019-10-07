@@ -16,7 +16,7 @@ import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 import Dashboard from '../../../components/Dashboard';
-import ErrorPanel from '../../../components/ErrorPanel';
+import MessagePanel from '../../../components/MessagePanel';
 import Button from '../../../components/Button';
 import SpeedDial from '../../../components/SpeedDial';
 import useAction from '../../../hooks/useAction';
@@ -445,7 +445,7 @@ function ViewUser({ isNewUser, ...props }) {
 
   return (
     <Dashboard title="Users">
-      {error && <ErrorPanel fixed error={error} />}
+      {error && <MessagePanel fixed error={error} />}
       {isLoading && <Spinner loading />}
       {!isLoading && (
         <Fragment>

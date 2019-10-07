@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 import Dashboard from '../../../components/Dashboard';
-import ErrorPanel from '../../../components/ErrorPanel';
+import MessagePanel from '../../../components/MessagePanel';
 import useAction from '../../../hooks/useAction';
 import { getUsers } from '../../../services/users';
 
@@ -80,7 +80,7 @@ function ListRoles() {
   return (
     <Dashboard title="Roles">
       {isLoading && <Spinner loading />}
-      {error && <ErrorPanel fixed error={error} />}
+      {error && <MessagePanel fixed error={error} />}
       {Boolean(filteredRoles.length) && Boolean(users.length) && (
         <Fragment>
           <div className={classes.options}>

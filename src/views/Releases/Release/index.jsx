@@ -9,7 +9,7 @@ import Fab from '@material-ui/core/Fab';
 import ContentSaveIcon from 'mdi-react/ContentSaveIcon';
 import DeleteIcon from 'mdi-react/DeleteIcon';
 import Dashboard from '../../../components/Dashboard';
-import ErrorPanel from '../../../components/ErrorPanel';
+import MessagePanel from '../../../components/MessagePanel';
 import SpeedDial from '../../../components/SpeedDial';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import CodeEditor from '../../../components/CodeEditor';
@@ -259,11 +259,11 @@ export default function Release(props) {
     <Dashboard
       title={isNewRelease ? 'Create Release' : `Update Release ${releaseName}`}>
       {isLoading && <Spinner loading />}
-      {!isLoading && error && <ErrorPanel fixed error={error} />}
+      {!isLoading && error && <MessagePanel fixed error={error} />}
       {!isLoading && (
         <Fragment>
           {Object.entries(requiredSignoffs).length > 0 && (
-            <ErrorPanel
+            <MessagePanel
               warning
               unclosable
               error={`Changes will require signoffs: ${Object.entries(

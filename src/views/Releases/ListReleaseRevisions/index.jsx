@@ -7,7 +7,7 @@ import { makeStyles } from '@material-ui/styles';
 import Drawer from '@material-ui/core/Drawer';
 import Typography from '@material-ui/core/Typography';
 import { formatDistanceStrict } from 'date-fns';
-import ErrorPanel from '../../../components/ErrorPanel';
+import MessagePanel from '../../../components/MessagePanel';
 import Dashboard from '../../../components/Dashboard';
 import Radio from '../../../components/Radio';
 import Button from '../../../components/Button';
@@ -120,7 +120,7 @@ function ListReleaseRevisions(props) {
 
   return (
     <Dashboard title={`Release ${releaseName} Revisions`}>
-      {error && <ErrorPanel fixed error={error} />}
+      {error && <MessagePanel fixed error={error} />}
       {isLoading && <Spinner loading />}
       {!isLoading && revisions.length === 1 && (
         <Typography>Role {releaseName} has no revisions</Typography>

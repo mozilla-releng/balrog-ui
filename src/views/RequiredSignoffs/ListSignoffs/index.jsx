@@ -18,7 +18,7 @@ import Dashboard from '../../../components/Dashboard';
 import Radio from '../../../components/Radio';
 import DialogAction from '../../../components/DialogAction';
 import SignoffCard from '../../../components/SignoffCard';
-import ErrorPanel from '../../../components/ErrorPanel';
+import MessagePanel from '../../../components/MessagePanel';
 import SignoffCardEntry from '../../../components/SignoffCardEntry';
 import { deleteScheduledChange } from '../../../services/requiredSignoffs';
 import { makeSignoff, revokeSignoff } from '../../../services/signoffs';
@@ -248,7 +248,7 @@ function ListSignoffs({ user }) {
 
   return (
     <Dashboard title="Required Signoffs">
-      {error && <ErrorPanel fixed error={error} />}
+      {error && <MessagePanel fixed error={error} />}
       {loading && <Spinner loading />}
       {requiredSignoffs && (
         <Fragment>

@@ -3,7 +3,7 @@ import { BrowserRouter, Switch } from 'react-router-dom';
 import { makeStyles } from '@material-ui/styles';
 import axios from 'axios';
 import Dashboard from './components/Dashboard';
-import ErrorPanel from './components/ErrorPanel';
+import MessagePanel from './components/MessagePanel';
 import RouteWithProps from './components/RouteWithProps';
 import routes from './routes';
 
@@ -40,7 +40,7 @@ function Main() {
   return backendError ? (
     <BrowserRouter>
       <Dashboard title="Error" disabled>
-        <ErrorPanel fixed error={backendError} />
+        <MessagePanel fixed error={backendError} />
       </Dashboard>
     </BrowserRouter>
   ) : (

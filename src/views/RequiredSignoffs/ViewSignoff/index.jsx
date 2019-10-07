@@ -23,7 +23,7 @@ import DialogAction from '../../../components/DialogAction';
 import Button from '../../../components/Button';
 import SpeedDial from '../../../components/SpeedDial';
 import Radio from '../../../components/Radio';
-import ErrorPanel from '../../../components/ErrorPanel';
+import MessagePanel from '../../../components/MessagePanel';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 import { getChannels, getProducts } from '../../../services/rules';
@@ -266,7 +266,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
   return (
     <Dashboard title="Required Signoff">
-      {error && <ErrorPanel fixed error={error} />}
+      {error && <MessagePanel fixed error={error} />}
       {isLoading && <Spinner loading />}
       {!isLoading && (
         <Fragment>

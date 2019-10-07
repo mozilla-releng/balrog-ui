@@ -9,7 +9,7 @@ import Drawer from '@material-ui/core/Drawer';
 import { formatDistanceStrict } from 'date-fns';
 import Dashboard from '../../../components/Dashboard';
 import DialogAction from '../../../components/DialogAction';
-import ErrorPanel from '../../../components/ErrorPanel';
+import MessagePanel from '../../../components/MessagePanel';
 import RuleCard from '../../../components/RuleCard';
 import Radio from '../../../components/Radio';
 import Button from '../../../components/Button';
@@ -131,7 +131,7 @@ function ListRuleRevisions(props) {
 
   return (
     <Dashboard title={`Rule ${ruleId} Revisions`}>
-      {error && <ErrorPanel fixed error={error} />}
+      {error && <MessagePanel fixed error={error} />}
       {isLoading && <Spinner loading />}
       {!isLoading && revisions.length === 1 && (
         <Typography>Rule {ruleId} has no revisions</Typography>

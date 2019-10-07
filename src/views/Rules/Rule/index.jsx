@@ -15,7 +15,7 @@ import SpeedDialAction from '@material-ui/lab/SpeedDialAction';
 import ContentSaveIcon from 'mdi-react/ContentSaveIcon';
 import DeleteIcon from 'mdi-react/DeleteIcon';
 import Dashboard from '../../../components/Dashboard';
-import ErrorPanel from '../../../components/ErrorPanel';
+import MessagePanel from '../../../components/MessagePanel';
 import AutoCompleteText from '../../../components/AutoCompleteText';
 import getSuggestions from '../../../components/AutoCompleteText/getSuggestions';
 import DateTimePicker from '../../../components/DateTimePicker';
@@ -361,7 +361,7 @@ export default function Rule({ isNewRule, ...props }) {
   return (
     <Dashboard title={getTitle()}>
       {isLoading && <Spinner loading />}
-      {error && <ErrorPanel fixed error={error} />}
+      {error && <MessagePanel fixed error={error} />}
       {!isLoading && (
         <Fragment>
           <div className={classes.scheduleDiv}>

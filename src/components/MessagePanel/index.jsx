@@ -17,7 +17,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function ErrorPanel({
+export default function MessagePanel({
   className,
   error,
   fixed,
@@ -59,7 +59,7 @@ export default function ErrorPanel({
   ) : null;
 }
 
-ErrorPanel.propTypes = {
+MessagePanel.propTypes = {
   /** Error to display. */
   error: oneOfType([string, object]),
   /** If true, the component will be fixed. */
@@ -73,7 +73,7 @@ ErrorPanel.propTypes = {
   unclosable: bool,
 };
 
-ErrorPanel.defaultProps = {
+MessagePanel.defaultProps = {
   className: null,
   error: null,
   fixed: false,
