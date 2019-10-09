@@ -91,7 +91,16 @@ function Rule({ isNewRule, user, ...props }) {
       : [];
   const [rule, setRule] = useState(
     props.location.state && props.location.state.rule
-      ? props.location.state.rule
+      ? Object.assign({}, props.location.state.rule, {
+          jaws:
+            props.location.state.rule.jaws === null
+              ? EMPTY_MENU_ITEM_CHAR
+              : props.location.state.rule.jaws,
+          mig64:
+            props.location.state.rule.mig64 === null
+              ? EMPTY_MENU_ITEM_CHAR
+              : props.location.state.rule.mig64,
+        })
       : initialRule
   );
   const [products, fetchProducts] = useAction(getProducts);
@@ -342,6 +351,7 @@ function Rule({ isNewRule, user, ...props }) {
       });
     }
   }, [ruleId, scId]);
+
   const today = new Date();
 
   // This will make sure the helperText
