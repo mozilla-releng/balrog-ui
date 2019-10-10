@@ -188,7 +188,7 @@ function Rule({ isNewRule, user, ...props }) {
       RULE_PRODUCT_UNSUPPORTED_PROPERTIES[rule.product].includes(field)
     );
   const filterProductData = data =>
-    pick(Object.keys(data).filter(field => productSupportsField(field)), data);
+    pick(Object.keys(data).filter(productSupportsField), data);
   const handleCreateRule = async () => {
     const now = new Date();
     const when =
