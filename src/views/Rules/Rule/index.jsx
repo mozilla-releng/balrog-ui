@@ -89,20 +89,7 @@ function Rule({ isNewRule, user, ...props }) {
     props.location.state && props.location.state.rulesFilter
       ? props.location.state.rulesFilter
       : [];
-  const [rule, setRule] = useState(
-    props.location.state && props.location.state.rule
-      ? Object.assign({}, props.location.state.rule, {
-          jaws:
-            props.location.state.rule.jaws === null
-              ? EMPTY_MENU_ITEM_CHAR
-              : props.location.state.rule.jaws,
-          mig64:
-            props.location.state.rule.mig64 === null
-              ? EMPTY_MENU_ITEM_CHAR
-              : props.location.state.rule.mig64,
-        })
-      : initialRule
-  );
+  const [rule, setRule] = useState(initialRule);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
   const [releaseNames, fetchReleaseNames] = useAction(getReleaseNames);
@@ -330,14 +317,19 @@ function Rule({ isNewRule, user, ...props }) {
     } else {
       Promise.all([
         // Handles loading a scheduled change if an id was provided
+        ruleId ? fetchRule(ruleId) : null,
         scId ? fetchScheduledChangeByScId(scId) : null,
         fetchProducts(),
         fetchChannels(),
         fetchReleaseNames(),
-      ]).then(([fetchResponse]) => {
-        const sc = fetchResponse
-          ? fetchResponse.data.data.scheduled_change
-          : {};
+      ]).then(([ruleResponse, scResponse]) => {
+        const r = ruleResponse ? ruleResponse.data.data : {};
+        const sc = scResponse ? scResponse.data.data.scheduled_change : {};
+
+        if (Object.keys(r).length > 0) {
+          r.jaws = getOptionalBooleanValue(r.jaws);
+          r.mig64 = getOptionalBooleanValue(r.mig64);
+        }
 
         if (Object.keys(sc).length > 0) {
           sc.jaws = getOptionalBooleanValue(sc.jaws);
@@ -346,6 +338,7 @@ function Rule({ isNewRule, user, ...props }) {
 
         setRule({
           ...rule,
+          ...r,
           ...sc,
         });
       });
