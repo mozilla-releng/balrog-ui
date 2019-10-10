@@ -49,7 +49,6 @@ export const RULE_PRODUCT_UNSUPPORTED_PROPERTIES = {
     'memory',
     'mig64',
     'osVersion',
-    'update_type',
   ],
 };
 export const CONTENT_MAX_WIDTH = 980;

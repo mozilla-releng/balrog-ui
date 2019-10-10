@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { bool } from 'prop-types';
-import { defaultTo, assocPath } from 'ramda';
+import { defaultTo, assocPath, pick } from 'ramda';
 import { stringify } from 'qs';
 import NumberFormat from 'react-number-format';
 import { makeStyles } from '@material-ui/styles';
@@ -182,6 +182,13 @@ function Rule({ isNewRule, user, ...props }) {
     }
   };
 
+  const productSupportsField = field =>
+    !(
+      rule.product in RULE_PRODUCT_UNSUPPORTED_PROPERTIES &&
+      RULE_PRODUCT_UNSUPPORTED_PROPERTIES[rule.product].includes(field)
+    );
+  const filterProductData = data =>
+    pick(Object.keys(data).filter(field => productSupportsField(field)), data);
   const handleCreateRule = async () => {
     const now = new Date();
     const when =
@@ -212,7 +219,7 @@ function Rule({ isNewRule, user, ...props }) {
     const { data: response, error } = await addSC({
       change_type: 'insert',
       when,
-      ...data,
+      ...filterProductData(data),
     });
 
     if (!error) {
@@ -254,7 +261,7 @@ function Rule({ isNewRule, user, ...props }) {
         sc_data_version: rule.sc_data_version,
         data_version: rule.data_version,
         when,
-        ...data,
+        ...filterProductData(data),
       });
 
       if (!error) {
@@ -266,7 +273,7 @@ function Rule({ isNewRule, user, ...props }) {
         data_version: rule.data_version,
         change_type: 'update',
         when,
-        ...data,
+        ...filterProductData(data),
       });
 
       if (!error) {
@@ -364,12 +371,6 @@ function Rule({ isNewRule, user, ...props }) {
     return `Update Rule ${ruleId}${rule.alias ? ` (${rule.alias})` : ''}`;
   };
 
-  const showField = field =>
-    !(
-      rule.product in RULE_PRODUCT_UNSUPPORTED_PROPERTIES &&
-      RULE_PRODUCT_UNSUPPORTED_PROPERTIES[rule.product].includes(field)
-    );
-
   return (
     <Dashboard title={getTitle()}>
       {isLoading && <Spinner loading />}
@@ -410,7 +411,7 @@ function Rule({ isNewRule, user, ...props }) {
                 }}
               />
             </Grid>
-            {showField('channel') && (
+            {productSupportsField('channel') && (
               <Grid item xs={12} sm={6}>
                 <AutoCompleteText
                   value={defaultToEmptyString(rule.channel)}
@@ -426,7 +427,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('mapping') && (
+            {productSupportsField('mapping') && (
               <Grid item xs={12} sm={6}>
                 <AutoCompleteText
                   value={defaultToEmptyString(rule.mapping)}
@@ -443,7 +444,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('fallbackMapping') && (
+            {productSupportsField('fallbackMapping') && (
               <Grid item xs={12} sm={6}>
                 <AutoCompleteText
                   value={defaultToEmptyString(rule.fallbackMapping)}
@@ -459,7 +460,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('backgroundRate') && (
+            {productSupportsField('backgroundRate') && (
               <Grid item xs={12} sm={6}>
                 <NumberFormat
                   allowNegative={false}
@@ -472,7 +473,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('priority') && (
+            {productSupportsField('priority') && (
               <Grid item xs={12} sm={6}>
                 <NumberFormat
                   allowNegative={false}
@@ -485,7 +486,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('version') && (
+            {productSupportsField('version') && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -496,7 +497,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('buildID') && (
+            {productSupportsField('buildID') && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -507,7 +508,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('locale') && (
+            {productSupportsField('locale') && (
               <Grid item xs={12} md={6}>
                 <TextField
                   helperText="Enter each locale on its own line"
@@ -521,7 +522,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('osVersion') && (
+            {productSupportsField('osVersion') && (
               <Grid item xs={12} md={6}>
                 <TextField
                   helperText="Enter each OS version on its own line"
@@ -535,7 +536,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('buildTarget') && (
+            {productSupportsField('buildTarget') && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -546,7 +547,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('instructionSet') && (
+            {productSupportsField('instructionSet') && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -557,7 +558,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('memory') && (
+            {productSupportsField('memory') && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -568,7 +569,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('jaws') && (
+            {productSupportsField('jaws') && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -585,7 +586,7 @@ function Rule({ isNewRule, user, ...props }) {
                 </TextField>
               </Grid>
             )}
-            {showField('distribution') && (
+            {productSupportsField('distribution') && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -596,7 +597,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('distVersion') && (
+            {productSupportsField('distVersion') && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -607,7 +608,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('headerArchitecture') && (
+            {productSupportsField('headerArchitecture') && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -618,7 +619,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('mig64') && (
+            {productSupportsField('mig64') && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -635,7 +636,7 @@ function Rule({ isNewRule, user, ...props }) {
                 </TextField>
               </Grid>
             )}
-            {showField('alias') && (
+            {productSupportsField('alias') && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -646,7 +647,7 @@ function Rule({ isNewRule, user, ...props }) {
                 />
               </Grid>
             )}
-            {showField('update_type') && (
+            {productSupportsField('update_type') && (
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -661,7 +662,7 @@ function Rule({ isNewRule, user, ...props }) {
                 </TextField>
               </Grid>
             )}
-            {showField('comment') && (
+            {productSupportsField('comment') && (
               <Grid item xs={12}>
                 <TextField
                   fullWidth
