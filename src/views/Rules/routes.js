@@ -21,7 +21,12 @@ export default path => [
   },
   {
     component: Rule,
-    path: `${path}/:ruleId/duplicate`,
+    path: `${path}/duplicate/scId/:scId`,
+    isNewRule: true,
+  },
+  {
+    component: Rule,
+    path: `${path}/duplicate/ruleId/:ruleId`,
     isNewRule: true,
   },
   {
