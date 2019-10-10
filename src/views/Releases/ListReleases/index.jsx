@@ -24,6 +24,7 @@ import {
   setReadOnly,
   getScheduledChanges,
   addScheduledChange,
+  getRequiredSignoffsForProduct,
 } from '../../../services/releases';
 import { getUserInfo } from '../../../services/users';
 import { makeSignoff, revokeSignoff } from '../../../services/signoffs';
@@ -87,6 +88,9 @@ function ListReleases(props) {
   );
   const delRelease = useAction(deleteRelease)[1];
   const setReadOnlyFlag = useAction(setReadOnly)[1];
+  const fetchRequiredSignoffsForProduct = useAction(
+    getRequiredSignoffsForProduct
+  )[1];
   const [signoffAction, signoff] = useAction(props =>
     makeSignoff({ type: 'releases', ...props })
   );
@@ -137,6 +141,15 @@ function ListReleases(props) {
               release.scheduledChange.when = new Date(
                 release.scheduledChange.when
               );
+            }
+
+            if (release.read_only && !requiresSignoffs(release)) {
+              fetchRequiredSignoffsForProduct(release.name).then(response => {
+                if (response.data && response.data.data) {
+                  release.required_signoffs =
+                    response.data.data.required_signoffs;
+                }
+              });
             }
 
             return release;

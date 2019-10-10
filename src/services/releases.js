@@ -78,6 +78,8 @@ const deleteScheduledChange = ({ scId, scDataVersion }) =>
   axios.delete(`/scheduled_changes/releases/${scId}`, {
     params: { data_version: scDataVersion },
   });
+const getRequiredSignoffsForProduct = name =>
+  axios.get(`/releases/${name}/read_only/product/required_signoffs`);
 
 // Releases factory
 export {
@@ -93,4 +95,5 @@ export {
   addScheduledChange,
   updateScheduledChange,
   deleteScheduledChange,
+  getRequiredSignoffsForProduct,
 };
