@@ -1202,7 +1202,7 @@ function ListRules(props) {
   return (
     <Dashboard title="Rules">
       {isLoading && <Spinner loading />}
-      {error && <MessagePanel fixed error={error} />}
+      {error && <MessagePanel fixed message={error} />}
       {!isLoading && productChannelOptions && (
         <Fragment>
           <div className={classes.options}>

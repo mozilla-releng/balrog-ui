@@ -131,7 +131,7 @@ function ListRuleRevisions(props) {
 
   return (
     <Dashboard title={`Rule ${ruleId} Revisions`}>
-      {error && <MessagePanel fixed error={error} />}
+      {error && <MessagePanel fixed message={error} />}
       {isLoading && <Spinner loading />}
       {!isLoading && revisions.length === 1 && (
         <Typography>Rule {ruleId} has no revisions</Typography>

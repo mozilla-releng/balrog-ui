@@ -445,7 +445,7 @@ function ViewUser({ isNewUser, ...props }) {
 
   return (
     <Dashboard title="Users">
-      {error && <MessagePanel fixed error={error} />}
+      {error && <MessagePanel fixed message={error} />}
       {isLoading && <Spinner loading />}
       {!isLoading && (
         <Fragment>

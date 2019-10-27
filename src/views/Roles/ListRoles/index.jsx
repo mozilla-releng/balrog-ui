@@ -80,7 +80,7 @@ function ListRoles() {
   return (
     <Dashboard title="Roles">
       {isLoading && <Spinner loading />}
-      {error && <MessagePanel fixed error={error} />}
+      {error && <MessagePanel fixed message={error} />}
       {Boolean(filteredRoles.length) && Boolean(users.length) && (
         <Fragment>
           <div className={classes.options}>

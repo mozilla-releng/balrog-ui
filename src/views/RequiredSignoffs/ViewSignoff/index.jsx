@@ -266,7 +266,7 @@ function ViewSignoff({ isNewSignoff, ...props }) {
 
   return (
     <Dashboard title="Required Signoff">
-      {error && <MessagePanel fixed error={error} />}
+      {error && <MessagePanel fixed message={error} />}
       {isLoading && <Spinner loading />}
       {!isLoading && (
         <Fragment>

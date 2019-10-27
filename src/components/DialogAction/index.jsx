@@ -89,7 +89,7 @@ function DialogAction(props) {
       <DialogContent>
         {error && (
           <DialogContentText component="div">
-            <MessagePanel error={error} />
+            <MessagePanel message={error} />
           </DialogContentText>
         )}
         {body && <DialogContentText component="div">{body}</DialogContentText>}

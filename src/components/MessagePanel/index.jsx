@@ -19,39 +19,39 @@ const useStyles = makeStyles(theme => ({
 
 export default function MessagePanel({
   className,
-  error,
+  message,
   fixed,
   onClose,
   unclosable,
   ...props
 }) {
   const classes = useStyles();
-  const [currentError, setCurrentError] = useState(null);
-  const [previousError, setPreviousError] = useState(null);
+  const [currentMessage, setCurrentMessage] = useState(null);
+  const [previousMessage, setPreviousMessage] = useState(null);
   const otherProps = {};
   const handleErrorClose = () => {
-    setCurrentError(null);
+    setCurrentMessage(null);
 
     if (onClose) {
       onClose();
     }
   };
 
-  if (error !== previousError) {
-    setCurrentError(error);
-    setPreviousError(error);
+  if (message !== previousMessage) {
+    setCurrentMessage(message);
+    setPreviousMessage(message);
   }
 
   if (unclosable) {
     otherProps.onClose = null;
   }
 
-  return currentError ? (
+  return currentMessage ? (
     <MuiErrorPanel
       className={classNames(className, {
         [classes.fixed]: fixed,
       })}
-      error={currentError}
+      error={currentMessage}
       onClose={handleErrorClose}
       {...otherProps}
       {...props}
@@ -60,14 +60,14 @@ export default function MessagePanel({
 }
 
 MessagePanel.propTypes = {
-  /** Error to display. */
-  error: oneOfType([string, object]),
+  /** Message to display. */
+  message: oneOfType([string, object]),
   /** If true, the component will be fixed. */
   fixed: bool,
   className: string,
   onClose: func,
   /**
-   * If true, the error panel will not have the close button,
+   * If true, the component will not have the close button,
    * therefore unclosable.
    * */
   unclosable: bool,
@@ -75,7 +75,7 @@ MessagePanel.propTypes = {
 
 MessagePanel.defaultProps = {
   className: null,
-  error: null,
+  message: null,
   fixed: false,
   onClose: null,
 };

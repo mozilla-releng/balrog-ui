@@ -248,7 +248,7 @@ function ListSignoffs({ user }) {
 
   return (
     <Dashboard title="Required Signoffs">
-      {error && <MessagePanel fixed error={error} />}
+      {error && <MessagePanel fixed message={error} />}
       {loading && <Spinner loading />}
       {requiredSignoffs && (
         <Fragment>

@@ -553,7 +553,7 @@ function ListReleases(props) {
         value={searchValue}
       />
       {isLoading && <Spinner loading />}
-      {error && <MessagePanel fixed error={error} />}
+      {error && <MessagePanel fixed message={error} />}
       {!isLoading && filteredReleases && (
         <VariableSizeList
           rowRenderer={Row}

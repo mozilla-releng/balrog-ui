@@ -173,7 +173,7 @@ function ListUsers({ user }) {
   return (
     <Dashboard title="Users">
       {isLoading && <Spinner loading />}
-      {error && <MessagePanel fixed error={error} />}
+      {error && <MessagePanel fixed message={error} />}
       {!isLoading && users && (
         <Fragment>
           {Object.keys(users)

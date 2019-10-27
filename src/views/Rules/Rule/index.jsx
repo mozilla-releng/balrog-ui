@@ -366,7 +366,7 @@ function Rule({ isNewRule, user, ...props }) {
   return (
     <Dashboard title={getTitle()}>
       {isLoading && <Spinner loading />}
-      {error && <MessagePanel fixed error={error} />}
+      {error && <MessagePanel fixed message={error} />}
       {!isLoading && (
         <Fragment>
           <div className={classes.scheduleDiv}>

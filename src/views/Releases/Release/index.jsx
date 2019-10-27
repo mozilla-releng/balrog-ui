@@ -265,14 +265,14 @@ function Release(props) {
     <Dashboard
       title={isNewRelease ? 'Create Release' : `Update Release ${releaseName}`}>
       {isLoading && <Spinner loading />}
-      {!isLoading && error && <MessagePanel fixed error={error} />}
+      {!isLoading && error && <MessagePanel fixed message={error} />}
       {!isLoading && (
         <Fragment>
           {Object.entries(requiredSignoffs).length > 0 && (
             <MessagePanel
               warning
               unclosable
-              error={`Changes will require signoffs: ${Object.entries(
+              message={`Changes will require signoffs: ${Object.entries(
                 requiredSignoffs
               )
                 .map(([role, count]) => `${count} from ${role}`)
