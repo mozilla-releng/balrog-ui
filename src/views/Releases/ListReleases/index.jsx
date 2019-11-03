@@ -81,6 +81,9 @@ function ListReleases(props) {
   const [roles, setRoles] = useState([]);
   const [signoffRole, setSignoffRole] = useState('');
   const [drawerState, setDrawerState] = useState({ open: false, item: {} });
+  const [requiredSignoffsForProduct, setRequiredSignoffsForProduct] = useState(
+    {}
+  );
   const [releasesAction, fetchReleases] = useAction(getReleases);
   const [releaseAction, fetchRelease] = useAction(getRelease);
   const [scheduledChangesAction, fetchScheduledChanges] = useAction(
@@ -88,9 +91,6 @@ function ListReleases(props) {
   );
   const delRelease = useAction(deleteRelease)[1];
   const setReadOnlyFlag = useAction(setReadOnly)[1];
-  const fetchRequiredSignoffsForProduct = useAction(
-    getRequiredSignoffsForProduct
-  )[1];
   const [signoffAction, signoff] = useAction(props =>
     makeSignoff({ type: 'releases', ...props })
   );
@@ -125,6 +125,14 @@ function ListReleases(props) {
   const requiresSignoffs = release =>
     release.required_signoffs &&
     Object.entries(release.required_signoffs).length > 0;
+  const requiresSignoffsChangeReadOnly = release =>
+    requiresSignoffs(release) ||
+    (requiredSignoffsForProduct[release.product] &&
+      Object.entries(requiredSignoffsForProduct[release.product]).length > 0);
+  const getRequiredSignoffsChangeReadOnly = release =>
+    requiresSignoffs(release)
+      ? release.required_signoffs
+      : requiredSignoffsForProduct[release.product];
 
   useEffect(() => {
     Promise.all([fetchReleases(), fetchScheduledChanges()]).then(
@@ -143,21 +151,31 @@ function ListReleases(props) {
               );
             }
 
-            if (release.read_only && !requiresSignoffs(release)) {
-              fetchRequiredSignoffsForProduct(release.name).then(response => {
-                if (response.data && response.data.data) {
-                  release.required_signoffs =
-                    response.data.data.required_signoffs;
-                }
-              });
-            }
-
             return release;
           })
         );
       }
     );
   }, []);
+
+  useEffect(() => {
+    releases.forEach(release => {
+      if (release.read_only && !requiresSignoffs(release)) {
+        if (!(release.product in requiredSignoffsForProduct)) {
+          requiredSignoffsForProduct[release.product] = {};
+          setRequiredSignoffsForProduct(requiredSignoffsForProduct);
+
+          getRequiredSignoffsForProduct(release.name).then(response => {
+            if (response.data) {
+              requiredSignoffsForProduct[release.product] =
+                response.data.required_signoffs;
+              setRequiredSignoffsForProduct(requiredSignoffsForProduct);
+            }
+          });
+        }
+      }
+    });
+  }, [releases]);
 
   useEffect(() => {
     if (username) {
@@ -265,7 +283,7 @@ function ListReleases(props) {
   const handleReadOnlySubmit = async () => {
     const release = dialogState.item;
 
-    if (release.read_only && requiresSignoffs(release)) {
+    if (release.read_only && requiresSignoffsChangeReadOnly(release)) {
       return scheduleReadWriteChange(release);
     }
 
@@ -364,13 +382,12 @@ function ListReleases(props) {
         {dialogState.item.read_only ? 'writable' : 'read only'}
       </Typography>
       {dialogState.item.read_only &&
-        requiresSignoffs(dialogState.item) &&
-        Object.entries(dialogState.item.required_signoffs).length > 0 && (
+        requiresSignoffsChangeReadOnly(dialogState.item) && (
           // TODO: Replace with appropriate MessagePanel
           <ErrorPanel
             warning
             error={`Changes will require signoffs: ${Object.entries(
-              dialogState.item.required_signoffs
+              getRequiredSignoffsChangeReadOnly(dialogState.item)
             )
               .map(([role, count]) => `${count} from ${role}`)
               .join(', ')}.`}
