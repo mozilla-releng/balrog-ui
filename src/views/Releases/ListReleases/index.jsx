@@ -23,6 +23,7 @@ import {
   deleteRelease,
   setReadOnly,
   getScheduledChanges,
+  getScheduledChangeById,
   addScheduledChange,
   getRequiredSignoffsForProduct,
 } from '../../../services/releases';
@@ -133,6 +134,13 @@ function ListReleases(props) {
     requiresSignoffs(release)
       ? release.required_signoffs
       : requiredSignoffsForProduct[release.product];
+  const buildScheduledChange = sc => {
+    const scheduledChange = sc;
+
+    scheduledChange.when = new Date(sc.when);
+
+    return scheduledChange;
+  };
 
   useEffect(() => {
     Promise.all([fetchReleases(), fetchScheduledChanges()]).then(
@@ -145,10 +153,7 @@ function ListReleases(props) {
             const release = clone(r);
 
             if (sc) {
-              release.scheduledChange = sc;
-              release.scheduledChange.when = new Date(
-                release.scheduledChange.when
-              );
+              release.scheduledChange = buildScheduledChange(sc);
             }
 
             return release;
@@ -257,13 +262,14 @@ function ListReleases(props) {
       read_only: false,
       data_version: release.data_version,
     };
-    const { error } = await addScheduledChange(sc);
+    const { data, error } = await addScheduledChange(sc);
+    const { data: scData } = await getScheduledChangeById(data.sc_id);
 
     if (error) {
       throw error;
     }
 
-    return { name: release.name };
+    return { name: release.name, sc: scData.scheduled_change };
   };
 
   const updateReadonlyFlag = async release => {
@@ -301,6 +307,10 @@ function ListReleases(props) {
 
         ret.read_only = !r.read_only;
         ret.data_version = result.new_data_version;
+
+        if (result.sc) {
+          ret.scheduledChange = buildScheduledChange(result.sc);
+        }
 
         return ret;
       })
