@@ -14,6 +14,7 @@ import Spinner from '@mozilla-frontend-infra/components/Spinner';
 import { Typography } from '@material-ui/core';
 import Dashboard from '../../../components/Dashboard';
 import ErrorPanel from '../../../components/ErrorPanel';
+import MessagePanel from '../../../components/MessagePanel';
 import ReleaseCard from '../../../components/ReleaseCard';
 import useAction from '../../../hooks/useAction';
 import Link from '../../../utils/Link';
@@ -410,10 +411,10 @@ function ListReleases(props) {
       </Typography>
       {dialogState.item.read_only &&
         requiresSignoffsChangeReadOnly(dialogState.item) && (
-          // TODO: Replace with appropriate MessagePanel
-          <ErrorPanel
-            warning
-            error={`Changes will require signoffs: ${Object.entries(
+          <MessagePanel
+            variant="warning"
+            alwaysOpen
+            message={`Changes will require signoffs: ${Object.entries(
               getRequiredSignoffsChangeReadOnly(dialogState.item)
             )
               .map(([role, count]) => `${count} from ${role}`)
