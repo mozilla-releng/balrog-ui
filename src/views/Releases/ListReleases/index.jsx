@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, Fragment } from 'react';
+import React, { useMemo, useState, useEffect, useRef, Fragment } from 'react';
 import { clone } from 'ramda';
 import classNames from 'classnames';
 import PlusIcon from 'mdi-react/PlusIcon';
@@ -72,6 +72,7 @@ function ListReleases(props) {
     subtitle1TextHeight,
     signoffSummarylistSubheaderTextHeight,
   } = elementsHeight(theme);
+  const releaseListRef = useRef(null);
   const { hash } = props.location;
   const [releaseNameHash, setReleaseNameHash] = useState(null);
   const [scrollToRow, setScrollToRow] = useState(null);
@@ -299,22 +300,26 @@ function ListReleases(props) {
   const handleReadOnlyComplete = result => {
     setReleases(
       releases.map(r => {
-        if (r.name !== result.name || (r.read_only && requiresSignoffs(r))) {
+        if (r.name !== result.name) {
           return r;
         }
 
         const ret = clone(r);
 
-        ret.read_only = !r.read_only;
-        ret.data_version = result.new_data_version;
-
         if (result.sc) {
           ret.scheduledChange = buildScheduledChange(result.sc);
+        } else {
+          ret.read_only = !r.read_only;
+          ret.data_version = result.new_data_version;
         }
 
         return ret;
       })
     );
+
+    if (result.sc) {
+      releaseListRef.current.recomputeRowHeights();
+    }
 
     handleDialogClose();
   };
@@ -641,6 +646,7 @@ function ListReleases(props) {
       {error && <ErrorPanel fixed error={error} />}
       {!isLoading && filteredReleases && (
         <VariableSizeList
+          ref={releaseListRef}
           rowRenderer={Row}
           scrollToRow={scrollToRow}
           rowHeight={getRowHeight}
