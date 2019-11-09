@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { bool } from 'prop-types';
-import { defaultTo, assocPath } from 'ramda';
+import { defaultTo, assocPath, pick } from 'ramda';
 import { stringify } from 'qs';
 import NumberFormat from 'react-number-format';
 import { makeStyles } from '@material-ui/styles';
@@ -36,6 +36,7 @@ import { withUser } from '../../../utils/AuthContext';
 import {
   EMPTY_MENU_ITEM_CHAR,
   SPLIT_WITH_NEWLINES_AND_COMMA_REGEX,
+  RULE_PRODUCT_UNSUPPORTED_PROPERTIES,
 } from '../../../utils/constants';
 
 const initialRule = {
@@ -89,11 +90,7 @@ function Rule({ isNewRule, user, ...props }) {
     props.location.state && props.location.state.rulesFilter
       ? props.location.state.rulesFilter
       : [];
-  const [rule, setRule] = useState(
-    props.location.state && props.location.state.rule
-      ? props.location.state.rule
-      : initialRule
-  );
+  const [rule, setRule] = useState(initialRule);
   const [products, fetchProducts] = useAction(getProducts);
   const [channels, fetchChannels] = useAction(getChannels);
   const [releaseNames, fetchReleaseNames] = useAction(getReleaseNames);
@@ -181,6 +178,13 @@ function Rule({ isNewRule, user, ...props }) {
     }
   };
 
+  const productSupportsField = field =>
+    !(
+      rule.product in RULE_PRODUCT_UNSUPPORTED_PROPERTIES &&
+      RULE_PRODUCT_UNSUPPORTED_PROPERTIES[rule.product].includes(field)
+    );
+  const filterProductData = data =>
+    pick(Object.keys(data).filter(productSupportsField), data);
   const handleCreateRule = async () => {
     const now = new Date();
     const when =
@@ -211,7 +215,7 @@ function Rule({ isNewRule, user, ...props }) {
     const { data: response, error } = await addSC({
       change_type: 'insert',
       when,
-      ...data,
+      ...filterProductData(data),
     });
 
     if (!error) {
@@ -253,7 +257,7 @@ function Rule({ isNewRule, user, ...props }) {
         sc_data_version: rule.sc_data_version,
         data_version: rule.data_version,
         when,
-        ...data,
+        ...filterProductData(data),
       });
 
       if (!error) {
@@ -265,7 +269,7 @@ function Rule({ isNewRule, user, ...props }) {
         data_version: rule.data_version,
         change_type: 'update',
         when,
-        ...data,
+        ...filterProductData(data),
       });
 
       if (!error) {
@@ -321,14 +325,19 @@ function Rule({ isNewRule, user, ...props }) {
     } else {
       Promise.all([
         // Handles loading a scheduled change if an id was provided
+        ruleId ? fetchRule(ruleId) : null,
         scId ? fetchScheduledChangeByScId(scId) : null,
         fetchProducts(),
         fetchChannels(),
         fetchReleaseNames(),
-      ]).then(([fetchResponse]) => {
-        const sc = fetchResponse
-          ? fetchResponse.data.data.scheduled_change
-          : {};
+      ]).then(([ruleResponse, scResponse]) => {
+        const r = ruleResponse ? ruleResponse.data.data : {};
+        const sc = scResponse ? scResponse.data.data.scheduled_change : {};
+
+        if (Object.keys(r).length > 0) {
+          r.jaws = getOptionalBooleanValue(r.jaws);
+          r.mig64 = getOptionalBooleanValue(r.mig64);
+        }
 
         if (Object.keys(sc).length > 0) {
           sc.jaws = getOptionalBooleanValue(sc.jaws);
@@ -337,11 +346,13 @@ function Rule({ isNewRule, user, ...props }) {
 
         setRule({
           ...rule,
+          ...r,
           ...sc,
         });
       });
     }
   }, [ruleId, scId]);
+
   const today = new Date();
 
   // This will make sure the helperText
@@ -403,230 +414,270 @@ function Rule({ isNewRule, user, ...props }) {
                 }}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <AutoCompleteText
-                value={defaultToEmptyString(rule.channel)}
-                onValueChange={handleChannelChange}
-                getSuggestions={
-                  channels.data && getSuggestions(channels.data.data.channel)
-                }
-                label="Channel"
-                required
-                inputProps={{
-                  fullWidth: true,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <AutoCompleteText
-                value={defaultToEmptyString(rule.mapping)}
-                onValueChange={handleMappingChange}
-                getSuggestions={
-                  releaseNames.data &&
-                  getSuggestions(releaseNames.data.data.names)
-                }
-                label="Mapping"
-                required
-                inputProps={{
-                  fullWidth: true,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <AutoCompleteText
-                value={defaultToEmptyString(rule.fallbackMapping)}
-                onValueChange={handleFallbackMappingChange}
-                getSuggestions={
-                  releaseNames.data &&
-                  getSuggestions(releaseNames.data.data.names)
-                }
-                label="Fallback Mapping"
-                inputProps={{
-                  fullWidth: true,
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <NumberFormat
-                allowNegative={false}
-                label="Background Rate"
-                fullWidth
-                value={rule.backgroundRate}
-                customInput={TextField}
-                onValueChange={handleNumberChange('backgroundRate')}
-                decimalScale={0}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <NumberFormat
-                allowNegative={false}
-                label="Priority"
-                fullWidth
-                value={defaultToEmptyString(rule.priority)}
-                customInput={TextField}
-                onValueChange={handleNumberChange('priority')}
-                decimalScale={0}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Version"
-                value={defaultToEmptyString(rule.version)}
-                name="version"
-                onChange={handleInputChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Build ID"
-                value={defaultToEmptyString(rule.buildID)}
-                name="buildID"
-                onChange={handleInputChange}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                helperText="Enter each locale on its own line"
-                multiline
-                rows={4}
-                fullWidth
-                label="Locale"
-                value={localeTextValue}
-                name="locale"
-                onChange={handleTextFieldWithNewLinesChange}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                helperText="Enter each OS version on its own line"
-                multiline
-                rows={4}
-                fullWidth
-                label="OS Version"
-                value={osVersionTextValue}
-                name="osVersion"
-                onChange={handleTextFieldWithNewLinesChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Build Target"
-                value={defaultToEmptyString(rule.buildTarget)}
-                name="buildTarget"
-                onChange={handleInputChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Instruction Set"
-                value={defaultToEmptyString(rule.instructionSet)}
-                name="instructionSet"
-                onChange={handleInputChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Memory"
-                value={defaultToEmptyString(rule.memory)}
-                name="memory"
-                onChange={handleInputChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Incompatible JAWS Screen Reader"
-                select
-                value={rule.jaws || EMPTY_MENU_ITEM_CHAR}
-                name="jaws"
-                onChange={handleInputChange}>
-                <MenuItem value={EMPTY_MENU_ITEM_CHAR}>
-                  {EMPTY_MENU_ITEM_CHAR}
-                </MenuItem>
-                <MenuItem value="true">Yes</MenuItem>
-                <MenuItem value="false">No</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Distribution"
-                value={defaultToEmptyString(rule.distribution)}
-                name="distribution"
-                onChange={handleInputChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Distribution Version"
-                value={defaultToEmptyString(rule.distVersion)}
-                name="distVersion"
-                onChange={handleInputChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Header Architecture"
-                value={defaultToEmptyString(rule.headerArchitecture)}
-                name="headerArchitecture"
-                onChange={handleInputChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="64-bit Migration Opt-in"
-                select
-                value={rule.mig64 || EMPTY_MENU_ITEM_CHAR}
-                name="mig64"
-                onChange={handleInputChange}>
-                <MenuItem value={EMPTY_MENU_ITEM_CHAR}>
-                  {EMPTY_MENU_ITEM_CHAR}
-                </MenuItem>
-                <MenuItem value="true">Yes</MenuItem>
-                <MenuItem value="false">No</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Alias"
-                value={defaultToEmptyString(rule.alias)}
-                name="alias"
-                onChange={handleInputChange}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                select
-                required
-                label="Update Type"
-                value={rule.update_type || 'minor'}
-                name="update_type"
-                onChange={handleInputChange}>
-                <MenuItem value="minor">minor</MenuItem>
-                <MenuItem value="major">major</MenuItem>
-              </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                multiline
-                rows={4}
-                label="Comment"
-                value={defaultToEmptyString(rule.comment)}
-                name="comment"
-                onChange={handleInputChange}
-              />
-            </Grid>
+            {productSupportsField('channel') && (
+              <Grid item xs={12} sm={6}>
+                <AutoCompleteText
+                  value={defaultToEmptyString(rule.channel)}
+                  onValueChange={handleChannelChange}
+                  getSuggestions={
+                    channels.data && getSuggestions(channels.data.data.channel)
+                  }
+                  label="Channel"
+                  required
+                  inputProps={{
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+            )}
+            {productSupportsField('mapping') && (
+              <Grid item xs={12} sm={6}>
+                <AutoCompleteText
+                  value={defaultToEmptyString(rule.mapping)}
+                  onValueChange={handleMappingChange}
+                  getSuggestions={
+                    releaseNames.data &&
+                    getSuggestions(releaseNames.data.data.names)
+                  }
+                  label="Mapping"
+                  required
+                  inputProps={{
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+            )}
+            {productSupportsField('fallbackMapping') && (
+              <Grid item xs={12} sm={6}>
+                <AutoCompleteText
+                  value={defaultToEmptyString(rule.fallbackMapping)}
+                  onValueChange={handleFallbackMappingChange}
+                  getSuggestions={
+                    releaseNames.data &&
+                    getSuggestions(releaseNames.data.data.names)
+                  }
+                  label="Fallback Mapping"
+                  inputProps={{
+                    fullWidth: true,
+                  }}
+                />
+              </Grid>
+            )}
+            {productSupportsField('backgroundRate') && (
+              <Grid item xs={12} sm={6}>
+                <NumberFormat
+                  allowNegative={false}
+                  label="Background Rate"
+                  fullWidth
+                  value={rule.backgroundRate}
+                  customInput={TextField}
+                  onValueChange={handleNumberChange('backgroundRate')}
+                  decimalScale={0}
+                />
+              </Grid>
+            )}
+            {productSupportsField('priority') && (
+              <Grid item xs={12} sm={6}>
+                <NumberFormat
+                  allowNegative={false}
+                  label="Priority"
+                  fullWidth
+                  value={defaultToEmptyString(rule.priority)}
+                  customInput={TextField}
+                  onValueChange={handleNumberChange('priority')}
+                  decimalScale={0}
+                />
+              </Grid>
+            )}
+            {productSupportsField('version') && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Version"
+                  value={defaultToEmptyString(rule.version)}
+                  name="version"
+                  onChange={handleInputChange}
+                />
+              </Grid>
+            )}
+            {productSupportsField('buildID') && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Build ID"
+                  value={defaultToEmptyString(rule.buildID)}
+                  name="buildID"
+                  onChange={handleInputChange}
+                />
+              </Grid>
+            )}
+            {productSupportsField('locale') && (
+              <Grid item xs={12} md={6}>
+                <TextField
+                  helperText="Enter each locale on its own line"
+                  multiline
+                  rows={4}
+                  fullWidth
+                  label="Locale"
+                  value={localeTextValue}
+                  name="locale"
+                  onChange={handleTextFieldWithNewLinesChange}
+                />
+              </Grid>
+            )}
+            {productSupportsField('osVersion') && (
+              <Grid item xs={12} md={6}>
+                <TextField
+                  helperText="Enter each OS version on its own line"
+                  multiline
+                  rows={4}
+                  fullWidth
+                  label="OS Version"
+                  value={osVersionTextValue}
+                  name="osVersion"
+                  onChange={handleTextFieldWithNewLinesChange}
+                />
+              </Grid>
+            )}
+            {productSupportsField('buildTarget') && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Build Target"
+                  value={defaultToEmptyString(rule.buildTarget)}
+                  name="buildTarget"
+                  onChange={handleInputChange}
+                />
+              </Grid>
+            )}
+            {productSupportsField('instructionSet') && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Instruction Set"
+                  value={defaultToEmptyString(rule.instructionSet)}
+                  name="instructionSet"
+                  onChange={handleInputChange}
+                />
+              </Grid>
+            )}
+            {productSupportsField('memory') && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Memory"
+                  value={defaultToEmptyString(rule.memory)}
+                  name="memory"
+                  onChange={handleInputChange}
+                />
+              </Grid>
+            )}
+            {productSupportsField('jaws') && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Incompatible JAWS Screen Reader"
+                  select
+                  value={rule.jaws || EMPTY_MENU_ITEM_CHAR}
+                  name="jaws"
+                  onChange={handleInputChange}>
+                  <MenuItem value={EMPTY_MENU_ITEM_CHAR}>
+                    {EMPTY_MENU_ITEM_CHAR}
+                  </MenuItem>
+                  <MenuItem value="true">Yes</MenuItem>
+                  <MenuItem value="false">No</MenuItem>
+                </TextField>
+              </Grid>
+            )}
+            {productSupportsField('distribution') && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Distribution"
+                  value={defaultToEmptyString(rule.distribution)}
+                  name="distribution"
+                  onChange={handleInputChange}
+                />
+              </Grid>
+            )}
+            {productSupportsField('distVersion') && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Distribution Version"
+                  value={defaultToEmptyString(rule.distVersion)}
+                  name="distVersion"
+                  onChange={handleInputChange}
+                />
+              </Grid>
+            )}
+            {productSupportsField('headerArchitecture') && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Header Architecture"
+                  value={defaultToEmptyString(rule.headerArchitecture)}
+                  name="headerArchitecture"
+                  onChange={handleInputChange}
+                />
+              </Grid>
+            )}
+            {productSupportsField('mig64') && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="64-bit Migration Opt-in"
+                  select
+                  value={rule.mig64 || EMPTY_MENU_ITEM_CHAR}
+                  name="mig64"
+                  onChange={handleInputChange}>
+                  <MenuItem value={EMPTY_MENU_ITEM_CHAR}>
+                    {EMPTY_MENU_ITEM_CHAR}
+                  </MenuItem>
+                  <MenuItem value="true">Yes</MenuItem>
+                  <MenuItem value="false">No</MenuItem>
+                </TextField>
+              </Grid>
+            )}
+            {productSupportsField('alias') && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Alias"
+                  value={defaultToEmptyString(rule.alias)}
+                  name="alias"
+                  onChange={handleInputChange}
+                />
+              </Grid>
+            )}
+            {productSupportsField('update_type') && (
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  select
+                  required
+                  label="Update Type"
+                  value={rule.update_type || 'minor'}
+                  name="update_type"
+                  onChange={handleInputChange}>
+                  <MenuItem value="minor">minor</MenuItem>
+                  <MenuItem value="major">major</MenuItem>
+                </TextField>
+              </Grid>
+            )}
+            {productSupportsField('comment') && (
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={4}
+                  label="Comment"
+                  value={defaultToEmptyString(rule.comment)}
+                  name="comment"
+                  onChange={handleInputChange}
+                />
+              </Grid>
+            )}
           </Grid>
         </Fragment>
       )}
