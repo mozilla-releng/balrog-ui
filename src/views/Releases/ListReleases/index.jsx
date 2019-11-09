@@ -165,21 +165,33 @@ function ListReleases(props) {
   }, []);
 
   useEffect(() => {
-    releases.forEach(release => {
-      if (release.read_only && !requiresSignoffs(release)) {
-        if (!(release.product in requiredSignoffsForProduct)) {
-          requiredSignoffsForProduct[release.product] = {};
-          setRequiredSignoffsForProduct(requiredSignoffsForProduct);
+    const productsReleases = releases.reduce((acc, release) => {
+      const pr = acc;
 
-          getRequiredSignoffsForProduct(release.name).then(response => {
-            if (response.data) {
-              requiredSignoffsForProduct[release.product] =
-                response.data.required_signoffs;
-              setRequiredSignoffsForProduct(requiredSignoffsForProduct);
-            }
-          });
-        }
+      if (!requiresSignoffs(release)) {
+        pr[release.product] = release.name;
       }
+
+      return pr;
+    }, {});
+    const signoffsForProductRequests = Object.entries(productsReleases).map(
+      async ([product, name]) =>
+        getRequiredSignoffsForProduct(name).then(response => [
+          product,
+          response.data.required_signoffs,
+        ])
+    );
+
+    Promise.all(signoffsForProductRequests).then(requests => {
+      setRequiredSignoffsForProduct(
+        requests.reduce((acc, [product, rs]) => {
+          const rsfp = acc;
+
+          rsfp[product] = rs;
+
+          return rsfp;
+        }, {})
+      );
     });
   }, [releases]);
 
