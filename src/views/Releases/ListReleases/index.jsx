@@ -85,7 +85,7 @@ function ListReleases(props) {
   const [signoffRole, setSignoffRole] = useState('');
   const [drawerState, setDrawerState] = useState({ open: false, item: {} });
   const [requiredSignoffsForProduct, setRequiredSignoffsForProduct] = useState(
-    {}
+    null
   );
   const [releasesAction, fetchReleases] = useAction(getReleases);
   const [releaseAction, fetchRelease] = useAction(getRelease);
@@ -166,34 +166,48 @@ function ListReleases(props) {
   }, []);
 
   useEffect(() => {
-    const productsReleases = releases.reduce((acc, release) => {
-      const pr = acc;
+    if (!requiredSignoffsForProduct && releases.length > 0) {
+      const productsReleases = releases.reduce((acc, release) => {
+        const pr = acc;
 
-      if (!requiresSignoffs(release)) {
-        pr[release.product] = release.name;
-      }
+        if (release.product in pr) return pr;
 
-      return pr;
-    }, {});
-    const signoffsForProductRequests = Object.entries(productsReleases).map(
-      async ([product, name]) =>
-        getRequiredSignoffsForProduct(name).then(response => [
-          product,
-          response.data.required_signoffs,
-        ])
-    );
+        // Required signoffs for product will be fetched only when the current
+        // release does not have the required signoffs information.
+        if (!requiresSignoffs(release)) {
+          pr[release.product] = release.name;
+        }
 
-    Promise.all(signoffsForProductRequests).then(requests => {
-      setRequiredSignoffsForProduct(
-        requests.reduce((acc, [product, rs]) => {
-          const rsfp = acc;
-
-          rsfp[product] = rs;
-
-          return rsfp;
-        }, {})
+        return pr;
+      }, {});
+      // Releases that are not associated to rules, will not have required
+      // signoffs information, in this scenario, to turn release as modifiable,
+      // it is necessary get required signoff for the release product.
+      // How it is a very specific release logic, the endpoint gets
+      // the release name and infers the product to evaluate the signoffs.
+      // Once required signoffs for product was evaluated for a given product,
+      // it is not necessary evaluate again, so to get the signoffs,
+      // one release is enougth.
+      const signoffsForProductRequests = Object.entries(productsReleases).map(
+        async ([product, name]) =>
+          getRequiredSignoffsForProduct(name).then(response => [
+            product,
+            response.data.required_signoffs,
+          ])
       );
-    });
+
+      Promise.all(signoffsForProductRequests).then(requests => {
+        setRequiredSignoffsForProduct(
+          requests.reduce((acc, [product, rs]) => {
+            const rsfp = acc;
+
+            rsfp[product] = rs;
+
+            return rsfp;
+          }, {})
+        );
+      });
+    }
   }, [releases]);
 
   useEffect(() => {
@@ -277,11 +291,14 @@ function ListReleases(props) {
       data_version: release.data_version,
     };
     const { data, error } = await addScheduledChange(sc);
-    const { data: scData } = await getScheduledChangeById(data.sc_id);
 
-    if (error) {
-      throw error;
-    }
+    if (error) throw error;
+
+    const { data: scData, error: scError } = await getScheduledChangeById(
+      data.sc_id
+    );
+
+    if (scError) throw scError;
 
     return { name: release.name, sc: scData.scheduled_change };
   };
