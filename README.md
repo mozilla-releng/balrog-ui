@@ -1,10 +1,1 @@
-# Balrog UI
-
-## UI Development
-
-To get started:
-
-1. Run `yarn` to install all dependencies
-2. `yarn start` to start the development server
-
-Once the server is running, navigate to http://localhost:9000 to see the UI.
+This repository has been merged into https://github.com/mozilla/balrog. See https://github.com/mozilla-releng/balrog/blob/master/README.rst for details on how to build, test, and develop the Balrog UI.
